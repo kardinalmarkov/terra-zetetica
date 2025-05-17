@@ -11,8 +11,8 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "tailwindcss": "latest",
-    "@tailwindcss/postcss": "latest",
+
+    "tailwindcss": "^3.4.4",      // 👈 фиксируем v3
     "postcss": "latest",
     "autoprefixer": "latest"
   }
