@@ -1,7 +1,10 @@
+// public/locales/ru/common.json
 {
-  "home": "Главная",
-  "about": "О нас",
-  "citizenship": "Гражданство",
-  "blog": "Блог",
-  "apply": "Подать заявку ↗"
+  "nav": {
+    "home": "Главная",
+    "about": "О нас",
+    "citizenship": "Гражданство",
+    "blog": "Блог",
+    "apply": "Подать заявку"
+  }
 }

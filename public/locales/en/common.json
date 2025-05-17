@@ -1,7 +1,10 @@
+// public/locales/en/common.json
 {
-  "home": "Home",
-  "about": "About",
-  "citizenship": "Citizenship",
-  "blog": "Blog",
-  "apply": "Apply ↗"
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "citizenship": "Citizenship",
+    "blog": "Blog",
+    "apply": "Apply"
+  }
 }
