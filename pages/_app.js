@@ -1,9 +1,14 @@
-// pages/_app.js
-import { appWithTranslation } from 'next-i18next';
-import '../styles/globals.css';
+import '../styles/globals.css'
+import { appWithTranslation } from 'next-i18next'
+import Nav from '../components/Nav'
 
 function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />;
+  return (
+    <>
+      <Nav />
+      <Component {...pageProps} />
+    </>
+  )
 }
 
-export default appWithTranslation(MyApp);
+export default appWithTranslation(MyApp)
