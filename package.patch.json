@@ -1,0 +1,6 @@
+"dependencies": {
+  "next": "latest",
+  "react": "latest",
+  "react-dom": "latest",
+  "next-i18next": "^15.0.0"
+}
