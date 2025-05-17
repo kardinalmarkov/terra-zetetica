@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import styles from './Nav.module.css'
 
-export default function Nav() {
-  return (
+export default function Nav(){
+  return(
     <header className={styles.bar}>
       <div className={styles.logo}>
-        <span className={styles.mark} />
-        <strong>Terra Zetetica</strong>
+        <span className={styles.mark}/>
+        <strong>TERRA ZETETICA</strong>
       </div>
 
       <nav className={styles.menu}>
@@ -16,9 +16,7 @@ export default function Nav() {
         <Link href="/blog">Blog</Link>
       </nav>
 
-      <Link className={styles.cta} href="/apply">
-        Apply&nbsp;↗
-      </Link>
+      <Link className={styles.cta} href="/apply">Apply ↗</Link>
     </header>
   )
 }
