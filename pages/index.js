@@ -1,12 +1,20 @@
 export default function Home() {
   return (
-    <main className="wrapper">
-      <h1>Добро пожаловать в Terra Zetetica</h1>
-      <p>Первая минимальная версия сайта работает!</p>
+    <main className="hero">
+      <div className="inner">
+        <h1>
+          Добро пожаловать<br />
+          в <span>Terra Zetetica</span>
+        </h1>
 
-      <div className="buttons">
-        <a className="btn" href="#">Стать гражданином</a>
-        <a className="btn outline" href="#">Получить токены</a>
+        <p className="tagline">
+          Утопия сетевого государства,<br />построенная на&nbsp;блокчейне
+        </p>
+
+        <div className="actions">
+          <a href="/apply" className="btn primary">Стать гражданином</a>
+          <a href="#" className="btn outline">Получить токены</a>
+        </div>
       </div>
     </main>
   )
