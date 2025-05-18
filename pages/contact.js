@@ -1,12 +1,29 @@
 import Head from 'next/head'
 import { motion } from 'framer-motion'
 
+
 export default function Contacts() {
   return (
     <>
       <Head>
         <title>Контакты | Terra Zetetica</title>
       </Head>
+      <form
+  action="https://formspree.io/f/mbloweze"
+  method="POST"
+  className="contact-form"
+>
+  <label>
+    Ваш e-mail
+    <input type="email" name="email" required />
+  </label>
+  <label>
+    Сообщение
+    <textarea name="message" rows={4} required />
+  </label>
+  <button type="submit">Отправить</button>
+</form>
+
       <motion.main
         className="wrapper"
         initial={{ opacity: 0 }}

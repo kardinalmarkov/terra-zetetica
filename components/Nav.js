@@ -40,3 +40,5 @@ export default function Nav() {
     </motion.header>
   )
 }
+<Link href="/faq">{t('common:FAQ')}</Link>
+<Link href="/roadmap">{t('common:Roadmap')}</Link>
