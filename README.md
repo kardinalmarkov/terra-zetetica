@@ -1,5 +1,5 @@
 # Terra Zetetica
-*Rebuild triggered at $(date) 18 мая *
+*Rebuild triggered at $(date) 18 мая_1*
 
 Минимальный шаблон проекта на Next.js с hero-рендером и навигацией.
 
