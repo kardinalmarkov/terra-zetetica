@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { motion } from 'framer-motion'
+//import { motion } from 'framer-motion'
 import styles from './Nav.module.css'
 import LangSwitch from './LangSwitch'
 
@@ -18,8 +18,7 @@ export default function Nav() {
   }
 
   return (
-    <motion.header
-      className={styles.bar}
+     <header className={styles.bar}>
       initial={{ y: -50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4 }}
@@ -33,14 +32,13 @@ export default function Nav() {
         <Link href="/about">{t.about}</Link>
         <Link href="/news">{t.news}</Link>
         <Link href="/constitution">{t.constitution}</Link>
-        <Link href="/faq">{t('common:FAQ')}</Link>
-        <Link href="/roadmap">{t('common:Roadmap')}</Link>
+        <Link href="/faq">{t.faq}</Link>
+        <Link href="/roadmap">{t.roadmap}</Link>
         <Link href="/contacts">{t.contacts}</Link>
         <LangSwitch />
       </nav>
       <Link className={styles.cta} href="/apply">
         {t.apply} ↗
       </Link>
-    </motion.header>
   )
 }
