@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import { motion } from 'framer-motion'
 
 
 export default function Contacts() {
@@ -24,12 +23,7 @@ export default function Contacts() {
   <button type="submit">Отправить</button>
 </form>
 
-      <motion.main
-        className="wrapper"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-      >
+
         <h1>Контакты</h1>
         <p>Напишите нам — мы на связи!</p>
 
@@ -56,7 +50,6 @@ export default function Contacts() {
             Отправить
           </button>
         </form>
-      </motion.main>
     </>
   )
 }

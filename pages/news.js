@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import { motion } from 'framer-motion'
 
 export default function News() {
   return (
@@ -7,7 +6,6 @@ export default function News() {
       <Head>
         <title>Новости | Terra Zetetica</title>
       </Head>
-      <motion.main
         className="wrapper"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -15,7 +13,6 @@ export default function News() {
       >
         <h1>Новости</h1>
         <p>Скоро здесь появятся анонсы и отчёты о наших проектах.</p>
-      </motion.main>
     </>
   )
 }

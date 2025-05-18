@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import { motion } from 'framer-motion'
 
 const roadmap = [
   { quarter: '2025 Q2–Q3', items: [
@@ -35,7 +34,6 @@ export default function Roadmap() {
   return (
     <>
       <Head><title>Roadmap | Terra Zetetica</title></Head>
-      <motion.main className="wrapper" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
         <h1>🌐 Дорожная карта Terra Zetetica</h1>
         <p>Версия: 2025–2026</p>
 
@@ -49,7 +47,6 @@ export default function Roadmap() {
             </ul>
           </section>
         ))}
-      </motion.main>
     </>
   )
 }
