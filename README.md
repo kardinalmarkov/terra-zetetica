@@ -1,5 +1,5 @@
 # Terra Zetetica
-*Rebuild triggered at $(date) убрал .DS_Store*
+*Rebuild triggered at $(date) 18 да _ убрал .DS_Store*
 
 Минимальный шаблон проекта на Next.js с hero-рендером и навигацией.
 
