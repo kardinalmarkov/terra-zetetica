@@ -14,9 +14,5 @@
     "next-i18next": "^15.0.0",
     "react-i18next": "^13.0.0",
     "i18next": "^23.0.0"
-  },
-  "devDependencies": {
-    "@swc/core": "latest",
-    "@swc/helpers": "latest"
   }
 }
