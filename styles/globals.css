@@ -1,28 +1,32 @@
-/* Общие правки: отступ под шапкой, Hero и тёмные заголовки */
+/* ─────────────────────────────────────────────────────────
+   Reset и базовые стили
+──────────────────────────────────────────────────────── */
 * {
   box-sizing: border-box;
 }
 body, h1, h2, h3, h4, h5, p {
   margin: 0;
 }
+
 :root {
   --header-height: 64px;
 }
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   background: #f3f4f6;
   color: #111827;
-  padding-top: var(--header-height); /* пространство под фиксированную шапку */
+  padding-top: var(--header-height);
 }
 
-/* Hero на главной */
+/* ───────────────────────────────── Hero на главной ───────────────────────────────── */
 .hero {
-  min-height: 100vh;
-  background: url("/hero.jpg") center/cover no-repeat;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  min-height: 100vh;
+  background: url("/hero.jpg") center/cover no-repeat;
   padding: 0 2rem;
 }
 .hero::after {
@@ -41,11 +45,11 @@ body {
   font-size: clamp(2.5rem, 6vw, 4rem);
   line-height: 1.1;
   font-weight: 800;
-  color: #ffffff;               /* белый текст */
+  color: #ffffff;
   text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 .hero h1 span {
-  color: #facc15;               /* жёлтый акцент */
+  color: #facc15;
   text-shadow: 0 2px 4px rgba(0,0,0,0.6);
 }
 .tagline {
@@ -60,14 +64,30 @@ body {
   gap: 1rem;
   flex-wrap: wrap;
 }
-
-/* Тёмные заголовки по всему сайту */
-h1, h2, h3, h4, h5 {
-  color: #111827 !important;
-  text-shadow: none !important;
+.btn {
+  text-decoration: none;
+  font-weight: 600;
+  padding: .85rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+.btn.primary {
+  background: #facc15;
+  color: #111827;
+}
+.btn.primary:hover {
+  background: #fde047;
+}
+.btn.outline {
+  border: 2px solid #ffffff;
+  color: #ffffff;
+}
+.btn.outline:hover {
+  background: #ffffff;
+  color: #111827;
 }
 
-/* Контейнер для внутренних страниц */
+/* ─────────────────────────────── Контейнер для внутренних страниц ─────────────────────────────── */
 .wrapper {
   max-width: 800px;
   margin: 0 auto;
@@ -77,9 +97,10 @@ h1, h2, h3, h4, h5 {
 .wrapper h1 {
   margin-bottom: 1.5rem;
   font-size: 2rem;
+  color: #111827;
 }
 
-/* Подправить меню */
+/* ───────────────────────── Немного правим меню ───────────────────────── */
 .bar {
   padding: 0 1.5rem;
 }
