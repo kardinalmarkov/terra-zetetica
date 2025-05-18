@@ -4,104 +4,29 @@
 * {
   box-sizing: border-box;
 }
-body, h1, h2, h3, h4, h5, p {
+body, h1, h2, h3, h4, h5, p, ul, section {
   margin: 0;
+  padding: 0;
 }
 
 :root {
   --header-height: 64px; /* высота фиксированной шапки */
 }
 
+/* ─────────────────────────────────────────────────────────
+   Body
+──────────────────────────────────────────────────────── */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   background: #f3f4f6;
   color: #111827;
   padding-top: var(--header-height); /* отступ, чтобы контент не прятался за шапкой */
-}
-
-/* ───────────────────────────────── Hero на главной ───────────────────────────────── */
-.hero {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: calc(100vh - var(--header-height)); /* чтобы занимало всю «видимую» часть экрана */
-  width: 100%;
-  background: url("/hero.jpg") center/cover no-repeat;
-}
-.hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(17,24,39,0.55);
-}
-.hero .inner {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  max-width: 680px;
-  padding: 0 1rem;
-}
-.hero h1 {
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  line-height: 1.1;
-  font-weight: 800;
-  color: #ffffff; /* белый заголовок */
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-}
-.hero h1 span {
-  color: #facc15; /* жёлтая подсветка */
-  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
-}
-.hero .tagline {
-  margin-top: 1.25rem;
-  font-size: 1.125rem;
-  color: #e5e7eb;
-  line-height: 1.5;
-}
-.hero .actions {
-  margin-top: 2rem;
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-.btn {
-  text-decoration: none;
-  font-weight: 600;
-  padding: .85rem 1.5rem;
-  border-radius: 6px;
-  font-size: 1rem;
-}
-.btn.primary {
-  background: #facc15;
-  color: #111827;
-}
-.btn.primary:hover {
-  background: #fde047;
-}
-.btn.outline {
-  border: 2px solid #ffffff;
-  color: #ffffff;
-}
-.btn.outline:hover {
-  background: #ffffff;
-  color: #111827;
-}
-
-/* ─────────────────────────────── Контейнер для внутренних страниц ─────────────────────────────── */
-.wrapper {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
   line-height: 1.6;
 }
-.wrapper h1 {
-  margin-bottom: 1.5rem;
-  font-size: 2rem;
-  color: #111827;
-}
 
-/* ───────────────────────── Немного правим меню ───────────────────────── */
+/* ─────────────────────────────────────────────────────────
+   Шапка / меню
+──────────────────────────────────────────────────────── */
 .bar {
   padding: 0 1.5rem;
 }
@@ -114,4 +39,201 @@ body {
     font-size: 0.9rem;
     padding: 0.4rem 0.8rem;
   }
+}
+
+/* ─────────────────────────────────────────────────────────
+   Hero на главной
+──────────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - var(--header-height));
+  width: 100%;
+  background: url("/hero.jpg") center/cover no-repeat;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.55);
+}
+.hero .inner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 680px;
+  padding: 0 1rem;
+}
+.hero h1 {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  line-height: 1.1;
+  font-weight: 800;
+  color: #ffffff; /* белый текст */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+.hero h1 span {
+  color: #facc15; /* жёлтый акцент */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+.hero .tagline {
+  margin-top: 1.25rem;
+  font-size: 1.125rem;
+  color: #e5e7eb;
+  line-height: 1.5;
+}
+.hero .actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Кнопки
+──────────────────────────────────────────────────────── */
+.btn {
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.85rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  display: inline-block;
+  text-align: center;
+}
+.btn.primary {
+  background: #facc15;
+  color: #111827;
+}
+.btn.primary:hover {
+  background: #fde047;
+}
+.btn.outline {
+  background: transparent;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+}
+.btn.outline:hover {
+  background: #ffffff;
+  color: #111827;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Контейнер для внутренних страниц
+──────────────────────────────────────────────────────── */
+.wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+.wrapper h1 {
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  color: #111827;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Таблицы (Roadmap)
+──────────────────────────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+th, td {
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+th {
+  background: #f3f4f6;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Аккордеон (FAQ)
+──────────────────────────────────────────────────────── */
+.accordion section {
+  border-bottom: 1px solid #e5e7eb;
+}
+.accordion h2 {
+  cursor: pointer;
+  padding: 0.75rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  position: relative;
+}
+.accordion h2::after {
+  content: "+";
+  position: absolute;
+  right: 0;
+  transition: transform 0.2s;
+}
+.accordion .open h2::after {
+  content: "–";
+}
+.accordion .content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.accordion .open .content {
+  max-height: 100vh;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Модальное окно (Modal)
+──────────────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Форма подписки / сбора e-mail
+──────────────────────────────────────────────────────── */
+input[type="email"],
+button[type="submit"] {
+  font-size: 1rem;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+}
+input[type="email"] {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+button[type="submit"] {
+  background: #facc15;
+  color: #111827;
+  border: none;
+  cursor: pointer;
+}
+button[type="submit"]:hover {
+  background: #fde047;
 }
