@@ -1,28 +1,24 @@
+// components/Nav.js
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-//import { motion } from 'framer-motion'
 import styles from './Nav.module.css'
 import LangSwitch from './LangSwitch'
 
 export default function Nav() {
   const { locale } = useRouter()
   const t = {
-    home: locale === 'ru' ? 'Главная' : 'Home',
-    about: locale === 'ru' ? 'О государстве' : 'About',
-    news: locale === 'ru' ? 'Новости' : 'News',
-    constitution: locale === 'ru' ? 'Конституция' : 'Constitution',
-    faq:          locale === 'ru' ? 'FAQ'              : 'FAQ',
-    roadmap:      locale === 'ru' ? 'Дорожная карта'   : 'Roadmap',
-    contacts: locale === 'ru' ? 'Контакты' : 'Contacts',
-    apply: locale === 'ru' ? 'Стать гражданином' : 'Become a citizen'
+    home:         locale === 'ru' ? 'Главная'        : 'Home',
+    about:        locale === 'ru' ? 'О государстве'  : 'About',
+    news:         locale === 'ru' ? 'Новости'        : 'News',
+    constitution: locale === 'ru' ? 'Конституция'    : 'Constitution',
+    faq:          locale === 'ru' ? 'FAQ'            : 'FAQ',
+    roadmap:      locale === 'ru' ? 'Дорожная карта' : 'Roadmap',
+    contacts:     locale === 'ru' ? 'Контакты'       : 'Contacts',
+    apply:        locale === 'ru' ? 'Стать гражданином' : 'Become a citizen',
   }
 
   return (
-     <header className={styles.bar}>
-      initial={{ y: -50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.4 }}
-    >
+    <header className={styles.bar}>
       <div className={styles.logo}>
         <span className={styles.mark} />
         <strong>TERRA ZETETICA</strong>
@@ -40,5 +36,6 @@ export default function Nav() {
       <Link className={styles.cta} href="/apply">
         {t.apply} ↗
       </Link>
+    </header>
   )
 }
