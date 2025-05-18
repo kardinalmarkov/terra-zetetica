@@ -7,9 +7,32 @@
 .wrapper h1{margin-bottom:1rem;font-size:2rem}
 
 /* Сделать все заголовки чёрными без теней */
-h1, h2, h3, h4, h5 {
+h3, h4, h5 {
   color: #111827;      /* или любой тёмный HEX */
   text-shadow: none !important;
+}
+
+:root {
+  --header-height: 64px; /* высота фиксированной шапки */
+}
+
+body {
+  padding-top: var(--header-height); /* отступ, чтобы контент не прятался под шапкой */
+}
+
+/* Тёмные заголовки для читаемости */
+h1, h2 {
+  color: #111827;
+}
+
+/* Hero на главной: вернуть белый текст и выделить жёлтым название */
+.hero h1 {
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+.hero h1 span {
+  color: #facc15; /* жёлтый */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 }
 
 

@@ -2,7 +2,7 @@ export default function Home() {
   return (
     <main className="hero">
       <div className="inner">
-        <h1>
+        <h1 className="hero">
           Добро пожаловать<br />
           в <span>Terra Zetetica</span>
         </h1>
