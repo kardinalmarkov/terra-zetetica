@@ -1,38 +1,35 @@
-/* ─────────────────────────────────────────────────────────
-   Общие правки: отступ под шапкой, чёрные заголовки,
-   Hero на главной — белый текст + жёлтый span
-──────────────────────────────────────────────────────── */
+/* Общие правки: отступ под шапкой, Hero и тёмные заголовки */
 * {
   box-sizing: border-box;
 }
-body, h1, h2, h3, p {
+body, h1, h2, h3, h4, h5, p {
   margin: 0;
 }
 :root {
-  --header-height: 64px; /* высота шапки */
+  --header-height: 64px;
 }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   background: #f3f4f6;
   color: #111827;
-  padding-top: var(--header-height); /* отступ для всего контента */
+  padding-top: var(--header-height); /* пространство под фиксированную шапку */
 }
 
 /* Hero на главной */
 .hero {
   min-height: 100vh;
   background: url("/hero.jpg") center/cover no-repeat;
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   padding: 0 2rem;
 }
 .hero::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(17,24,39,.55);
+  background: rgba(17,24,39,0.55);
 }
 .inner {
   position: relative;
@@ -41,14 +38,14 @@ body {
   max-width: 680px;
 }
 .hero h1 {
-  font-size: clamp(2.5rem,6vw,4rem);
+  font-size: clamp(2.5rem, 6vw, 4rem);
   line-height: 1.1;
   font-weight: 800;
-  color: #ffffff;           /* белый текст */
+  color: #ffffff;               /* белый текст */
   text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 .hero h1 span {
-  color: #facc15;           /* жёлтый акцент */
+  color: #facc15;               /* жёлтый акцент */
   text-shadow: 0 2px 4px rgba(0,0,0,0.6);
 }
 .tagline {
@@ -70,11 +67,11 @@ h1, h2, h3, h4, h5 {
   text-shadow: none !important;
 }
 
-/* Контейнер для внутренних страниц (wrapper) */
+/* Контейнер для внутренних страниц */
 .wrapper {
   max-width: 800px;
   margin: 0 auto;
-  padding: 2rem 1rem; /* отступ сверху и снизу */
+  padding: 2rem 1rem;
   line-height: 1.6;
 }
 .wrapper h1 {
@@ -82,7 +79,7 @@ h1, h2, h3, h4, h5 {
   font-size: 2rem;
 }
 
-/* Немного поправить меню */
+/* Подправить меню */
 .bar {
   padding: 0 1.5rem;
 }
