@@ -2,7 +2,7 @@ import Link from 'next/link'
 import styles from './Nav.module.css'
 import LangSwitch from './LangSwitch'
 
-export default function Nav () {
+export default function Nav() {
   return (
     <header className={styles.bar}>
       <div className={styles.logo}>
@@ -11,15 +11,16 @@ export default function Nav () {
       </div>
 
       <nav className={styles.menu}>
-        <Link href='/'>Home</Link>
-        <Link href='/about'>About</Link>
-        <Link href='/apply'>Citizenship</Link>
-        <Link href='/blog'>Blog</Link>
+        <Link href="/">Home</Link>
+        <Link href="/state">О государстве</Link>
+        <Link href="/news">Новости</Link>
+        <Link href="/constitution">Конституция</Link>
+        <Link href="/contact">Контакты</Link>
         <LangSwitch />
       </nav>
 
-      <Link className={styles.cta} href='/apply'>
-        Apply ↗
+      <Link className={styles.cta} href="/apply">
+        Стать гражданином ↗
       </Link>
     </header>
   )
