@@ -2,29 +2,24 @@ import Head from 'next/head';
 
 export default function Constitution() {
   return (
-    <main className="wrapper">
+    <>
       <Head>
-        <title>Конституция Terra Zetetica</title>
-        <meta
-          name="description"
-          content="Ознакомьтесь с полным текстом Конституции Terra Zetetica"
-        />
+        <title>Конституция | Terra Zetetica</title>
       </Head>
-
-      <h1>Конституция Terra Zetetica</h1>
-      <p style={{ marginBottom: '2rem', color: '#374151' }}>
-        Здесь вы можете ознакомиться с полным текстом нашего основного закона.
-      </p>
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+      <main className="wrapper" style={{ paddingTop: '1rem' }}>
+        <h1>Конституция Terra Zetetica</h1>
+        <p style={{ marginBottom: '1.5rem' }}>
+          Полный текст Конституции доступен по ссылке:
+        </p>
         <a
-          href="/constitution.pdf"
+          className="btn primary"
+          href="https://tomato-eligible-lizard-8.mypinata.cloud/ipfs/bafybeiexp532nzeuxwatndcnt2dhxphhb6ncfdwjulddjkppkie2zcgw5q"
           target="_blank"
           rel="noopener noreferrer"
-          className="btn primary"
         >
-          📜 Скачать Конституцию Terra Zetetica (PDF, IPFS)
+          📜 Открыть в IPFS
         </a>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
