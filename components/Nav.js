@@ -11,6 +11,8 @@ export default function Nav() {
     about: locale === 'ru' ? 'О государстве' : 'About',
     news: locale === 'ru' ? 'Новости' : 'News',
     constitution: locale === 'ru' ? 'Конституция' : 'Constitution',
+    faq:          locale === 'ru' ? 'FAQ'              : 'FAQ',
+    roadmap:      locale === 'ru' ? 'Дорожная карта'   : 'Roadmap',
     contacts: locale === 'ru' ? 'Контакты' : 'Contacts',
     apply: locale === 'ru' ? 'Стать гражданином' : 'Become a citizen'
   }
@@ -31,6 +33,8 @@ export default function Nav() {
         <Link href="/about">{t.about}</Link>
         <Link href="/news">{t.news}</Link>
         <Link href="/constitution">{t.constitution}</Link>
+        <Link href="/faq">{t('common:FAQ')}</Link>
+        <Link href="/roadmap">{t('common:Roadmap')}</Link>
         <Link href="/contacts">{t.contacts}</Link>
         <LangSwitch />
       </nav>
@@ -40,5 +44,3 @@ export default function Nav() {
     </motion.header>
   )
 }
-<Link href="/faq">{t('common:FAQ')}</Link>
-<Link href="/roadmap">{t('common:Roadmap')}</Link>

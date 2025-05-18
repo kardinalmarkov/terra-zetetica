@@ -6,6 +6,11 @@
 }
 .wrapper h1{margin-bottom:1rem;font-size:2rem}
 
+h1, h2, h3 {
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
 
 /* components/Nav.module.css */
 .bar {
