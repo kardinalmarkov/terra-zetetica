@@ -1,48 +1,29 @@
-// pages/apply.js
-import { useState } from 'react'
-import Head from 'next/head'
+// pages/api/apply.js
+import { nanoid } from 'nanoid'
+import nodemailer from 'nodemailer'
 
-export default function Apply() {
-  const [status, setStatus] = useState(null)
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).end()
+  const { email, name } = req.body
+  const zid = `Z-${nanoid(6).toUpperCase()}`
 
-  async function handleSubmit(e) {
-    e.preventDefault()
-    const form = new FormData(e.target)
-    const res = await fetch('/api/apply', {
-      method: 'POST',
-      body: JSON.stringify({
-        email: form.get('email'),
-        name:  form.get('name'),
-      }),
-      headers: { 'Content-Type': 'application/json' }
-    })
-    const data = await res.json()
-    setStatus(data.message)
-  }
+  // отправка письма с подтверждением
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS
+    }
+  })
+  await transporter.sendMail({
+    from: '"Terra Zetetica" <no-reply@terra-zetetica.org>',
+    to: email,
+    subject: 'Подтверждение гражданства Terra Zetetica',
+    text: `Привет, ${name}!\n\nВаш Z-ID: ${zid}\nСпасибо за присоединение!`
+  })
 
-  return (
-    <main className="wrapper">
-      <Head><title>Гражданство | Terra Zetetica</title></Head>
-      <h1>Как стать гражданином</h1>
+  // TODO: записать email, name, zid в БД или IPFS-реестр
 
-      {status
-        ? <p>{status}</p>
-        : (
-          <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:'1rem', maxWidth:400 }}>
-            <label>
-              Имя
-              <input type="text" name="name" required />
-            </label>
-            <label>
-              E-mail
-              <input type="email" name="email" required />
-            </label>
-            <button type="submit" className="btn primary">
-              Получить Z-ID
-            </button>
-          </form>
-        )
-      }
-    </main>
-  )
+  res.status(200).json({ message: 'Письмо с вашим Z-ID отправлено!' })
 }
