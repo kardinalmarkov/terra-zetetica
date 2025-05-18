@@ -1,0 +1,45 @@
+import Head from 'next/head'
+import { motion } from 'framer-motion'
+
+export default function Contacts() {
+  return (
+    <>
+      <Head>
+        <title>Контакты | Terra Zetetica</title>
+      </Head>
+      <motion.main
+        className="wrapper"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <h1>Контакты</h1>
+        <p>Напишите нам — мы на связи!</p>
+
+        <form
+          action="https://formspree.io/f/mbloweze"
+          method="POST"
+          style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}
+        >
+          <input
+            type="email"
+            name="email"
+            placeholder="Ваш e-mail"
+            required
+            style={{ padding: '.75rem', borderRadius: '4px', border: '1px solid #ccc' }}
+          />
+          <textarea
+            name="message"
+            rows={4}
+            placeholder="Сообщение"
+            required
+            style={{ padding: '.75rem', borderRadius: '4px', border: '1px solid #ccc' }}
+          />
+          <button type="submit" className="btn primary">
+            Отправить
+          </button>
+        </form>
+      </motion.main>
+    </>
+  )
+}

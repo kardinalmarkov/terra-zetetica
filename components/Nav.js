@@ -1,27 +1,42 @@
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { motion } from 'framer-motion'
 import styles from './Nav.module.css'
 import LangSwitch from './LangSwitch'
 
 export default function Nav() {
+  const { locale } = useRouter()
+  const t = {
+    home: locale === 'ru' ? 'Главная' : 'Home',
+    about: locale === 'ru' ? 'О государстве' : 'About',
+    news: locale === 'ru' ? 'Новости' : 'News',
+    constitution: locale === 'ru' ? 'Конституция' : 'Constitution',
+    contacts: locale === 'ru' ? 'Контакты' : 'Contacts',
+    apply: locale === 'ru' ? 'Стать гражданином' : 'Become a citizen'
+  }
+
   return (
-    <header className={styles.bar}>
+    <motion.header
+      className={styles.bar}
+      initial={{ y: -50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
       <div className={styles.logo}>
         <span className={styles.mark} />
         <strong>TERRA ZETETICA</strong>
       </div>
-
       <nav className={styles.menu}>
-        <Link href="/">Home</Link>
-        <Link href="/state">О государстве</Link>
-        <Link href="/news">Новости</Link>
-        <Link href="/constitution">Конституция</Link>
-        <Link href="/contact">Контакты</Link>
+        <Link href="/">{t.home}</Link>
+        <Link href="/about">{t.about}</Link>
+        <Link href="/news">{t.news}</Link>
+        <Link href="/constitution">{t.constitution}</Link>
+        <Link href="/contacts">{t.contacts}</Link>
         <LangSwitch />
       </nav>
-
       <Link className={styles.cta} href="/apply">
-        Стать гражданином ↗
+        {t.apply} ↗
       </Link>
-    </header>
+    </motion.header>
   )
 }

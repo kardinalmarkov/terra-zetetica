@@ -5,3 +5,30 @@
   line-height:1.6;
 }
 .wrapper h1{margin-bottom:1rem;font-size:2rem}
+
+
+/* components/Nav.module.css */
+.bar {
+  padding: 0 1.5rem; /* чуть больше внутреннего отступа */
+}
+.cta {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  .cta {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+form input,
+form textarea {
+  width: 100%;
+  font-family: inherit;
+}
+
+form button.btn {
+  align-self: start;
+  margin-top: 0.5rem;
+}
