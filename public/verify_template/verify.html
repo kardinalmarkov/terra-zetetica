@@ -88,7 +88,7 @@
                 <div class="info-line"><strong>Zetetic ID:</strong> <code>${data.zid}</code></div>
                 <div class="info-line"><strong>Issued:</strong> <code>${data.issued}</code></div>
                 <div class="info-line"><strong>CID Hash:</strong> <code>${cid}</code></div>
-                <div class="info-line"><strong>Status:</strong> <span class="status ${data.status === 'valid' ? 'valid' : 'invalid'}">${data.status}</span></div>
+                <div class="info-line"><strong>Status:</strong> <span class="status ${data.status === 'active' ? 'valid' : 'invalid'}">${data.status}</span></div>
                 <div class="badge">✓ Authentic IPFS-based identity</div>
             `;
         } catch (e) {
