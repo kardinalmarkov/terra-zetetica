@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Zetetic Passport Verification</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f4f4f4;
+            color: #222;
+            padding: 2em;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 2em;
+            border-radius: 10px;
+            margin: auto;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .valid {
+            color: green;
+            font-weight: bold;
+        }
+        .invalid {
+            color: red;
+            font-weight: bold;
+        }
+        code {
+            background: #eee;
+            padding: 0.2em 0.4em;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Verify Zetetic Passport</h1>
+    <div id="result">🔄 Loading...</div>
+</div>
+
+<script>
+    async function fetchPassportData(cid) {
+        const gateway = "https://gateway.pinata.cloud/ipfs/";
+        const url = gateway + cid;
+
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("Not found");
+            const data = await res.json();
+
+            document.getElementById("result").innerHTML = `
+                <p><strong>Full Name:</strong> ${data.full_name}</p>
+                <p><strong>Zetetic ID:</strong> <code>${data.zid}</code></p>
+                <p><strong>Issued:</strong> ${data.issued}</p>
+                <p><strong>Status:</strong> <span class="${data.status === 'valid' ? 'valid' : 'invalid'}">${data.status}</span></p>
+            `;
+        } catch (e) {
+            document.getElementById("result").innerHTML = `<p class="invalid">❌ Passport not found or invalid CID.</p>`;
+        }
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const cid = params.get("cid");
+    if (cid) fetchPassportData(cid);
+    else document.getElementById("result").innerHTML = "<p class='invalid'>❌ No CID provided.</p>";
+</script>
+</body>
+</html>
