@@ -1,105 +1,166 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Zetetic Passport Verification</title>
-    <style>
-        body {
-            font-family: "Segoe UI", sans-serif;
-            background: #f0f4fb;
-            color: #222;
-            padding: 2em;
-        }
-        .container {
-            max-width: 620px;
-            background: white;
-            padding: 2.5em;
-            border-radius: 12px;
-            margin: auto;
-            box-shadow: 0 0 20px rgba(0,0,0,0.08);
-        }
-        h1 {
-            text-align: center;
-            color: #1a237e;
-            font-size: 1.7em;
-            margin-bottom: 1em;
-        }
-        .info-line {
-            margin: 1em 0;
-            font-size: 1.1em;
-        }
-        .info-line code {
-            background: #eef1ff;
-            padding: 0.3em 0.6em;
-            border-radius: 5px;
-            font-size: 1em;
-        }
-        .status {
-            padding: 0.4em 0.8em;
-            border-radius: 6px;
-            font-weight: bold;
-            display: inline-block;
-        }
-        .valid {
-            background: #e6f4ea;
-            color: #2e7d32;
-            border: 1px solid #81c784;
-        }
-        .invalid {
-            background: #ffebee;
-            color: #c62828;
-            border: 1px solid #ef5350;
-        }
-        .badge {
-            font-size: 0.95em;
-            color: #3949ab;
-            margin-top: 0.4em;
-        }
-        footer {
-            text-align: center;
-            font-size: 0.85em;
-            margin-top: 2em;
-            color: #888;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Zetetic Passport Verification</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f0f4fb;
+      color: #222;
+      padding: 2em;
+    }
+
+    .container {
+      max-width: 640px;
+      background: white;
+      padding: 2.5em;
+      border-radius: 12px;
+      margin: auto;
+      box-shadow: 0 0 20px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      text-align: center;
+      color: #1a237e;
+      font-size: 1.8em;
+      margin-bottom: 1em;
+    }
+
+    .info-line {
+      margin: 1em 0;
+      font-size: 1.1em;
+    }
+
+    .info-line code {
+      background: #eef1ff;
+      padding: 0.3em 0.6em;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+
+    .status {
+      padding: 0.4em 0.8em;
+      border-radius: 6px;
+      font-weight: bold;
+      display: inline-block;
+    }
+
+    .valid {
+      background: #e6f4ea;
+      color: #2e7d32;
+      border: 1px solid #81c784;
+    }
+
+    .invalid {
+      background: #ffebee;
+      color: #c62828;
+      border: 1px solid #ef5350;
+    }
+
+    .badge {
+      font-size: 0.95em;
+      color: #3949ab;
+      margin-top: 0.4em;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.85em;
+      margin-top: 2em;
+      color: #888;
+    }
+
+    #verify-form {
+      margin-bottom: 2em;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      padding: 0.5em;
+      font-size: 1em;
+      width: 80%;
+      max-width: 400px;
+      margin-bottom: 1em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      background-color: #1a237e;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #303f9f;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
+  <div class="container">
     <h1>🧭 Zetetic Passport Verification</h1>
-    <div id="result">⏳ Verifying passport...</div>
-</div>
 
-<footer>
+    <!-- 💡 Форма ручного ввода CID -->
+    <div id="verify-form">
+      <form id="cidForm">
+        <input type="text" id="cidInput" placeholder="Вставьте CID паспорта..." required />
+        <br />
+        <button type="submit">Проверить</button>
+      </form>
+    </div>
+
+    <!-- 🧾 Результат проверки -->
+    <div id="result">⏳ Ожидание ввода...</div>
+  </div>
+
+  <footer>
     Terra Zetetica • Supra Veritas Ordo
-</footer>
+  </footer>
 
-<script>
+  <script>
+    // 👇 Ручная отправка формы: перезагрузка с параметром ?cid=...
+    document.getElementById('cidForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const cid = document.getElementById('cidInput').value.trim();
+      if (cid) {
+        window.location.href = `verify.html?cid=${cid}`;
+      }
+    });
+
+    // 👇 Автоматическая проверка, если ?cid уже есть
     async function fetchPassportData(cid) {
-        const gateway = "https://gateway.pinata.cloud/ipfs/";
-        const url = gateway + cid;
+      const gateway = "https://gateway.pinata.cloud/ipfs/";
+      const url = gateway + cid;
 
-        try {
-            const res = await fetch(url);
-            if (!res.ok) throw new Error("Not found");
-            const data = await res.json();
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Not found");
+        const data = await res.json();
 
-            document.getElementById("result").innerHTML = `
-                <div class="info-line"><strong>Full Name:</strong> ${data.full_name}</div>
-                <div class="info-line"><strong>Zetetic ID:</strong> <code>${data.zid}</code></div>
-                <div class="info-line"><strong>Issued:</strong> <code>${data.issued}</code></div>
-                <div class="info-line"><strong>CID Hash:</strong> <code>${cid}</code></div>
-                <div class="info-line"><strong>Status:</strong> <span class="status ${data.status === 'active' ? 'valid' : 'invalid'}">${data.status}</span></div>
-                <div class="badge">✓ Authentic IPFS-based identity</div>
-            `;
-        } catch (e) {
-            document.getElementById("result").innerHTML = `<p class="status invalid">❌ Passport not found or invalid CID.</p>`;
-        }
+        document.getElementById("result").innerHTML = `
+          <div class="info-line"><strong>Имя:</strong> ${data.full_name}</div>
+          <div class="info-line"><strong>Zetetic ID:</strong> <code>${data.zid}</code></div>
+          <div class="info-line"><strong>Дата выдачи:</strong> <code>${data.issued}</code></div>
+          <div class="info-line"><strong>CID:</strong> <code>${cid}</code></div>
+          <div class="info-line"><strong>Статус:</strong> <span class="status ${data.status === 'active' ? 'valid' : 'invalid'}">${data.status}</span></div>
+          <div class="badge">✓ Документ подтверждён через IPFS</div>
+        `;
+      } catch (e) {
+        document.getElementById("result").innerHTML = `<p class="status invalid">❌ Паспорт не найден или CID некорректен.</p>`;
+      }
     }
 
     const params = new URLSearchParams(window.location.search);
     const cid = params.get("cid");
-    if (cid) fetchPassportData(cid);
-    else document.getElementById("result").innerHTML = "<p class='status invalid'>❌ No CID provided.</p>";
-</script>
+    if (cid) {
+      document.getElementById("cidInput").value = cid;
+      fetchPassportData(cid);
+    }
+  </script>
 </body>
 </html>
