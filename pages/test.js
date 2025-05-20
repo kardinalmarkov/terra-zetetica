@@ -1,7 +1,16 @@
-
 import Head from 'next/head'
+import { useEffect, useState } from 'react'
 
 export default function TestPage() {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkWidth = () => setIsMobile(window.innerWidth < 640)
+    checkWidth()
+    window.addEventListener('resize', checkWidth)
+    return () => window.removeEventListener('resize', checkWidth)
+  }, [])
+
   return (
     <main className="wrapper">
       <Head>
@@ -10,7 +19,7 @@ export default function TestPage() {
 
       <section
         style={{
-          backgroundImage: typeof window !== 'undefined' && window.innerWidth < 640 ? 'none' : 'url(/images/map.webp)',
+          backgroundImage: isMobile ? 'none' : 'url(/images/map.webp)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
@@ -18,7 +27,7 @@ export default function TestPage() {
           position: 'relative',
           textAlign: 'center',
           color: '#fff',
-          backgroundColor: '#111827', // fallback фон
+          backgroundColor: '#111827',
         }}
       >
         <div
@@ -34,7 +43,7 @@ export default function TestPage() {
         >
           <h1
             style={{
-              fontSize: typeof window !== 'undefined' && window.innerWidth < 640 ? '1.6rem' : '2.75rem',
+              fontSize: isMobile ? '1.7rem' : '2.75rem',
               fontWeight: 700,
               marginBottom: '1rem',
               lineHeight: 1.3,
@@ -56,6 +65,7 @@ export default function TestPage() {
           </p>
         </div>
       </section>
+
 
 
 
