@@ -7,49 +7,10 @@ export default function About() {
         <title>О государстве — Terra Zetetica</title>
       </Head>
 
-      <section
-        style={{
-          backgroundColor: '#111827',
-          padding: '6rem 1rem',
-          textAlign: 'center',
-          color: '#fff',
-        }}
-      >
-        <div
-          style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            backdropFilter: 'blur(4px)',
-            padding: '2rem 1rem',
-            borderRadius: '12px',
-            maxWidth: 'min(90vw, 900px)',
-            margin: '0 auto',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-          }}
-        >
-          <h1
-            style={{
-              fontSize: '2.5rem',
-              fontWeight: 700,
-              marginBottom: '1rem',
-              lineHeight: 1.3,
-            }}
-          >
-            Новая реальность: Государство Terra Zetetica
-          </h1>
-          <p
-            style={{
-              fontSize: '1.15rem',
-              fontWeight: 400,
-              lineHeight: 1.6,
-              color: '#eaeaea',
-              marginBottom: 0,
-            }}
-          >
-            Плоская Земля. Самоуправление.{' '}
-            <span style={{ color: '#ffd700', fontWeight: 600 }}>Истина</span>.
-          </p>
-        </div>
-      </section>
+       <title>О государстве — Terra Zetetica</title>
+      </Head>
+
+      <h1>Новая реальность: Государство Terra Zetetica</h1>
 
 
 
