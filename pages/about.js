@@ -7,7 +7,27 @@ export default function About() {
         <title>О государстве — Terra Zetetica</title>
       </Head>
 
-      <h1>Новая реальность: Государство Terra Zetetica</h1>
+      <section style={{
+        backgroundImage: 'url(/images/map.webp)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        padding: '6rem 2rem',
+        position: 'relative',
+        color: '#fff',
+        textAlign: 'center'
+      }}>
+        <div style={{
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          padding: '2rem',
+          borderRadius: '8px',
+          maxWidth: '800px',
+          margin: '0 auto'
+        }}>
+          <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Новая реальность: Государство Terra Zetetica</h1>
+          <p style={{ fontSize: '1.2rem' }}>Плоская Земля. Самоуправление. Истина.</p>
+        </div>
+      </section>
+
 
       <p>
         В XX веке народ без территории, армии и международного признания основал Израиль. 
