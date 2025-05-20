@@ -34,7 +34,7 @@ export default function About() {
               lineHeight: 1.3,
             }}
           >
-            Новая реальность: Государство Terra Zetetica
+            Новая реальность: Государство Terra Zetetica.
           </h1>
           <p
             style={{
