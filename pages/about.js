@@ -11,22 +11,39 @@ export default function About() {
         backgroundImage: 'url(/images/map.webp)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        padding: '6rem 2rem',
+        backgroundRepeat: 'no-repeat',
+        padding: '7rem 1rem',
         position: 'relative',
-        color: '#fff',
-        textAlign: 'center'
+        textAlign: 'center',
+        color: '#fff'
       }}>
         <div style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          padding: '2rem',
-          borderRadius: '8px',
-          maxWidth: '800px',
-          margin: '0 auto'
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(4px)',
+          padding: '2.5rem 1.5rem',
+          borderRadius: '12px',
+          maxWidth: '900px',
+          margin: '0 auto',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
         }}>
-          <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Новая реальность: Государство Terra Zetetica</h1>
-          <p style={{ fontSize: '1.2rem' }}>Плоская Земля. Самоуправление. Истина.</p>
+          <h1 style={{
+            fontSize: '2.75rem',
+            fontWeight: 700,
+            marginBottom: '1rem'
+          }}>
+            Новая реальность: Государство Terra Zetetica
+          </h1>
+          <p style={{
+            fontSize: '1.25rem',
+            fontWeight: 400,
+            lineHeight: 1.6,
+            color: '#eaeaea'
+          }}>
+            Плоская Земля. Самоуправление. <span style={{ color: '#ffd700', fontWeight: 600 }}>Истина</span>.
+          </p>
         </div>
       </section>
+
 
 
       <p>
