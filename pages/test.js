@@ -30,17 +30,19 @@ export default function TestPage() {
           backgroundColor: '#111827',
         }}
       >
-        <div
-          style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
-            backdropFilter: 'blur(4px)',
-            padding: '2rem 1rem',
-            borderRadius: '12px',
-            maxWidth: '900px',
-            margin: '0 auto',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-          }}
-        >
+      <div
+        style={{
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(4px)',
+          padding: '2rem 1rem',
+          borderRadius: '12px',
+          maxWidth: 'min(90vw, 900px)',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+        }}
+      >
+
           <h1
             style={{
               fontSize: isMobile ? '1.7rem' : '2.75rem',
