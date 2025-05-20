@@ -3,6 +3,13 @@ import { useEffect, useState } from 'react'
 
 export default function TestPage() {
   const [isMobile, setIsMobile] = useState(false)
+  const playlist = [
+    { title: 'F* Moon', file: '/media/1.mp3' },
+    { title: 'Лунный свет', file: '/media/2.mp3' },
+    { title: 'Кон-Тики: Плоская Земля', file: '/media/3.mp3' }
+  ]
+
+  const [currentTrack, setCurrentTrack] = useState(null)
 
   useEffect(() => {
     const checkWidth = () => setIsMobile(window.innerWidth < 640)
@@ -74,19 +81,50 @@ export default function TestPage() {
 
       <section style={{ padding: '3rem 1rem', textAlign: 'center' }}>
         <h2 style={{ fontSize: '1.75rem', marginBottom: '1rem' }}>
-          Аудио 1 от основателя Terra Zetetica
+          Аудио от основателя Terra Zetetica
         </h2>
-        <audio controls style={{
-          width: '100%',
-          maxWidth: '400px',
-          borderRadius: '8px',
-          outline: 'none',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-        }}>
-          <source src="/media/4.fmoon.mp3" type="audio/mpeg" />
-          Ваш браузер не поддерживает воспроизведение аудио.
-        </audio>
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+          {playlist.map((track, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentTrack(track)}
+              style={{
+                backgroundColor: currentTrack?.file === track.file ? '#2a65e2' : '#f3f4f6',
+                color: currentTrack?.file === track.file ? '#fff' : '#111827',
+                padding: '0.75rem 1.25rem',
+                fontSize: '1rem',
+                borderRadius: '8px',
+                border: 'none',
+                cursor: 'pointer',
+                width: '100%',
+                maxWidth: '400px',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.06)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              ▶️ {track.title}
+            </button>
+          ))}
+
+          {currentTrack && (
+            <audio
+              controls
+              style={{
+                marginTop: '1rem',
+                width: '100%',
+                maxWidth: '400px',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <source src={currentTrack.file} type="audio/mpeg" />
+              Ваш браузер не поддерживает воспроизведение аудио.
+            </audio>
+          )}
+        </div>
       </section>
+
 
 
       <p>
