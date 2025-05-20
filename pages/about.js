@@ -49,22 +49,7 @@ export default function About() {
         <strong>Это реальное государство</strong>, основанное на Конституции, паспорте, управлении, территории и общности мировоззрения.
         Наука больше не может быть догмой. Terra Zetetica утверждает право народа на наблюдение, логику и самостоятельное знание — через <strong>Зететическую методологию</strong>.
       </p>
-<div style={{ margin: '2rem 0', textAlign: 'center' }}>
-      <iframe
-        src="https://app.heygen.com/embeds/e2920429bc8b41a2b569e7b8bc8f8c36"
-        title="Обращение основателя"
-        style={{
-          width: '100%',
-          maxWidth: '560px',
-          height: '315px',
-          border: 'none',
-          borderRadius: '12px',
-          boxShadow: '0 6px 18px rgba(0,0,0,0.1)',
-        }}
-        allow="encrypted-media; fullscreen"
-        allowFullScreen
-      ></iframe>
-</div>
+
       <h2>Физическая территория: анклавы Terra Zetetica</h2>
       <p>
         Сегодня в России и Беларуси действуют <strong>первые физические анклавы</strong>. 
