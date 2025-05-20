@@ -2,15 +2,16 @@ import Head from 'next/head'
 
 export default function About() {
   return (
-    <main
-      className="wrapper"
-      style={{
-        textAlign: 'center',
-        maxWidth: '860px',
-        margin: '0 auto',
-        padding: '2rem 1rem',
-      }}
-    >
+      <main
+        className="wrapper"
+        style={{
+          textAlign: 'left',
+          maxWidth: '860px',
+          margin: '0 auto',
+          padding: '2rem 1rem',
+          lineHeight: '1.7',
+        }}
+      >
       <Head>
         <title>О государстве — Terra Zetetica</title>
       </Head>
@@ -25,7 +26,6 @@ export default function About() {
           borderRadius: '12px',
           boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
         }}
-
       />
 
       <h1>О государстве Terra Zetetica</h1>
