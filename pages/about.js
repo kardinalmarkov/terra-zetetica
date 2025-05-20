@@ -2,10 +2,32 @@ import Head from 'next/head'
 
 export default function About() {
   return (
-    <main className="wrapper">
+    <main
+      className="wrapper"
+      style={{
+        textAlign: 'center',
+        maxWidth: '860px',
+        margin: '0 auto',
+        padding: '2rem 1rem',
+      }}
+    >
       <Head>
         <title>О государстве — Terra Zetetica</title>
       </Head>
+
+      <img
+        src="/images/flat-earth.jpg"
+        alt="Плоская Земля"
+        style={{
+          width: '100%',
+          maxWidth: '480px',
+          height: 'auto',
+          margin: '0 auto 2rem',
+          display: 'block',
+          borderRadius: '12px',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+        }}
+      />
 
       <h1>О государстве Terra Zetetica</h1>
 
