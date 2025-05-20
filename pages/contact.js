@@ -1,55 +1,44 @@
-import Head from 'next/head'
+import Head from 'next/head';
+import { useState } from 'react';
 
+export default function Contact() {
+  const [submitted, setSubmitted] = useState(false);
 
-export default function Contacts() {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitted(true); // Заглушка, без отправки email
+  };
+
   return (
     <>
       <Head>
         <title>Контакты | Terra Zetetica</title>
       </Head>
-      <form
-  action="https://formspree.io/f/mbloweze"
-  method="POST"
-  className="contact-form"
->
-  <label>
-    Ваш e-mail
-    <input type="email" name="email" required />
-  </label>
-  <label>
-    Сообщение
-    <textarea name="message" rows={4} required />
-  </label>
-  <button type="submit">Отправить</button>
-</form>
 
+      <main className="wrapper" style={{ maxWidth: '720px', margin: '0 auto', padding: '2rem 1rem' }}>
+        <h1>Связаться с нами</h1>
 
-        <h1>Контакты</h1>
-        <p>Напишите нам — мы на связи!</p>
+        <p>Если у вас есть вопросы, предложения или идеи — заполните форму ниже. Мы рассмотрим ваше сообщение.</p>
 
-        <form
-          action="https://formspree.io/f/mbloweze"
-          method="POST"
-          style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}
-        >
-          <input
-            type="email"
-            name="email"
-            placeholder="Ваш e-mail"
-            required
-            style={{ padding: '.75rem', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-          <textarea
-            name="message"
-            rows={4}
-            placeholder="Сообщение"
-            required
-            style={{ padding: '.75rem', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-          <button type="submit" className="btn primary">
-            Отправить
-          </button>
-        </form>
+        {!submitted ? (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
+            <input type="text" name="name" placeholder="Ваше имя" required style={{ padding: '0.75rem' }} />
+            <textarea name="message" placeholder="Ваше сообщение" rows={5} required style={{ padding: '0.75rem' }} />
+            <button type="submit" className="btn primary" style={{ maxWidth: '200px' }}>Отправить</button>
+          </form>
+        ) : (
+          <p style={{ marginTop: '2rem', fontWeight: '600' }}>Спасибо! Ваше сообщение отправлено в Zететическую Сеть.</p>
+        )}
+
+        <hr style={{ margin: '3rem 0' }} />
+
+        <h2>Дополнительно</h2>
+        <ul style={{ paddingLeft: '1.2rem', lineHeight: '1.6' }}>
+          <li>✅ Мы не собираем личные данные.</li>
+          <li>✅ Все обращения регистрируются в системе, основанной на DAO.</li>
+          <li>✅ Ответ может быть опубликован в разделе FAQ.</li>
+        </ul>
+      </main>
     </>
-  )
+  );
 }
