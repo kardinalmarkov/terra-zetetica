@@ -1,6 +1,5 @@
 
 import Head from 'next/head'
-import Script from 'next/script'
 
 export default function TestPage() {
   return (
@@ -50,7 +49,7 @@ export default function TestPage() {
 
       <section style={{ padding: '3rem 1rem', textAlign: 'center' }}>
         <h2 style={{ fontSize: '1.75rem', marginBottom: '1rem' }}>
-          Аудио от основателя Terra Zetetica
+          Аудио 1 от основателя Terra Zetetica
         </h2>
         <audio controls style={{
           width: '100%',
@@ -206,78 +205,5 @@ export default function TestPage() {
         Присоединяйтесь к нам и станьте частью нового государства, основанного на истине и стремлении к знанию.
       </p>
     </main>
-
-      {/* HeyGen streaming embed */}
-      <Script
-        id="heygen-embed"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-!function(window){
-  const host="https://labs.heygen.com",
-        url=host+"/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJBbmFzdGFzaWFfQmxhY2tfU3VpdF9wdWJs%0D%0AaWMiLCJwcmV2aWV3SW1nIjoiaHR0cHM6Ly9maWxlczIuaGV5Z2VuLmFpL2F2YXRhci92My9jMGZi%0D%0AMDQzN2EyYjY0ZmM5OTFlNjg5MjNhZjUwZTE3Ml81NTI5MC9wcmV2aWV3X3RhbGtfMS53ZWJwIiwi%0D%0AbmVlZFJlbW92ZUJhY2tncm91bmQiOnRydWUsImtub3dsZWRnZUJhc2VJZCI6ImFmYTgzNWRlMzY2%0D%0AMDQ4N2FhZWVmZjBiMGZkM2MxZjI3IiwidXNlcm5hbWUiOiJhMzc3NmY4YWNmMzY0YjdlOGYyZTEw%0D%0AZTAxZTViNjRiNCJ9&inIFrame=1",
-        clientWidth=document.body.clientWidth,
-        wrapDiv=document.createElement("div");
-  wrapDiv.id="heygen-streaming-embed";
-  const container=document.createElement("div");
-  container.id="heygen-streaming-container";
-  const stylesheet=document.createElement("style");
-  stylesheet.innerHTML=\`
-    #heygen-streaming-embed {
-      z-index: 9999;
-      position: fixed;
-      left: 40px;
-      bottom: 40px;
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      border: 2px solid #fff;
-      box-shadow: 0px 8px 24px rgba(0,0,0,0.12);
-      transition: all .1s linear;
-      overflow: hidden;
-      opacity: 0;
-      visibility: hidden;
-    }
-    #heygen-streaming-embed.show {
-      opacity: 1;
-      visibility: visible;
-    }
-    #heygen-streaming-embed.expand {
-      \${clientWidth<540
-        ? "height: 266px; width: 96%; left: 50%; transform: translateX(-50%);"
-        : "height: 366px; width: calc(366px*16/9);"}
-      border: 0;
-      border-radius: 8px;
-    }
-    #heygen-streaming-container, #heygen-streaming-container iframe {
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-  \`;
-  const iframe=document.createElement("iframe");
-  iframe.allowFullscreen=false;
-  iframe.title="Streaming Embed";
-  iframe.role="dialog";
-  iframe.allow="microphone";
-  iframe.src=url;
-
-  window.addEventListener("message", e=>{
-    if(e.origin===host && e.data?.type==="streaming-embed"){
-      if(e.data.action==="init") wrapDiv.classList.add("show");
-      if(e.data.action==="show") wrapDiv.classList.add("expand");
-      if(e.data.action==="hide") wrapDiv.classList.remove("expand");
-    }
-  });
-
-  document.body.appendChild(wrapDiv);
-  wrapDiv.appendChild(stylesheet);
-  wrapDiv.appendChild(container);
-  container.appendChild(iframe);
-}(window);
-          `
-        }}
-      />
-    </>
-  )
+  );
 }
