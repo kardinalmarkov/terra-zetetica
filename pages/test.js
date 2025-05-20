@@ -8,42 +8,55 @@ export default function TestPage() {
         <title>О государстве — Terra Zetetica</title>
       </Head>
 
-      <section style={{
-        backgroundImage: 'url(/images/mapa.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        padding: '7rem 1rem',
-        position: 'relative',
-        textAlign: 'center',
-        color: '#fff'
-      }}>
-        <div style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.4)',
-          backdropFilter: 'blur(4px)',
-          padding: '2.5rem 1.5rem',
-          borderRadius: '12px',
-          maxWidth: '900px',
-          margin: '0 auto',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
-        }}>
-          <h1 style={{
-            fontSize: '2.75rem',
-            fontWeight: 700,
-            marginBottom: '1rem'
-          }}>
+      <section
+        style={{
+          backgroundImage: typeof window !== 'undefined' && window.innerWidth < 640 ? 'none' : 'url(/images/map.webp)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          padding: '6rem 1rem',
+          position: 'relative',
+          textAlign: 'center',
+          color: '#fff',
+          backgroundColor: '#111827', // fallback фон
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(4px)',
+            padding: '2rem 1rem',
+            borderRadius: '12px',
+            maxWidth: '900px',
+            margin: '0 auto',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+          }}
+        >
+          <h1
+            style={{
+              fontSize: typeof window !== 'undefined' && window.innerWidth < 640 ? '1.6rem' : '2.75rem',
+              fontWeight: 700,
+              marginBottom: '1rem',
+              lineHeight: 1.3,
+            }}
+          >
             Новая реальность: Государство Terra Zetetica
           </h1>
-          <p style={{
-            fontSize: '1.25rem',
-            fontWeight: 400,
-            lineHeight: 1.6,
-            color: '#eaeaea'
-          }}>
-            Плоская Земля. Самоуправление. <span style={{ color: '#ffd700', fontWeight: 600 }}>Истина</span>.
+          <p
+            style={{
+              fontSize: '1.15rem',
+              fontWeight: 400,
+              lineHeight: 1.6,
+              color: '#eaeaea',
+              marginBottom: 0,
+            }}
+          >
+            Плоская Земля. Самоуправление.{' '}
+            <span style={{ color: '#ffd700', fontWeight: 600 }}>Истина</span>.
           </p>
         </div>
       </section>
+
 
 
 
