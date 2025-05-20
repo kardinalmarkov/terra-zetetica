@@ -81,7 +81,7 @@ body {
   margin-top: 1.25rem;
   font-size: 1.125rem;
   color: #e5e7eb;
-  line-height: 1.5;
+  line-height: 1.65;
 }
 .hero .actions {
   margin-top: 2rem;
@@ -133,6 +133,13 @@ body {
   font-size: 2rem;
   color: #111827;
 }
+
+.wrapper p,
+.wrapper ul,
+.wrapper li {
+  margin-bottom: 1.1rem;
+}
+
 
 /* ─────────────────────────────────────────────────────────
    Таблицы (Roadmap)
@@ -260,5 +267,21 @@ button[type="submit"]:hover {
 .growth-table th {
   background-color: #f7f7f7;
   font-weight: 600;
+}
+
+.growth-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+.growth-table td, .growth-table th {
+  padding: 0.85rem 1rem;
+}
+
+a {
+  color: #2a65e2;
+  text-decoration: none;
+  font-weight: 500;
+}
+a:hover {
+  text-decoration: underline;
 }
 
