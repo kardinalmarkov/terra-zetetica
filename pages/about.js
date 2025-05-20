@@ -65,10 +65,17 @@ export default function About() {
       </ul>
 
       <h2>Ключевые технологии</h2>
-      <ul>
-        <li><strong>DAO</strong> — децентрализованное народовластие через голосование в блокчейне</li>
-        <li><strong>IPFS</strong> — надёжное и независимое хранилище конституции, паспортов и решений</li>
+
+      <ul style={{ paddingLeft: '1.5rem', lineHeight: '1.7' }}>
+        <li>
+          <strong>DAO (Decentralized Autonomous Organization)</strong> — каждый гражданин голосует напрямую за решения и инициативы через защищённые смарт-контракты.  
+          Это конец представительской власти — управление принадлежит народу.
+        </li>
+        <li>
+          <strong>IPFS (InterPlanetary File System)</strong> — децентрализованное хранилище, где Конституция, паспорта и документы Terra Zetetica хранятся как неизменяемые цифровые сущности, неподвластные никакой юрисдикции.
+        </li>
       </ul>
+
 
       <h2>Прогноз развития (2026–2040)</h2>
       <table className="growth-table">
@@ -113,12 +120,20 @@ export default function About() {
         </tbody>
       </table>
 
-      <ul style={{ marginTop: '2rem' }}>
-        <li>• Каждый анклав — это не просто участок, а <strong>самоуправляемая единица</strong>, живущая по Конституции Terra Zetetica</li>
-        <li>• Средний анклав включает ~1,5 домохозяйства и 10–50 соток земли, зарегистрированных через DAO и IPFS</li>
-        <li>• Гражданство: с паспортом и Zetetic ID, <strong>без потери существующего гражданства</strong></li>
-        <li>• К 2040 году Terra Zetetica будет сравнима с Израилем по территории, и с Индонезией по численности населения</li>
-      </ul>
+    <ul style={{ marginTop: '2rem', listStyleType: 'disc', paddingLeft: '1.5rem' }}>
+      <li>
+        <strong>Каждый анклав</strong> — это не просто участок, а <strong>самоуправляемая единица</strong>, живущая по Конституции <strong>Terra Zetetica</strong>;
+      </li>
+      <li>
+        <strong>Средний анклав</strong> включает <strong>~1,5 домохозяйства и 10–50 соток земли</strong>, зарегистрированных через DAO и IPFS;
+      </li>
+      <li>
+        <strong>Гражданство:</strong> с паспортом и <strong>Zetetic ID</strong>, <strong>без потери существующего гражданства</strong>;
+      </li>
+      <li>
+        К 2040 году <strong>Terra Zetetica</strong> будет <strong>сравнима с Израилем по территории</strong> и <strong>с Индонезией по численности населения</strong>.
+      </li>
+    </ul>
 
       <h2>Гражданство</h2>
       <p>
