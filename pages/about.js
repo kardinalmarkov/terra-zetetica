@@ -21,12 +21,17 @@ export default function About() {
         alt="Плоская Земля"
         style={{
           width: '100%',
+          maxWidth: '520px',
           height: 'auto',
           marginBottom: '2rem',
           borderRadius: '12px',
           boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+          display: 'block',
+          marginLeft: 'auto',
+          marginRight: 'auto',
         }}
       />
+
 
       <h1>О государстве Terra Zetetica</h1>
 
