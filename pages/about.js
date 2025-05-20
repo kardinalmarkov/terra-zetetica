@@ -5,7 +5,7 @@ export default function About() {
       <main
         className="wrapper"
         style={{
-          textAlign: 'left',
+          textAlign: 'justify',
           maxWidth: '860px',
           margin: '0 auto',
           padding: '2rem 1rem',
