@@ -126,6 +126,24 @@ export default function TestPage() {
       </section>
 
 
+<iframe width="560" height="315" src="https://app.heygen.com/embeds/9d421401b0574669994e38b410c84e66" title="HeyGen video player" frameborder="0" allow="encrypted-media; fullscreen;" allowfullscreen></iframe>
+
+<div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', margin: '2rem 0' }}>
+  <iframe
+    src="https://app.heygen.com/embeds/9d421401b0574669994e38b410c84e66"
+    title="Обращение основателя"
+    frameBorder="0"
+    allow="encrypted-media; fullscreen;"
+    allowFullScreen
+    style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+    }}
+  />
+</div>
 
       <p>
         В XX веке народ без территории, армии и международного признания основал Израиль. 
