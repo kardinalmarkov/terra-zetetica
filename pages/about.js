@@ -160,12 +160,29 @@ export default function About() {
         К 2040 году <strong>Terra Zetetica</strong> будет <strong>сравнима с Израилем по территории</strong> и <strong>с Индонезией по численности населения</strong>.
       </li>
     </ul>
-
       <h2>Гражданство</h2>
+
+      <img
+        src="/images/passport-terra-zetetica.jpg"
+        alt="Паспорт гражданина Terra Zetetica"
+        style={{
+          width: '100%',
+          maxWidth: '460px',
+          height: 'auto',
+          marginBottom: '1.5rem',
+          borderRadius: '12px',
+          boxShadow: '0 6px 18px rgba(0,0,0,0.1)',
+          display: 'block',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+        }}
+      />
+
       <p>
         <strong>Гражданство Terra Zetetica не требует отказа от других гражданств.</strong><br />
         Оно существует параллельно, утверждая вашу принадлежность к сообществу, построенному на знании, свободе и зететической Истине.
       </p>
+
       <p>
         <strong>Zetetic ID</strong> — это знак разумного пробуждения. 
         Это не просто паспорт, это — признание своего права на Истину и управление своей судьбой.
