@@ -7,7 +7,7 @@ const materials = [
     title: 'Фото',
     description: 'Фотографии от наших граждан',
     // превью 16:9, положите сюда /public/images/photo-preview.jpg размером ~1280×720
-    videoSrc: '/media/photo-clip.mp4',
+    videoSrc: '/media/photo-preview-clip.mp4', // новое видео
     driveLink: 'https://drive.google.com/drive/folders/1HcETdfZEZOtg9Dm0idmQSTnd9DdAXk9C?usp=sharing',
   },
   {
@@ -86,8 +86,8 @@ export default function Materials() {
                 </h3>
                 <p style={{ margin: '0 0 1rem', color: '#555' }}>{m.description}</p>
 
-                {/* Для photo — вместо картинки показываем видео-превью */}
-                {m.videoSrc && (
+                {/* Фото / Документы / Эксперименты: статика 16:9 */}
+                {m.previewSrc && (
                   <div
                     style={{
                       position: 'relative',
@@ -97,10 +97,9 @@ export default function Materials() {
                       overflow: 'hidden',
                     }}
                   >
-                    <video
-                      src={m.videoSrc}
-                      controls
-                      loop
+                    <img
+                      src={m.previewSrc}
+                      alt={m.title}
                       style={{
                         position: 'absolute',
                         top: 0,
@@ -113,8 +112,7 @@ export default function Materials() {
                   </div>
                 )}
 
-                {/* Встраиваемое видео */}
-                {m.embedSrc && (
+                {m.videoSrc ? (
                   <div
                     style={{
                       position: 'relative',
@@ -124,18 +122,42 @@ export default function Materials() {
                       overflow: 'hidden',
                     }}
                   >
-                    <iframe
-                      src={m.embedSrc}
-                      title={m.title}
-                      frameBorder="0"
-                      allow="encrypted-media; fullscreen;"
-                      allowFullScreen
+                    <video
+                      src={m.videoSrc}
+                      muted
+                      autoPlay
+                      loop
+                      playsInline
                       style={{
                         position: 'absolute',
                         top: 0,
                         left: 0,
                         width: '100%',
                         height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  </div>
+                ) : m.previewSrc && (
+                  <div
+                    style={{
+                      position: 'relative',
+                      width: '100%',
+                      paddingBottom: '56.25%',
+                      marginBottom: '1rem',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <img
+                      src={m.previewSrc}
+                      alt={m.title}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
                       }}
                     />
                   </div>
