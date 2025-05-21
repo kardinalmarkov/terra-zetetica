@@ -7,6 +7,7 @@ const materials = [
     title: 'Фото',
     description: 'Фотографии от наших граждан',
     videoSrc: '/media/photo-preview-clip.mp4',
+    poster: '/images/photo-preview.jpg', // добавьте изображение
     driveLink: 'https://drive.google.com/drive/folders/1HcETdfZEZOtg9Dm0idmQSTnd9DdAXk9C?usp=sharing',
   },
   {
@@ -93,18 +94,20 @@ export default function Materials() {
                       backgroundColor: '#000',
                     }}
                   >
-                    <video
-                      src={m.videoSrc}
-                      controls
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                      }}
-                    />
+                <video
+                  src={m.videoSrc}
+                  poster={m.poster}
+                  controls
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }}
+                />
+
                   </div>
                 )}
 
