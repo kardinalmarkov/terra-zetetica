@@ -5,8 +5,8 @@
   align-items: center;
   justify-content: space-between;
   height: 64px;
-  background: white;
-  border-bottom: 1px solid #ddd;
+  background: #374151; /* тёмно-серый фон */
+  color: white;
   padding: 0 1rem;
   position: fixed;
   top: 0;
@@ -20,6 +20,7 @@
   align-items: center;
   font-weight: bold;
   font-size: 1rem;
+  color: white;
 }
 
 .mark {
@@ -39,7 +40,7 @@
 
 .menu a {
   text-decoration: none;
-  color: #111827;
+  color: white;
   font-weight: 500;
 }
 
@@ -48,17 +49,17 @@
   color: #111827;
   padding: 0.5rem 1rem;
   border-radius: 5px;
-  margin-left: 1rem;
   white-space: nowrap;
   font-weight: 600;
+  text-decoration: none;
 }
 
-/* Кнопка-гамбургер */
 .hamburger {
   display: none;
   font-size: 1.75rem;
   background: none;
   border: none;
+  color: white;
   cursor: pointer;
 }
 
@@ -112,4 +113,3 @@
     display: none !important;
   }
 }
-

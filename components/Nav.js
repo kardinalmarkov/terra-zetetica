@@ -1,5 +1,4 @@
 // components/Nav.js
-// components/Nav.js
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
@@ -31,10 +30,7 @@ export default function Nav() {
         <strong>TERRA ZETETICA</strong>
       </div>
 
-      {/* Кнопка гамбургера */}
-      <button className={styles.hamburger} onClick={toggleMenu}>
-        ☰
-      </button>
+      <button className={styles.hamburger} onClick={toggleMenu}>☰</button>
 
       {/* Меню для десктопа */}
       <nav className={styles.menu}>
@@ -58,7 +54,7 @@ export default function Nav() {
         <Link href="/roadmap" onClick={closeMenu}>{t.roadmap}</Link>
         <Link href="/materials" onClick={closeMenu}>📚 {t.materials}</Link>
         <Link href="/contacts" onClick={closeMenu}>{t.contacts}</Link>
-        <Link href="/apply" onClick={closeMenu}>{t.apply} ↗</Link>
+        <Link className={styles.cta} href="/apply" onClick={closeMenu}>{t.apply} ↗</Link>
         <LangSwitch />
       </nav>
     </header>
