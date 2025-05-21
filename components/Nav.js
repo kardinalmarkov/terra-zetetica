@@ -13,6 +13,7 @@ export default function Nav() {
     constitution: locale === 'ru' ? 'Конституция'    : 'Constitution',
     faq:          locale === 'ru' ? 'FAQ'            : 'FAQ',
     roadmap:      locale === 'ru' ? 'Дорожная карта' : 'Roadmap',
+    materials:    locale === 'ru' ? 'Материалы'      : 'Materials',
     contacts:     locale === 'ru' ? 'Контакты'       : 'Contacts',
     apply:        locale === 'ru' ? 'Стать гражданином' : 'Become a citizen',
   }
@@ -30,6 +31,7 @@ export default function Nav() {
         <Link href="/constitution">{t.constitution}</Link>
         <Link href="/faq">{t.faq}</Link>
         <Link href="/roadmap">{t.roadmap}</Link>
+        <Link href="/materials">📚 {t.materials}</Link>
         <Link href="/contacts">{t.contacts}</Link>
         <LangSwitch />
       </nav>
