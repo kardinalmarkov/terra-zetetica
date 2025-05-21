@@ -37,7 +37,7 @@ const materials = [
     key: 'audio',
     icon: '🎙',
     title: 'Музыка',
-    description: '«Фальшивая луна.mp3» и другие',
+    description: '',
     audioList: [
       { title: 'Фальшивая луна', src: '/media/1.mp3' },
       { title: 'Лунный свет', src: '/media/2.mp3' },
