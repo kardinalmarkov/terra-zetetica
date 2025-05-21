@@ -18,8 +18,8 @@ export default function Home() {
             в <span>Terra Zetetica</span>
           </h1>
           <p className="tagline">
-            Утопия сетевого государства,<br />
-            построенная на блокчейне
+             Суверенное государство,<br />
+            с децентрализованным управлением
           </p>
           <div className="actions">
             <a href="/apply" className="btn primary">Стать гражданином</a>
