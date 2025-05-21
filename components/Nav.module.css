@@ -26,3 +26,50 @@
   .menu{display:none}
   .bar{padding:0 1rem}
 }
+
+.hamburger {
+  display: none;
+  font-size: 1.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1001;
+  }
+
+  .menu {
+    display: none !important;
+  }
+
+  .mobileMenu {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #ddd;
+    display: none;
+    flex-direction: column;
+    padding: 1rem;
+    z-index: 1000;
+  }
+
+  .mobileMenu.open {
+    display: flex;
+  }
+
+  .mobileMenu a {
+    padding: 0.75rem 0;
+    font-weight: 500;
+    color: #111827;
+    text-decoration: none;
+    border-bottom: 1px solid #eee;
+  }
+}
