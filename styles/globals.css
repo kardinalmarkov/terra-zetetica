@@ -131,6 +131,13 @@ body {
   line-height: 1.65;
 }
 
+/* Mobile adjustment */
+@media (max-width: 640px) {
+  .wrapper {
+    padding: 1.5rem 1rem;
+  }
+}
+
 .wrapper p {
   margin-bottom: 1.25rem;
 }
