@@ -82,10 +82,31 @@ export default function Materials() {
                 <p style={{ margin: '0 0 1rem', color: '#555' }}>{m.description}</p>
 
                 {m.key === 'video' && (
+                  // Контейнер с paddingBottom=56.25% задаёт соотношение 16:9
                   <div
-                    style={{ marginBottom: '1rem' }}
-                    dangerouslySetInnerHTML={{ __html: m.embed }}
-                  />
+                    style={{
+                      position: 'relative',
+                      width: '100%',
+                      paddingBottom: '56.25%',  // 9/16 = 0.5625
+                      marginBottom: '1rem',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <iframe
+                      src="https://app.heygen.com/embeds/9d421401b0574669994e38b410c84e66"
+                      title="HeyGen video player"
+                      frameBorder="0"
+                      allow="encrypted-media; fullscreen;"
+                      allowFullScreen
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',   // растягиваем iframe на всю ширину контейнера
+                        height: '100%',  // и на всю высоту контейнера
+                      }}
+                    />
+                  </div>
                 )}
 
                 {m.key === 'audio' && (
