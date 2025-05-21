@@ -1,51 +1,79 @@
-.bar{
-  position:fixed;
-  left:0;right:0;top:0;height:64px;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 2rem;
-  background:#1f2937cc;      /* slate-800/80 */
-  backdrop-filter:blur(12px);
-  z-index:20;
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  background: #1f2937cc; /* slate-800/80 */
+  backdrop-filter: blur(12px);
+  z-index: 20;
 }
 
 /* логотип */
-.logo{display:flex;align-items:center;gap:.5rem;color:#fff;font-weight:700;letter-spacing:.03em}
-.mark{width:14px;height:14px;border-radius:3px;background:#facc15}
-
-/* десктоп-меню */
-.menu{display:flex;gap:1.8rem}
-.menu a{color:#e5e7eb;font-size:.95rem;text-decoration:none;white-space:nowrap}
-.menu a:hover{color:#fff}
-
-/* кнопка Apply */
-.cta{background:#facc15;color:#111827;padding:.55rem 1.25rem;border-radius:8px;font-weight:600;text-decoration:none}
-.cta:hover{background:#fde047}
-
-/* mobile (≤ 640 px) */
-@media (max-width:640px){
-  .menu{display:none}
-  .bar{padding:0 1rem}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.mark {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: #facc15;
 }
 
+/* десктоп-меню */
+.menu {
+  display: flex;
+  gap: 1.8rem;
+}
+.menu a {
+  color: #e5e7eb;
+  font-size: 0.95rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.menu a:hover {
+  color: #fff;
+}
+
+/* кнопка Apply */
+.cta {
+  background: #facc15;
+  color: #111827;
+  padding: 0.55rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.cta:hover {
+  background: #fde047;
+}
+
+/* мобильный режим */
 .hamburger {
   display: none;
   font-size: 1.75rem;
   background: none;
   border: none;
   cursor: pointer;
+  color: #fff;
 }
 
 @media (max-width: 768px) {
-  .hamburger {
-    display: block;
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    z-index: 1001;
+  .menu {
+    display: none;
   }
 
-  .menu {
-    display: none !important;
+  .hamburger {
+    display: block;
   }
 
   .mobileMenu {
@@ -71,5 +99,9 @@
     color: #111827;
     text-decoration: none;
     border-bottom: 1px solid #eee;
+  }
+
+  .mobileMenu a:hover {
+    color: #111;
   }
 }

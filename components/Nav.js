@@ -1,13 +1,13 @@
 // components/Nav.js
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { useState } from 'react';
-import styles from './Nav.module.css';
-import LangSwitch from './LangSwitch';
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useState } from 'react'
+import styles from './Nav.module.css'
+import LangSwitch from './LangSwitch'
 
 export default function Nav() {
-  const { locale } = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { locale } = useRouter()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const t = {
     home:         locale === 'ru' ? 'Главная'         : 'Home',
@@ -17,9 +17,9 @@ export default function Nav() {
     roadmap:      locale === 'ru' ? 'Дорожная карта'  : 'Roadmap',
     contacts:     locale === 'ru' ? 'Контакты'        : 'Contacts',
     apply:        locale === 'ru' ? 'Стать гражданином' : 'Become a citizen',
-  };
+  }
 
-  const toggleMenu = () => setMenuOpen(!menuOpen);
+  const toggleMenu = () => setMenuOpen(!menuOpen)
 
   return (
     <header className={styles.bar}>
@@ -28,10 +28,8 @@ export default function Nav() {
         <strong>TERRA ZETETICA</strong>
       </div>
 
-      {/* Гамбургер */}
       <button className={styles.hamburger} onClick={toggleMenu}>☰</button>
 
-      {/* Десктоп-меню */}
       <nav className={styles.menu}>
         <Link href="/">{t.home}</Link>
         <Link href="/about">{t.about}</Link>
@@ -43,7 +41,6 @@ export default function Nav() {
         <LangSwitch />
       </nav>
 
-      {/* Мобильное меню */}
       <nav className={`${styles.mobileMenu} ${menuOpen ? styles.open : ''}`}>
         <Link href="/" onClick={toggleMenu}>{t.home}</Link>
         <Link href="/about" onClick={toggleMenu}>{t.about}</Link>
@@ -57,5 +54,5 @@ export default function Nav() {
 
       <Link className={styles.cta} href="/apply">{t.apply} ↗</Link>
     </header>
-  );
+  )
 }
