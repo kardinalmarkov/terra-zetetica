@@ -7,14 +7,14 @@ const materials = [
     title: 'Фото',
     description: 'Фотографии от наших граждан',
     // превью 16:9, положите сюда /public/images/photo-preview.jpg размером ~1280×720
-    previewSrc: '/images/photo-preview.jpg',
+    videoSrc: '/media/photo-clip.mp4',
     driveLink: 'https://drive.google.com/drive/folders/1HcETdfZEZOtg9Dm0idmQSTnd9DdAXk9C?usp=sharing',
   },
   {
     key: 'video',
     icon: '🎥',
     title: 'Видео: Промо 2025',
-    description: 'Короткий ролик о создании первого анклава',
+    description: 'о государстве Terra Zetetica',
     // видео встраиваем через iframe, превью не нужно
     embedSrc: 'https://app.heygen.com/embeds/9d421401b0574669994e38b410c84e66',
     driveLink: 'https://drive.google.com/drive/folders/1gFT-J1gcxM1kLkB6MY4Sj8pWwdBwmafF?usp=sharing',
@@ -86,8 +86,8 @@ export default function Materials() {
                 </h3>
                 <p style={{ margin: '0 0 1rem', color: '#555' }}>{m.description}</p>
 
-                {/* Фото / Документы / Эксперименты: статика 16:9 */}
-                {m.previewSrc && (
+                {/* Для photo — вместо картинки показываем видео-превью */}
+                {m.videoSrc && (
                   <div
                     style={{
                       position: 'relative',
@@ -97,9 +97,10 @@ export default function Materials() {
                       overflow: 'hidden',
                     }}
                   >
-                    <img
-                      src={m.previewSrc}
-                      alt={m.title}
+                    <video
+                      src={m.videoSrc}
+                      controls
+                      loop
                       style={{
                         position: 'absolute',
                         top: 0,
