@@ -1,12 +1,13 @@
-// pages/materials.js
 import Head from 'next/head';
 
 const materials = [
   {
     key: 'photo',
     icon: '📸',
-    title: 'Фото: Анклавы Terra Zetetica',
-    description: 'Первый фотоснимок физического анклава в Беларуси',
+    title: 'Фото',
+    description: 'Фотографии от наших граждан',
+    // превью 16:9, положите сюда /public/images/photo-preview.jpg размером ~1280×720
+    previewSrc: '/images/photo-preview.jpg',
     driveLink: 'https://drive.google.com/drive/folders/1HcETdfZEZOtg9Dm0idmQSTnd9DdAXk9C?usp=sharing',
   },
   {
@@ -14,28 +15,31 @@ const materials = [
     icon: '🎥',
     title: 'Видео: Промо 2025',
     description: 'Короткий ролик о создании первого анклава',
-    embed: `<iframe width="560" height="315" src="https://app.heygen.com/embeds/9d421401b0574669994e38b410c84e66" title="HeyGen video player" frameborder="0" allow="encrypted-media; fullscreen;" allowfullscreen></iframe>`,
+    // видео встраиваем через iframe, превью не нужно
+    embedSrc: 'https://app.heygen.com/embeds/9d421401b0574669994e38b410c84e66',
     driveLink: 'https://drive.google.com/drive/folders/1gFT-J1gcxM1kLkB6MY4Sj8pWwdBwmafF?usp=sharing',
   },
   {
     key: 'experiment',
     icon: '🧪',
-    title: 'Эксперименты: DAO-голосование',
-    description: 'Фото и видео реального теста голосования через DAO',
+    title: 'Эксперименты',
+    description: 'Научные эксперименты, проведённые гражданами',
+    previewSrc: '/images/experiment-preview.jpg',
     driveLink: 'https://drive.google.com/drive/folders/12pDXKYIK_Ho_ujBZSbjbwvQ0vI0z0KCY?usp=sharing',
   },
   {
     key: 'document',
     icon: '📜',
-    title: 'Документы: Конституция',
-    description: 'Полный текст Конституции Terra Zetetica',
+    title: 'Документы',
+    description: 'Различные материалы от наших граждан',
+    previewSrc: '/images/document-preview.jpg',
     driveLink: 'https://drive.google.com/drive/folders/1J2nx_BqfFnLWP9hzsbiauuMzJ-pJYJxt?usp=sharing',
   },
   {
     key: 'audio',
     icon: '🎙',
     title: 'Музыка',
-    description: 'Фальшивая луна.mp3',
+    description: '«Фальшивая луна.mp3»',
     audioSrc: '/media/1.mp3',
     driveLink: 'https://drive.google.com/drive/folders/1NB0CZftSTvnlYGrFd92KjmjF84vQ48OY?usp=sharing',
   },
@@ -51,7 +55,7 @@ export default function Materials() {
       <main className="wrapper" style={{ maxWidth: 960, margin: '0 auto', padding: '2rem 1rem' }}>
         <h1>Материалы Terra Zetetica</h1>
         <p>
-          Ниже — по одному примеры из каждой категории. Для полного архива переходите по ссылке «Смотреть
+          Ниже — по одному примеру из каждой категории. Для полного архива переходите по ссылке «Смотреть
           всё».
         </p>
 
@@ -75,26 +79,53 @@ export default function Materials() {
                 boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
               }}
             >
+              {/* карточка контента */}
               <div style={{ padding: '1rem' }}>
                 <h3 style={{ margin: '0 0 .5rem' }}>
                   {m.icon} {m.title}
                 </h3>
                 <p style={{ margin: '0 0 1rem', color: '#555' }}>{m.description}</p>
 
-                {m.key === 'video' && (
-                  // Контейнер с paddingBottom=56.25% задаёт соотношение 16:9
+                {/* Фото / Документы / Эксперименты: статика 16:9 */}
+                {m.previewSrc && (
                   <div
                     style={{
                       position: 'relative',
                       width: '100%',
-                      paddingBottom: '56.25%',  // 9/16 = 0.5625
+                      paddingBottom: '56.25%', // 16:9
+                      marginBottom: '1rem',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <img
+                      src={m.previewSrc}
+                      alt={m.title}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* Встраиваемое видео */}
+                {m.embedSrc && (
+                  <div
+                    style={{
+                      position: 'relative',
+                      width: '100%',
+                      paddingBottom: '56.25%',
                       marginBottom: '1rem',
                       overflow: 'hidden',
                     }}
                   >
                     <iframe
-                      src="https://app.heygen.com/embeds/9d421401b0574669994e38b410c84e66"
-                      title="HeyGen video player"
+                      src={m.embedSrc}
+                      title={m.title}
                       frameBorder="0"
                       allow="encrypted-media; fullscreen;"
                       allowFullScreen
@@ -102,14 +133,15 @@ export default function Materials() {
                         position: 'absolute',
                         top: 0,
                         left: 0,
-                        width: '100%',   // растягиваем iframe на всю ширину контейнера
-                        height: '100%',  // и на всю высоту контейнера
+                        width: '100%',
+                        height: '100%',
                       }}
                     />
                   </div>
                 )}
 
-                {m.key === 'audio' && (
+                {/* Аудиоплеер */}
+                {m.audioSrc && (
                   <audio
                     controls
                     src={m.audioSrc}
@@ -174,7 +206,7 @@ export default function Materials() {
             <input
               type="text"
               name="title"
-              placeholder="Название / Краткое описание"
+              placeholder="Название / краткое описание"
               required
               style={{ padding: '0.75rem', borderRadius: 4, border: '1px solid #ccc' }}
             />
