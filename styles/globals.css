@@ -296,3 +296,20 @@ a:hover {
   text-decoration: underline;
 }
 
+
+@media (max-width: 640px) {
+  .wrapper,
+  .wrapper section {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .wrapper h1,
+  .wrapper h2,
+  .wrapper p,
+  .wrapper ul {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+}
+
