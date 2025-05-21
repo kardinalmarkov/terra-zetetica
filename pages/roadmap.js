@@ -43,7 +43,7 @@ export default function Roadmap() {
         <title>Дорожная карта | Terra Zetetica</title>
       </Head>
 
-      <h1>🌐 Дорожная карта Terra Zetetica</h1>
+      <h1>Дорожная карта Terra Zetetica</h1>
       <p>Версия: 2025–2026</p>
 
       {roadmap.map(({ quarter, items }) => (
