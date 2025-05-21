@@ -112,7 +112,8 @@ export default function Materials() {
                   </div>
                 )}
 
-                {m.videoSrc ? (
+                {/* Встраиваемое видео */}
+                {m.embedSrc && (
                   <div
                     style={{
                       position: 'relative',
@@ -122,42 +123,18 @@ export default function Materials() {
                       overflow: 'hidden',
                     }}
                   >
-                    <video
-                      src={m.videoSrc}
-                      muted
-                      autoPlay
-                      loop
-                      playsInline
+                    <iframe
+                      src={m.embedSrc}
+                      title={m.title}
+                      frameBorder="0"
+                      allow="encrypted-media; fullscreen;"
+                      allowFullScreen
                       style={{
                         position: 'absolute',
                         top: 0,
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        objectFit: 'cover',
-                      }}
-                    />
-                  </div>
-                ) : m.previewSrc && (
-                  <div
-                    style={{
-                      position: 'relative',
-                      width: '100%',
-                      paddingBottom: '56.25%',
-                      marginBottom: '1rem',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <img
-                      src={m.previewSrc}
-                      alt={m.title}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
                       }}
                     />
                   </div>
