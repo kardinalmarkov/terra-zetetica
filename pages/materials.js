@@ -7,7 +7,6 @@ const materials = [
     icon: '📸',
     title: 'Фото: Анклавы Terra Zetetica',
     description: 'Первый фотоснимок физического анклава в Беларуси',
-    previewSrc: '/images/anklav-belarus.jpg',
     driveLink: 'https://drive.google.com/drive/folders/1HcETdfZEZOtg9Dm0idmQSTnd9DdAXk9C?usp=sharing',
   },
   {
@@ -15,15 +14,14 @@ const materials = [
     icon: '🎥',
     title: 'Видео: Промо 2025',
     description: 'Короткий ролик о создании первого анклава',
-    previewSrc: '/images/promo-2025.jpg',
+    embed: `<iframe width="560" height="315" src="https://app.heygen.com/embeds/9d421401b0574669994e38b410c84e66" title="HeyGen video player" frameborder="0" allow="encrypted-media; fullscreen;" allowfullscreen></iframe>`,
     driveLink: 'https://drive.google.com/drive/folders/1gFT-J1gcxM1kLkB6MY4Sj8pWwdBwmafF?usp=sharing',
   },
   {
     key: 'experiment',
     icon: '🧪',
     title: 'Эксперименты: DAO-голосование',
-    description: 'Демонстрация системы голосования через DAO',
-    previewSrc: '/images/dao-vote.gif',
+    description: 'Фото и видео реального теста голосования через DAO',
     driveLink: 'https://drive.google.com/drive/folders/12pDXKYIK_Ho_ujBZSbjbwvQ0vI0z0KCY?usp=sharing',
   },
   {
@@ -31,15 +29,14 @@ const materials = [
     icon: '📜',
     title: 'Документы: Конституция',
     description: 'Полный текст Конституции Terra Zetetica',
-    previewSrc: '/images/constitution-cover.jpg',
     driveLink: 'https://drive.google.com/drive/folders/1J2nx_BqfFnLWP9hzsbiauuMzJ-pJYJxt?usp=sharing',
   },
   {
     key: 'audio',
     icon: '🎙',
-    title: 'Аудио: Послание основателя',
-    description: 'Запись речи об идеях Zetetic ID',
-    previewSrc: '/images/founder-audio.jpg',
+    title: 'Музыка',
+    description: 'Фальшивая луна.mp3',
+    audioSrc: '/media/1.mp3',
     driveLink: 'https://drive.google.com/drive/folders/1NB0CZftSTvnlYGrFd92KjmjF84vQ48OY?usp=sharing',
   },
 ];
@@ -53,7 +50,10 @@ export default function Materials() {
 
       <main className="wrapper" style={{ maxWidth: 960, margin: '0 auto', padding: '2rem 1rem' }}>
         <h1>Материалы Terra Zetetica</h1>
-        <p>Ниже — по одному примеру из каждой категории. Для полного архива переходите по ссылке «Смотреть всё». </p>
+        <p>
+          Ниже — по одному примеры из каждой категории. Для полного архива переходите по ссылке «Смотреть
+          всё».
+        </p>
 
         <div
           className="grid"
@@ -75,25 +75,30 @@ export default function Materials() {
                 boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
               }}
             >
-              <div style={{ width: '100%', height: 0, paddingBottom: '56.25%', position: 'relative' }}>
-                <img
-                  src={m.previewSrc}
-                  alt={m.title}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
-                />
-              </div>
               <div style={{ padding: '1rem' }}>
                 <h3 style={{ margin: '0 0 .5rem' }}>
                   {m.icon} {m.title}
                 </h3>
                 <p style={{ margin: '0 0 1rem', color: '#555' }}>{m.description}</p>
+
+                {m.key === 'video' && (
+                  <div
+                    style={{ marginBottom: '1rem' }}
+                    dangerouslySetInnerHTML={{ __html: m.embed }}
+                  />
+                )}
+
+                {m.key === 'audio' && (
+                  <audio
+                    controls
+                    src={m.audioSrc}
+                    style={{
+                      width: '100%',
+                      marginBottom: '1rem',
+                    }}
+                  />
+                )}
+
                 <a
                   href={m.driveLink}
                   target="_blank"
