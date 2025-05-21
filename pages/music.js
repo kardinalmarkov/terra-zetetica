@@ -3,7 +3,7 @@ import Head from 'next/head';
 const tracks = [
   { title: 'Фальшивая луна', src: '/media/1.mp3' },
   { title: 'Лунный свет', src: '/media/2.mp3' },
-  { title: 'Кон-Тики: Плоская Земля', file: '/media/3.mp3' }
+  { title: 'Кон-Тики: Плоская Земля', src: '/media/3.mp3' }
 ];
 
 export default function Music() {
