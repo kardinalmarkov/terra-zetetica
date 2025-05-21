@@ -13,7 +13,7 @@ const materials = [
     key: 'video',
     icon: '🎥',
     title: 'Видео: Промо 2025',
-    description: 'о государстве Terra Zetetica',
+    description: 'О государстве Terra Zetetica',
     embedSrc: 'https://app.heygen.com/embeds/9d421401b0574669994e38b410c84e66',
     driveLink: 'https://drive.google.com/drive/folders/1gFT-J1gcxM1kLkB6MY4Sj8pWwdBwmafF?usp=sharing',
   },
@@ -21,7 +21,7 @@ const materials = [
     key: 'experiment',
     icon: '🧪',
     title: 'Эксперименты',
-    description: 'Научные эксперименты, проведённые гражданами',
+    description: 'Проведённые гражданами',
     previewSrc: '/images/experiment-preview.jpg',
     driveLink: 'https://drive.google.com/drive/folders/12pDXKYIK_Ho_ujBZSbjbwvQ0vI0z0KCY?usp=sharing',
   },
@@ -29,7 +29,7 @@ const materials = [
     key: 'document',
     icon: '📜',
     title: 'Документы',
-    description: 'Различные материалы от наших граждан',
+    description: 'Различные книги/материалы',
     previewSrc: '/images/document-preview.jpg',
     driveLink: 'https://drive.google.com/drive/folders/1J2nx_BqfFnLWP9hzsbiauuMzJ-pJYJxt?usp=sharing',
   },
@@ -37,10 +37,13 @@ const materials = [
     key: 'audio',
     icon: '🎙',
     title: 'Музыка',
-    description: '«Фальшивая луна.mp3»',
-    audioSrc: '/media/1.mp3',
+    description: '«Фальшивая луна.mp3» и другие',
+    audioList: [
+      { title: 'Фальшивая луна', src: '/media/1.mp3' },
+      { title: 'Лунный свет', src: '/media/2.mp3' },
+    ],
     driveLink: 'https://drive.google.com/drive/folders/1NB0CZftSTvnlYGrFd92KjmjF84vQ48OY?usp=sharing',
-  },
+  }
 ];
 
 export default function Materials() {
@@ -160,14 +163,28 @@ export default function Materials() {
                 )}
 
                 {/* Аудио */}
-                {m.audioSrc && (
+                {/* Аудио: несколько треков */}
+                {m.audioList && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    {m.audioList.map((track, idx) => (
+                      <div key={idx} style={{ marginBottom: '0.75rem' }}>
+                        <strong>{track.title}</strong>
+                        <audio
+                          controls
+                          src={track.src}
+                          style={{ width: '100%', marginTop: '0.25rem' }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                 {/* Один трек */}
+                {m.audioSrc && !m.audioList && (
                   <audio
                     controls
                     src={m.audioSrc}
-                    style={{
-                      width: '100%',
-                      marginBottom: '1rem',
-                    }}
+                    style={{ width: '100%', marginBottom: '1rem' }}
                   />
                 )}
 
