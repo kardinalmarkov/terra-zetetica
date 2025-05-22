@@ -43,7 +43,7 @@ const materials = [
       { title: 'Фальшивая луна', src: '/media/1.mp3' },
       { title: 'Лунный свет', src: '/media/2.mp3' },
     ],
-    driveLink: 'https://drive.google.com/drive/folders/1NB0CZftSTvnlYGrFd92KjmjF84vQ48OY?usp=sharing',
+    driveLink: 'https://www.terra-zetetica.org/music',
   }
 ];
 
@@ -197,7 +197,7 @@ export default function Materials() {
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none', color: '#0066cc', fontWeight: 500 }}
                 >
-                  Смотреть всё ▶
+                  Слушать всё ▶
                 </a>
               </div>
             </div>
