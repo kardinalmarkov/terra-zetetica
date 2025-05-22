@@ -1,10 +1,18 @@
 import Head from 'next/head';
 
+
+
 const tracks = [
-  { title: 'Фальшивая луна', src: '/media/1.mp3' },
-  { title: 'Лунный свет', src: '/media/2.mp3' },
-  { title: 'Кон-Тики: Плоская Земля', src: '/media/3.mp3' }
+  { title: 'Фальшивая луна', src: 'https://archive.org/download/8_20250522_202505/1.mp3' },
+  { title: 'Лунный свет', src: 'https://archive.org/download/8_20250522_202505/2.mp3' },
+  { title: 'Кон-Тики: Плоская Земля', src: 'https://archive.org/download/8_20250522_202505/3.mp3' },
+  { title: 'ПЗ: Звёздный путь №1', src: 'https://archive.org/download/8_20250522_202505/4.mp3' },
+  { title: 'ПЗ: Звёздный путь №2', src: 'https://archive.org/download/8_20250522_202505/5.mp3' },
+  { title: 'ПЗ: Звёздный путь №3', src: 'https://archive.org/download/8_20250522_202505/6.mp3' },
+  { title: 'Антарктида №1', src: 'https://archive.org/download/8_20250522_202505/7.mp3' },
+  { title: 'Антарктида №2', src: 'https://archive.org/download/8_20250522_202505/8.mp3' }
 ];
+
 
 export default function Music() {
   return (
