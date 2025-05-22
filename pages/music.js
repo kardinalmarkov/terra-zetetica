@@ -3,12 +3,7 @@ import Head from 'next/head';
 const tracks = [
   { title: 'Фальшивая луна', src: '/media/1.mp3' },
   { title: 'Лунный свет', src: '/media/2.mp3' },
-  { title: 'Кон-Тики: Плоская Земля', src: '/media/3.mp3' },
-  { title: 'ПЗ: Звёздный путь №1', src: '/media/4.mp3' },
-  { title: 'ПЗ: Звёздный путь №2', src: '/media/5.mp3' },
-  { title: 'ПЗ: Звёздный путь №3', src: '/media/6.mp3' },
-  { title: 'Антарктида №1', src: '/media/7.mp3' },
-  { title: 'Антарктида №2', src: '/media/8.mp3' }
+  { title: 'Кон-Тики: Плоская Земля', src: '/media/3.mp3' }
 ];
 
 export default function Music() {
