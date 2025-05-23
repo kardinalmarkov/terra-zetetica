@@ -15,6 +15,7 @@ export default function Nav() {
   const t = {
     home:         locale === 'ru' ? 'Главная'        : 'Home',
     about:        locale === 'ru' ? 'О государстве'  : 'About',
+    news:         locale === 'ru' ? 'Новости'        : 'News', // 🆕
     constitution: locale === 'ru' ? 'Конституция'    : 'Constitution',
     faq:          locale === 'ru' ? 'Вопросы'        : 'FAQ',
     roadmap:      locale === 'ru' ? 'Дорожная карта' : 'Roadmap',
@@ -36,6 +37,7 @@ export default function Nav() {
       <nav className={styles.menu}>
         <Link href="/">{t.home}</Link>
         <Link href="/about">{t.about}</Link>
+        <Link href="/news">{t.news}</Link>
         <Link href="/constitution">{t.constitution}</Link>
         <Link href="/faq">{t.faq}</Link>
         <Link href="/roadmap">{t.roadmap}</Link>
@@ -49,6 +51,7 @@ export default function Nav() {
       <nav className={`${styles.mobileMenu} ${menuOpen ? styles.open : ''}`}>
         <Link href="/" onClick={closeMenu}>{t.home}</Link>
         <Link href="/about" onClick={closeMenu}>{t.about}</Link>
+        <Link href="/news" onClick={closeMenu}>{t.news}</Link>
         <Link href="/constitution" onClick={closeMenu}>{t.constitution}</Link>
         <Link href="/faq" onClick={closeMenu}>{t.faq}</Link>
         <Link href="/roadmap" onClick={closeMenu}>{t.roadmap}</Link>
