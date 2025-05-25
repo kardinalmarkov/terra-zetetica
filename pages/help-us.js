@@ -2,9 +2,9 @@
 import Head from 'next/head'
 
 const complexityLabels = {
-  simple: { label: '⭐ Простая', zeta: '1–3 ZETA' },
-  medium: { label: '🌟 Средняя', zeta: '5–10 ZETA' },
-  hard:   { label: '🚀 Сложная', zeta: '15–20 ZETA' },
+  simple: '⭐ Простая — 1–3 ZETA',
+  medium: '🌟 Средняя — 5–10 ZETA',
+  hard: '🚀 Сложная — 15–20 ZETA',
 };
 
 const tasks = [
@@ -119,53 +119,57 @@ export default function HelpUs() {
 
       <main className="wrapper" style={{ maxWidth: 960, margin: '0 auto', padding: '2rem 1rem' }}>
         <h1>Внести вклад в Terra Zetetica</h1>
-        <p>Выбери задачу и получи ZETA за свой вклад!</p>
+        <p>Выбери одну из задач ниже. Подробности и форма отчёта — в конце страницы.</p>
 
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
-          <thead>
-            <tr>
-              {['#', 'Задача', 'Время', 'Сложность', 'Награда'].map(h => (
-                <th key={h} style={{ textAlign: 'left', padding: '8px', borderBottom: '2px solid #ddd' }}>
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {tasks.map(task => (
-              <tr key={task.id}>
-                <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{task.id}</td>
-                <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{task.text}</td>
-                <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{task.time}</td>
-                <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
-                  {complexityLabels[task.complexity].label}
-                </td>
-                <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{task.zeta} ZETA</td>
+        <section style={{ overflowX: 'auto', marginTop: '1.5rem' }}>
+          <table style={{ width: '100%', minWidth: 600, borderCollapse: 'separate', borderSpacing: '0 8px' }}>
+            <thead>
+              <tr style={{ background: '#f0f0f0' }}>
+                <th style={{ padding: '12px', textAlign: 'left' }}>#</th>
+                <th style={{ padding: '12px', textAlign: 'left', width: '60%' }}>Задача</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>Время</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>Сложность</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>ZETA</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {tasks.map(task => (
+                <tr key={task.id} style={{ background: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                  <td style={{ padding: '12px' }}>{task.id}</td>
+                  <td style={{ padding: '12px' }}>{task.text}</td>
+                  <td style={{ padding: '12px' }}>{task.time}</td>
+                  <td style={{ padding: '12px' }}>{complexityLabels[task.complexity]}</td>
+                  <td style={{ padding: '12px' }}>{task.zeta}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
 
-        <h2 style={{ marginTop: '2rem' }}>Легенда по сложности</h2>
-        <ul>
-          {Object.values(complexityLabels).map(({ label, zeta }) => (
-            <li key={label}>{label} — {zeta}</li>
-          ))}
-        </ul>
+        <aside style={{ marginTop: '2rem', padding: '1rem', background: '#f9f9f9', borderRadius: 4 }}>
+          <h2>Легенда по сложности</h2>
+          <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+            <li>⭐ Простая — 1–3 ZETA</li>
+            <li>🌟 Средняя — 5–10 ZETA</li>
+            <li>🚀 Сложная — 15–20 ZETA</li>
+          </ul>
+        </aside>
 
-        <section style={{ marginTop: '3rem', padding: '2rem', background: '#f9f9f9', borderRadius: 8 }}>
+        <section style={{ marginTop: '3rem', padding: '2rem', background: '#e8f5e9', borderRadius: 8 }}>
           <h2>📬 Отчёт о выполненной задаче</h2>
-          <p>Укажи свой Telegram-ID, номер задания и ссылки на подготовленные материалы. Мы проверим и начислим ZETA.</p>
-          <form 
-            action="https://formspree.io/f/mbloweze" 
-            method="POST" 
-            style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: 600 }}
+          <p>После выполнения отправь свой Telegram-ID, номера задач и материалы через форму:</p>
+          <form
+            action="https://formspree.io/f/твой_формспри_ид"
+            method="POST"
+            style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', maxWidth: 600 }}
           >
-            <input type="text" name="telegram_id" placeholder="Telegram-ID (число)" required style={{ padding:'0.75rem' }}/>
-            <input type="text" name="task_ids" placeholder="Номера заданий (через запятую)" required style={{ padding:'0.75rem' }}/>
-            <input type="url"  name="links" placeholder="Ссылки на материалы" required style={{ padding:'0.75rem' }}/>
-            <input type="url"  name="file_link" placeholder="Ссылка на Google Drive/Dropbox (если есть)" style={{ padding:'0.75rem' }}/>
-            <button type="submit" className="btn primary" style={{ maxWidth:200 }}>Отправить отчёт</button>
+            <input type="text" name="telegram_id" placeholder="Telegram-ID (число)" required style={{ padding:'0.75rem' }} />
+            <input type="text" name="task_ids" placeholder="Номера задач (через запятую)" required style={{ padding:'0.75rem' }} />
+            <input type="url" name="links" placeholder="Ссылки на материалы" required style={{ padding:'0.75rem' }} />
+            <input type="url" name="file_link" placeholder="Ссылка на Google Drive/Dropbox" style={{ padding:'0.75rem' }} />
+            <button type="submit" className="btn primary" style={{ justifySelf: 'start', padding: '0.75rem 1.5rem' }}>
+              Отправить отчёт
+            </button>
           </form>
         </section>
       </main>
