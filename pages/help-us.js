@@ -3,58 +3,41 @@ import Head from 'next/head'
 import { useState, useEffect } from 'react'
 
 const allTasks = [
-  // Простые (⭐ до 15′)
-  { id: 1,  text: 'Репостнуть пост Terra Zetetica в ВКонтакте',       time: 10,  complexity: 'simple', zeta: 1, checklist: [
-      'Зайти в ВКонтакте',
-      'Найти пост @terra-zetetica',
-      'Нажать «Поделиться»'
-    ]
-  },
-  { id: 2,  text: 'Поделиться сторис о TZ в Instagram',             time: 15,  complexity: 'simple', zeta: 1, checklist: [
-      'Открыть Instagram',
-      'Найти нашу страницу',
-      'Поделиться в сторис'
-    ]
-  },
-  { id: 3,  text: 'Рассылкой в WhatsApp отправить ссылку на сайт TZ', time: 10, complexity: 'simple', zeta: 1, checklist: [
-      'Открыть WhatsApp',
-      'Выбрать чат',
-      'Вставить ссылку и отправить'
-    ]
-  },
-  // … (еще простые задания до id 10)
-  
-  // Средние (🌟 15′–60′)
-  { id: 11, text: 'Создать группу TZ в VK и пригласить 20 человек', time: 60, complexity: 'medium', zeta: 5, checklist: [
-      'Зарегистрироваться в VK',
-      'Создать группу «Terra Zetetica»',
-      'Пригласить друзей'
-    ]
-  },
-  { id: 12, text: 'Перевести главный блог-пост на русский язык',    time: 90, complexity: 'medium', zeta: 5, checklist: [
-      'Скопировать текст',
-      'Перевести',
-      'Отправить правки в репозиторий'
-    ]
-  },
-  // … (еще средние задания до id 20)
+  /* ────────────  ⭐ ПРОСТЫЕ  (1–3 ZETA, до 15 мин) ──────────── */
+  { id: 1,  text: 'Поставить лайк 👍 на пост TZ во ВКонтакте',       time: 5,  complexity: 'simple', zeta: 1,
+    checklist: ['Открыть пост', 'Нажать «Мне нравится»', 'Готово'] },
+  { id: 2,  text: 'Поставить ⭐ в репозитории GitHub (terra-zetetica)', time: 5,  complexity: 'simple', zeta: 1,
+    checklist: ['Зайти на GitHub', 'Открыть репозиторий', 'Нажать «Star»'] },
+  { id: 3,  text: 'Подписаться на Telegram-канал TZ',               time: 3,  complexity: 'simple', zeta: 1,
+    checklist: ['Открыть t.me/terra_zetetica', 'Нажать «Join»', 'Скриншот'] },
+  { id: 4,  text: 'Поделиться ссылкой на сайт TZ в WhatsApp группе', time: 10, complexity: 'simple', zeta: 1,
+    checklist: ['Скопировать ссылку', 'Вставить в группу', 'Отправить'] },
+  { id: 5,  text: 'Сделать репост в VK-истории о плоской Земле',     time: 10, complexity: 'simple', zeta: 1,
+    checklist: ['Найти историю', 'Нажать «Поделиться»', 'Опубликовать'] },
+  { id: 6,  text: 'Добавить terra-zetetica.org в закладки',          time: 5,  complexity: 'simple', zeta: 1,
+    checklist: ['Открыть сайт', 'Нажать Ctrl+D', 'Подтвердить'] },
+  { id: 7,  text: 'Оставить эмодзи-реакцию в чате TZ',               time: 5,  complexity: 'simple', zeta: 1,
+    checklist: ['Зайти в чат', 'Выбрать сообщение', 'Поставить реакцию'] },
+  { id: 8,  text: 'Пригласить 3 друзей в Telegram-чат TZ',           time: 10, complexity: 'simple', zeta: 2,
+    checklist: ['Открыть чат', 'Нажать «Добавить»', 'Выбрать 3 контакта'] },
+  { id: 9,  text: 'Сохранить обои “Flat Earth” на рабочий стол',      time: 10, complexity: 'simple', zeta: 2,
+    checklist: ['Скачать картинку', 'Открыть свойства фона', 'Установить'] },
+  { id: 10, text: 'Отправить разработчикам баг-репорт (1 строка)',    time: 10, complexity: 'simple', zeta: 2,
+    checklist: ['Найти баг', 'Коротко описать', 'Отправить через форму'] },
+  // … простые до id:20
 
-  // Сложные (🚀 больше 1 ч)
-  { id: 21, text: 'Перевести весь сайт на английский',              time: 360, complexity: 'hard', zeta: 20, checklist: [
-      'Скачать PO-файлы',
-      'Перевести строки',
-      'Собрать и проверить'
-    ]
-  },
-  { id: 22, text: 'Настроить автодеплой (GitHub Actions)',           time: 240, complexity: 'hard', zeta: 15, checklist: [
-      'Создать workflow файл',
-      'Настроить секреты',
-      'Протестировать'
-    ]
-  },
-  // … (еще сложные задания до id 30)
+  /* ────────────  🌟 СРЕДНИЕ (5–10 ZETA, 15–60 мин) ──────────── */
+  { id: 21, text: 'Создать мем о плоской Земле в Canva',                time: 40, complexity: 'medium', zeta: 5,
+    checklist: ['Открыть Canva', 'Нарисовать мем', 'Сохранить PNG'] },
+  { id: 22, text: 'Написать пост (~200 слов) на Хабр о TZ',             time: 60, complexity: 'medium', zeta: 8,
+    checklist: ['Авторизоваться', 'Написать текст', 'Опубликовать'] },
+  // … средние до id:40
 
-  // Повторите по аналогии до 100 заданий
+  /* ────────────  🚀 СЛОЖНЫЕ (15–20 ZETA, ≥ 4 ч) ──────────── */
+  { id: 41, text: 'Перевести весь сайт на английский',                  time: 360, complexity: 'hard', zeta: 20,
+    checklist: ['Скачать i18n-файлы', 'Перевести', 'PR в GitHub'] },
+  // … сложные до id:60
+  // и далее вплоть до 100, по той же схеме
 ]
 
 export default function HelpUs() {
@@ -65,8 +48,7 @@ export default function HelpUs() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setCurrentUrl(window.location.href)
-      const saved = JSON.parse(localStorage.getItem('tz-favs') || '[]')
-      setFavorites(saved)
+      setFavorites(JSON.parse(localStorage.getItem('tz-favs') || '[]'))
     }
   }, [])
 
@@ -94,7 +76,7 @@ export default function HelpUs() {
       </Head>
       <main className="wrapper">
         <h1>Внести вклад в Terra Zetetica</h1>
-        <p>Отфильтруйте по времени и отметьте ⭐ понравившиеся задания.</p>
+        <p>Фильтр по длительности и «избранное» через ⭐.</p>
 
         <div className="filter">
           <label>
@@ -111,7 +93,7 @@ export default function HelpUs() {
         </div>
 
         {levels.map(({ key, title }) => (
-          <section key={key} className="section">
+          <section key={key}>
             <h2>{title}</h2>
             <div className="tasks-list">
               {filtered
@@ -119,42 +101,34 @@ export default function HelpUs() {
                 .map(t => (
                   <div key={t.id} className="task-card">
                     <div className="task-header">
-                      <span className="task-id">{t.id}.</span>
-                      <span className="task-text">{t.text}</span>
-                      <button className="fav" onClick={() => toggleFav(t.id)}>
+                      {t.id}. {t.text}
+                      <button onClick={() => toggleFav(t.id)}>
                         {favorites.includes(t.id) ? '★' : '☆'}
                       </button>
                     </div>
                     <div className="task-meta">
-                      <span>
-                        ⏱ {t.time <= 60 ? `${t.time}′` : `${Math.floor(t.time/60)} ч`}
-                      </span>
-                      <span className="badge">+{t.zeta} ZETA</span>
+                      ⏱ {t.time <= 60 ? `${t.time}′` : `${Math.floor(t.time/60)} ч`}  
+                      +{t.zeta} ZETA
                       {currentUrl && (
-                        <div className="share">
+                        <span className="share">
                           <a
                             href={`https://t.me/share/url?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(t.text)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                          >
-                            Telegram
-                          </a>
+                          >Telegram</a>
+                          {' | '}
                           <a
                             href={`https://wa.me/?text=${encodeURIComponent(t.text + ' ' + currentUrl)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                          >
-                            WhatsApp
-                          </a>
-                        </div>
+                          >WhatsApp</a>
+                        </span>
                       )}
                     </div>
                     <details>
                       <summary>Что нужно сделать</summary>
                       <ul>
-                        {t.checklist.map((step, i) => (
-                          <li key={i}>{step}</li>
-                        ))}
+                        {t.checklist.map((step, i) => <li key={i}>{step}</li>)}
                       </ul>
                     </details>
                   </div>
@@ -164,112 +138,30 @@ export default function HelpUs() {
         ))}
 
         <section className="report">
-          <h2>📬 Отчёт о выполненной задаче</h2>
-          <p>Заполните форму: укажите Z-ID, номера задач, ссылки на материалы и комментарий.</p>
-          <form
-            action="https://formspree.io/f/твой_формспри_ид"
-            method="POST"
-            className="report-form"
-          >
-            <input name="z_id" placeholder="Z-ID (номер)" required />
-            <input name="task_ids" placeholder="Номера задач (через запятую)" required />
-            <input name="links" placeholder="Ссылки на материалы" required />
-            <input name="file_link" placeholder="Ссылка на файлы (Drive/Dropbox)" />
+          <h2>Отчёт о выполненных задачах</h2>
+          <form action="https://formspree.io/f/твой_ид" method="POST">
+            <input name="z_id" placeholder="Z-ID" required />
+            <input name="task_ids" placeholder="Задачи (через запятую)" required />
+            <input name="links" placeholder="Ссылки" required />
             <textarea name="comment" placeholder="Комментарий (опционально)" />
-            <button type="submit">Отправить отчёт</button>
+            <button type="submit">Отправить</button>
           </form>
         </section>
       </main>
 
       <style jsx>{`
-        .wrapper {
-          max-width: 960px;
-          margin: 0 auto;
-          padding: 2rem 1rem;
-        }
-        .filter {
-          margin: 1rem 0;
-        }
-        .tasks-list {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 1rem;
-        }
-        @media (min-width: 600px) {
-          .tasks-list {
-            grid-template-columns: 1fr 1fr;
-          }
-        }
-        .task-card {
-          background: #fff;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          padding: 1rem;
-        }
-        .task-header {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-        .fav {
-          margin-left: auto;
-          background: none;
-          border: none;
-          font-size: 1.25rem;
-          cursor: pointer;
-        }
-        .task-meta {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-top: 0.5rem;
-          font-size: 0.9rem;
-        }
-        .badge {
-          background: #e0f7fa;
-          padding: 0.25rem 0.5rem;
-          border-radius: 4px;
-        }
-        .share a {
-          margin-left: 0.5rem;
-          font-size: 0.8rem;
-          text-decoration: none;
-          color: #0077cc;
-        }
-        details {
-          margin-top: 0.5rem;
-        }
-        summary {
-          cursor: pointer;
-          font-weight: bold;
-        }
-        .report {
-          margin-top: 3rem;
-          padding: 2rem;
-          background: #f1f8e9;
-          border-radius: 8px;
-        }
-        .report-form {
-          display: grid;
-          gap: 1rem;
-          max-width: 600px;
-        }
-        .report-form input,
-        .report-form textarea {
-          padding: 0.75rem;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          width: 100%;
-        }
-        .report-form button {
-          width: fit-content;
-          padding: 0.75rem 1.5rem;
-          background: #4caf50;
-          color: #fff;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        }
+        .wrapper { max-width: 960px; margin: auto; padding: 2rem 1rem; }
+        .filter { margin: 1rem 0; }
+        .tasks-list { display: grid; gap: 1rem; }
+        @media (min-width:600px) { .tasks-list { grid-template-columns:1fr 1fr } }
+        .task-card { border:1px solid #ddd; padding:1rem; border-radius:4px; }
+        .task-header { display:flex; justify-content:space-between; }
+        .task-meta { font-size:.9rem; margin-top:.5rem; }
+        .share a { margin-left:.5rem; font-size:.8rem; }
+        .report { margin-top:2rem; padding:1rem; background:#f9f9f9; border-radius:4px; }
+        form { display:grid; gap:1rem; max-width:600px; }
+        input, textarea { padding:.75rem; border:1px solid #ccc; border-radius:4px; }
+        button { padding:.75rem 1.5rem; background:#4caf50; color:#fff; border:none; border-radius:4px; }
       `}</style>
     </>
   )
