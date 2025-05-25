@@ -162,7 +162,7 @@ export default function GetInvolved() {
         <h2>📬 Отчёт о выполненной задаче</h2>
         <p>Укажи свой Telegram-ID, номер задания и ссылки на подготовленные материалы. Мы проверим и начислим ZETA.</p>
         <form 
-          action="https://formspree.io/f/твой_формспри_ид" 
+          action="https://formspree.io/f/mbloweze" 
           method="POST" 
           style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: 600 }}
         >
