@@ -109,6 +109,359 @@ const allTasks = [
   { id: 50, text: 'Написать white-paper TZ (3000 слов)', time: 600, complexity: 'hard', zeta: 20,
     checklist: ['Собрать структуру', 'Написать главы', 'Верстка в LaTeX'] },
   // … до 100 по той же схеме
+
+  /* ────────────  ДОПОЛНИТЕЛЬНЫЕ ЗАДАЧИ 51–100 ──────────── */
+
+  { id: 51, text: 'Организовать фотоконкурс «Мой плоский горизонт»', time: 90, complexity: 'medium', zeta: 8,
+    checklist: [
+      'Опубликовать объявление в соцсетях',
+      'Собрать 10 работ в чате',
+      'Выбрать победителя и наградить'
+    ]
+  },
+  { id: 52, text: 'Составить подборку статей о теории плоской Земли', time: 60, complexity: 'medium', zeta: 6,
+    checklist: [
+      'Найти 5 статей в интернете',
+      'Сделать краткие аннотации',
+      'Опубликовать подборку в Telegram'
+    ]
+  },
+  { id: 53, text: 'Запустить серию коротких тиктоков «Факт о плоской Земле»', time: 120, complexity: 'medium', zeta: 10,
+    checklist: [
+      'Написать 3 сценария',
+      'Записать и смонтировать ролики',
+      'Опубликовать с #TerraZ'
+    ]
+  },
+  { id: 54, text: 'Разместить баннер TZ на своём сайте или блоге', time: 30, complexity: 'simple', zeta: 2,
+    checklist: [
+      'Скачать баннер с сайта TZ',
+      'Добавить HTML-код на страницу',
+      'Проверить отображение'
+    ]
+  },
+  { id: 55, text: 'Перевести FAQ проекта на французский', time: 120, complexity: 'medium', zeta: 8,
+    checklist: [
+      'Скачать раздел FAQ',
+      'Перевести ~500 слов',
+      'Сделать PR на GitHub'
+    ]
+  },
+  { id: 56, text: 'Создать подкаст-тизер о миссии TZ (1 минута)', time: 60, complexity: 'medium', zeta: 6,
+    checklist: [
+      'Сценарий на 1 мин',
+      'Запись и монтаж',
+      'Залить в Telegram и Rutube'
+    ]
+  },
+  { id: 57, text: 'Нарисовать эмблему виртуального флота TZ', time: 90, complexity: 'medium', zeta: 8,
+    checklist: [
+      'Эскиз на бумаге',
+      'Векторизация в Inkscape',
+      'Опубликовать SVG'
+    ]
+  },
+  { id: 58, text: 'Организовать Telegram-чат для новичков TZ', time: 45, complexity: 'medium', zeta: 5,
+    checklist: [
+      'Создать группу',
+      'Написать правила',
+      'Пригласить 20 участников'
+    ]
+  },
+  { id: 59, text: 'Запустить еженедельный дайджест новостей TZ на VC.ru', time: 120, complexity: 'medium', zeta: 10,
+    checklist: [
+      'Собрать 5 новостей',
+      'Сверстать в статью',
+      'Опубликовать на VC.ru'
+    ]
+  },
+  { id: 60, text: 'Провести опрос в Instagram Stories о знании плоской Земли', time: 30, complexity: 'simple', zeta: 3,
+    checklist: [
+      'Опубликовать опрос-стикер',
+      'Собрать 50 ответов',
+      'Подвести итоги в чате'
+    ]
+  },
+  { id: 61, text: 'Разработать мини-игру «Найди край купола» на HTML/JS', time: 180, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Прототип на paper',
+      'Сверстать на Canvas',
+      'Опубликовать на GitHub Pages'
+    ]
+  },
+  { id: 62, text: 'Написать обзор «Топ-5 фактов о TZ» для блога', time: 90, complexity: 'medium', zeta: 8,
+    checklist: [
+      'Собрать факты',
+      'Описать каждый в 100 слов',
+      'Опубликовать на WordPress'
+    ]
+  },
+  { id: 63, text: 'Сделать график роста граждан TZ в Excel/Google Sheets', time: 60, complexity: 'medium', zeta: 6,
+    checklist: [
+      'Собрать данные за месяц',
+      'Построить график',
+      'Опубликовать скрин'
+    ]
+  },
+  { id: 64, text: 'Организовать «челлендж» мемов в Telegram-канале', time: 45, complexity: 'medium', zeta: 5,
+    checklist: [
+      'Анонсировать в чате',
+      'Принять 20 мемов',
+      'Выбрать 3 победителя'
+    ]
+  },
+  { id: 65, text: 'Создать и запустить лендинг-страницу анклава TZ на Tilda', time: 180, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Зарегистрироваться на Tilda',
+      'Собрать структуру',
+      'Опубликовать ссылку'
+    ]
+  },
+  { id: 66, text: 'Написать статью «Как DAO управляет TZ» для Хабра', time: 120, complexity: 'medium', zeta: 10,
+    checklist: [
+      'Составить план',
+      'Написать 1500 слов',
+      'Опубликовать на habr.com'
+    ]
+  },
+  { id: 67, text: 'Снять интервью-сторис с первым гражданином TZ', time: 60, complexity: 'medium', zeta: 6,
+    checklist: [
+      'Договориться о времени',
+      'Провести и записать',
+      'Опубликовать в сторис'
+    ]
+  },
+  { id: 68, text: 'Создать серию GIF-смайлов «TZ emotions»', time: 120, complexity: 'medium', zeta: 8,
+    checklist: [
+      'Нарисовать 5 смайлов',
+      'Сконвертировать в GIF',
+      'Загрузить в чат'
+    ]
+  },
+  { id: 69, text: 'Перевести сайт на турецкий язык (главная)', time: 150, complexity: 'medium', zeta: 8,
+    checklist: [
+      'Скопировать текст главной',
+      'Сделать перевод',
+      'PR в GitHub'
+    ]
+  },
+  { id: 70, text: 'Сделать краткий видеоролик «Путеводитель по сайту TZ»', time: 120, complexity: 'medium', zeta: 8,
+    checklist: [
+      'Написать сценарий 1 мин',
+      'Записать видео-скринкаст',
+      'Добавить закадровый текст'
+    ]
+  },
+  { id: 71, text: 'Организовать флешмоб «Выйди из глобуса» офлайн в своём городе', time: 240, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Разработать плакаты',
+      'Собрать 10 участников',
+      'Провести акцию и снять видео'
+    ]
+  },
+  { id: 72, text: 'Разместить рекламу TZ в тематической группе VK за свой счёт (до 200 ₽)', time: 60, complexity: 'medium', zeta: 5,
+    checklist: [
+      'Выбрать группу',
+      'Настроить таргет',
+      'Опубликовать баннер'
+    ]
+  },
+  { id: 73, text: 'Собрать рубрику «Вопрос-ответ» для сайта', time: 90, complexity: 'medium', zeta: 8,
+    checklist: [
+      'Собрать 10 популярных вопросов',
+      'Написать ответы',
+      'Выложить на страницу FAQ'
+    ]
+  },
+  { id: 74, text: 'Разработать шаблон презентации TZ в PowerPoint', time: 90, complexity: 'medium', zeta: 8,
+    checklist: [
+      'Создать 5 слайдов',
+      'Оформить фирменными цветами',
+      'Опубликовать PPTX'
+    ]
+  },
+  { id: 75, text: 'Сделать звуковой дайджест (3–5 мин) новостей TZ', time: 120, complexity: 'medium', zeta: 10,
+    checklist: [
+      'Собрать новости',
+      'Записать и смонтировать',
+      'Опубликовать в чате'
+    ]
+  },
+  { id: 76, text: 'Организовать серию AMA-стримов с основателем TZ', time: 180, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Договориться о времени',
+      'Подготовить вопросы',
+      'Провести стрим'
+    ]
+  },
+  { id: 77, text: 'Написать обзорные статьи о конкурентах TZ и их ошибках', time: 150, complexity: 'medium', zeta: 8,
+    checklist: [
+      'Изучить 3 проекта',
+      'Составить список ошибок',
+      'Описать в статье'
+    ]
+  },
+  { id: 78, text: 'Создать и вести канал TZ в Telegram-канал по DevOps', time: 120, complexity: 'medium', zeta: 10,
+    checklist: [
+      'Определить тематику',
+      'Опубликовать 5 постов',
+      'Пригласить подписчиков'
+    ]
+  },
+  { id: 79, text: 'Разработать иконки для React-компонентов TZ UI', time: 90, complexity: 'medium', zeta: 8,
+    checklist: [
+      'Нарисовать 10 SVG-иконок',
+      'Оптимизировать',
+      'Добавить в репозиторий'
+    ]
+  },
+  { id: 80, text: 'Написать статью «Экономика плоской Земли» для блога', time: 180, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Собрать статистику',
+      'Написать текст 2000 слов',
+      'Опубликовать'
+    ]
+  },
+  { id: 81, text: 'Сделать мобильный дизайн страницы TZ (Figma)', time: 180, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Спроектировать макет',
+      'Сверстать в Figma',
+      'Отправить ссылку'
+    ]
+  },
+  { id: 82, text: 'Разработать NFT-коллекцию “Плоский мир”', time: 240, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Нарисовать 20 артов',
+      'Настроить смарт-контракт',
+      'Выпустить в OpenSea'
+    ]
+  },
+  { id: 83, text: 'Настроить контейнер-кластер кворкеров для TZ CI/CD', time: 240, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Написать Dockerfile',
+      'Оркестровать в Kubernetes',
+      'Интегрировать с GitHub Actions'
+    ]
+  },
+  { id: 84, text: 'Организовать серию лекций про зететику в вузе', time: 240, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Подключить преподавателя',
+      'Согласовать аудиторию',
+      'Провести 3 лекции'
+    ]
+  },
+  { id: 85, text: 'Запустить потоковую трансляцию с “края Земли” (симуляция)', time: 300, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Настроить OBS',
+      'Сделать “краевой” фон',
+      'Стримить в YouTube'
+    ]
+  },
+  { id: 86, text: 'Перенести логику Z-ID в смарт-контракт Solidity', time: 300, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Написать контракт в Remix',
+      'Тестировать в Ganache',
+      'Опубликовать ABI'
+    ]
+  },
+  { id: 87, text: 'Создать учебное пособие по IPFS для новичков', time: 180, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Собрать примеры команд',
+      'Написать описание',
+      'Опубликовать PDF'
+    ]
+  },
+  { id: 88, text: 'Запуск собственного зеркала сайта TZ на GitLab Pages', time: 180, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Скопировать репо на GitLab',
+      'Настроить CI/CD',
+      'Проверить работу'
+    ]
+  },
+  { id: 89, text: 'Разработать расширение VSCode “TZ Snippets”', time: 240, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Создать snippet-файл',
+      'Задокументировать',
+      'Опубликовать на Marketplace'
+    ]
+  },
+  { id: 90, text: 'Снять документальный ролик о создании TZ (5–10 мин)', time: 480, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Написать сценарий',
+      'Съёмка и монтаж',
+      'Залить на Rutube/YouTube'
+    ]
+  },
+  { id: 91, text: 'Организовать международный Round Table по плоской Земле', time: 360, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Пригласить 5 спикеров',
+      'Согласовать платформу (Zoom)',
+      'Провести и записать'
+    ]
+  },
+  { id: 92, text: 'Разработать умный контракт для airdrop ZETA', time: 300, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Написать контракт ERC-20',
+      'Протестировать airdrop',
+      'Опубликовать на Etherscan'
+    ]
+  },
+  { id: 93, text: 'Сделать 3D-модель плоской Земли в Blender', time: 240, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Создать ландшафт',
+      'Добавить материалы',
+      'Экспорт OBJ'
+    ]
+  },
+  { id: 94, text: 'Разработать Telegram-игру “Завоюй анклав” (бот)', time: 300, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Написать логику на Node.js',
+      'Подключить к БД',
+      'Запустить и протестировать'
+    ]
+  },
+  { id: 95, text: 'Перевести Whitepaper TZ на испанский', time: 180, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Скачать Whitepaper',
+      'Перевести 3000 слов',
+      'Сделать PR'
+    ]
+  },
+  { id: 96, text: 'Организовать выпуск аудио-книги «Основы зететики»', time: 360, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Записать озвучку',
+      'Смонтировать треки',
+      'Опубликовать в SoundCloud'
+    ]
+  },
+  { id: 97, text: 'Создать VR-площадку TZ в Mozilla Hubs', time: 240, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Зарегистрироваться в Hubs',
+      'Смоделировать сцену',
+      'Опубликовать ссылку'
+    ]
+  },
+  { id: 98, text: 'Написать опенсорс-плагин “Flat-Earth Overlay” для Leaflet.js', time: 300, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Создать плагин',
+      'Протестировать на карте',
+      'Опубликовать npm-пакет'
+    ]
+  },
+  { id: 99, text: 'Организовать выпуск журнала «Zetetic Monthly» (PDF)', time: 360, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Собрать материалы',
+      'Вёрстка в InDesign',
+      'Опубликовать PDF'
+    ]
+  },
+  { id: 100, text: 'Написать и запустить API-сервер для Z-ID (Node.js + Express)', time: 360, complexity: 'hard', zeta: 20,
+    checklist: [
+      'Спроектировать API',
+      'Реализовать CRUD',
+      'Задокументировать в Swagger'
+    ]
+  },
 ]
 
 export default function HelpUs() {
@@ -147,10 +500,10 @@ export default function HelpUs() {
       </Head>
       <main className="wrapper">
         <h1>Внести вклад в Terra Zetetica</h1>
-        <p>Фильтр по длительности и пометка «избранное» через ⭐.</p>
+        <p>Фильтр по длительности и отметка «избранное» ⭐.</p>
 
         <div className="filter">
-          <label>Максимальное время: {filterMax <= 60 ? `${filterMax}′` : `${Math.floor(filterMax/60)} ч`}</label>
+          <label>Макс. время: {filterMax <= 60 ? `${filterMax}′` : `${Math.floor(filterMax/60)} ч`}</label>
           <input
             type="range"
             min={5}
@@ -176,19 +529,12 @@ export default function HelpUs() {
                     >★</button>
                   </div>
                   <div className="task-meta">
-                    ⏱ {t.time <= 60 ? `${t.time}′` : `${Math.floor(t.time/60)} ч`}  
-                    +{t.zeta} ZETA
+                    ⏱ {t.time <= 60 ? `${t.time}′` : `${Math.floor(t.time/60)} ч`} +{t.zeta} ZETA
                     {currentUrl && (
                       <span className="share">
-                        <a
-                          href={`https://t.me/share/url?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(t.text)}`}
-                          target="_blank" rel="noopener noreferrer"
-                        >Telegram</a>
+                        <a href={`https://t.me/share/url?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(t.text)}`} target="_blank" rel="noopener noreferrer">Telegram</a>
                         {' | '}
-                        <a
-                          href={`https://wa.me/?text=${encodeURIComponent(t.text + ' ' + currentUrl)}`}
-                          target="_blank" rel="noopener noreferrer"
-                        >WhatsApp</a>
+                        <a href={`https://wa.me/?text=${encodeURIComponent(t.text + ' ' + currentUrl)}`} target="_blank" rel="noopener noreferrer">WhatsApp</a>
                       </span>
                     )}
                   </div>
@@ -208,19 +554,19 @@ export default function HelpUs() {
           <h2>Отчёт о выполненных задачах</h2>
           <form action="https://formspree.io/f/ВАШ_ИД" method="POST" className="report-form">
             <input name="z_id" placeholder="Z-ID" required />
-            <input name="task_ids" placeholder="Номера задач (через запятую)" required />
+            <input name="task_ids" placeholder="Номера задач, через запятую" required />
             <input name="links" placeholder="Ссылки на материалы" required />
             <textarea name="comment" placeholder="Комментарий (опционально)" />
-            <button type="submit">Отправить отчёт</button>
+            <button type="submit">Отправить</button>
           </form>
         </section>
       </main>
 
       <style jsx>{`
-        .wrapper { max-width: 960px; margin: auto; padding: 2rem 1rem; }
-        .filter { margin: 1rem 0; }
-        .tasks-list { display: grid; gap: 1rem; }
-        @media (min-width: 600px) { .tasks-list { grid-template-columns: 1fr 1fr } }
+        .wrapper { max-width:960px; margin:0 auto; padding:2rem 1rem; }
+        .filter { margin:1rem 0; }
+        .tasks-list { display:grid; gap:1rem; }
+        @media(min-width:600px){ .tasks-list{ grid-template-columns:1fr 1fr } }
         .task-card { border:1px solid #ddd; padding:1rem; border-radius:4px; background:#fff; }
         .task-header { display:flex; justify-content:space-between; align-items:center; }
         .fav { background:none; border:none; font-size:1.5rem; color:#ccc; cursor:pointer; padding:0; }
