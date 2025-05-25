@@ -2,7 +2,7 @@
 import Head from 'next/head'
 
 const tasks = [
-  { id: 1, text: 'Репостить анонсы TZ в ВКонтакте', time: '10 мин', complexity: 'simple', zeta: 1 },
+  { id: 1, text: '!!Репостить анонсы TZ в ВКонтакте', time: '10 мин', complexity: 'simple', zeta: 1 },
   { id: 2, text: 'Создать и вести группу TZ в VK', time: '1 час', complexity: 'medium', zeta: 5 },
   { id: 3, text: 'Постить истории в Instagram с фактами о TZ', time: '15 мин', complexity: 'simple', zeta: 1 },
   { id: 4, text: 'Запустить канал TZ в Telegram для региона', time: '20 мин', complexity: 'simple', zeta: 1 },
