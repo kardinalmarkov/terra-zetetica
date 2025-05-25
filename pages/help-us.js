@@ -1,178 +1,238 @@
 // pages/help-us.js
 import Head from 'next/head'
 
-const complexityLabels = {
-  simple: '⭐ Простая — 1–3 ZETA',
-  medium: '🌟 Средняя — 5–10 ZETA',
-  hard: '🚀 Сложная — 15–20 ZETA',
-};
-
 const tasks = [
-  { id: 1,   text: 'Репостить анонсы TZ в ВКонтакте', time: '10 мин', complexity: 'simple', zeta: 1 },
-  { id: 2,   text: 'Создать и вести группу TZ в VK', time: '1 час',   complexity: 'medium', zeta: 5 },
-  { id: 3,   text: 'Постить истории в Instagram с фактами о TZ', time: '15 мин', complexity: 'simple', zeta: 1 },
-  { id: 4,   text: 'Запустить региональный Telegram-канал TZ', time: '20 мин', complexity: 'simple', zeta: 1 },
-  { id: 5,   text: 'Перевести сайт проекта на русский', time: '2 ч',     complexity: 'hard',   zeta: 10 },
-  { id: 6,   text: 'Написать гостевой пост на vc.ru или Habr', time: '3 ч', complexity: 'hard',   zeta: 8 },
-  { id: 7,   text: 'Снять 30-сек видео «Почему я в TZ»', time: '30 мин', complexity: 'medium', zeta: 2 },
-  { id: 8,   text: 'Сделать инфографику «Как работает DAO TZ»', time: '1 ч', complexity: 'medium', zeta: 3 },
-  { id: 9,   text: 'Организовать офлайн-встречу flat-earth сообщества', time: '4 ч', complexity: 'hard', zeta: 15 },
-  { id: 10,  text: 'Подготовить и разослать пресс-релиз в локальные СМИ', time: '2 ч', complexity: 'medium', zeta: 5 },
-  { id: 11,  text: 'Запустить подкаст о плоской Земле и TZ', time: '3 ч', complexity: 'hard', zeta: 10 },
-  { id: 12,  text: 'Сделать подборку мемов про TZ', time: '1 ч', complexity: 'simple', zeta: 1 },
-  { id: 13,  text: 'Перевести Конституцию TZ на татарский или башкирский', time: '3 ч', complexity: 'hard', zeta: 8 },
-  { id: 14,  text: 'Запустить email-рассылку «Zetetic Digest»', time: '2 ч', complexity: 'medium', zeta: 5 },
-  { id: 15,  text: 'Сделать аудио-гид по сайту TZ (60 сек)', time: '1 ч', complexity: 'medium', zeta: 3 },
-  { id: 16,  text: 'Настроить GitHub Actions для автодеплоя сайта', time: '2 ч', complexity: 'hard', zeta: 10 },
-  { id: 17,  text: 'Написать статью о ZetaCoin для VK-блога', time: '2 ч', complexity: 'medium', zeta: 5 },
-  { id: 18,  text: 'Подготовить «шаблон анклава» в формате PDF', time: '2 ч', complexity: 'medium', zeta: 5 },
-  { id: 19,  text: 'Организовать конкурс логотипов анклава', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 20,  text: 'Собрать интервью с первыми гражданами TZ', time: '4 ч', complexity: 'hard', zeta: 10 },
-  { id: 21,  text: 'Запустить челлендж #ЯвTZ в TikTok', time: '1 ч', complexity: 'simple', zeta: 2 },
-  { id: 22,  text: 'Разместить афиши TZ в локальных кафе/коворкингах', time: '2 ч', complexity: 'simple', zeta: 2 },
-  { id: 23,  text: 'Сделать видеогайд «Как подключить MetaMask»', time: '1 ч', complexity: 'medium', zeta: 5 },
-  { id: 24,  text: 'Организовать мини-лекцию в университете', time: '3 ч', complexity: 'hard', zeta: 15 },
-  { id: 25,  text: 'Создать карту анклавов TZ в Google Maps', time: '2 ч', complexity: 'medium', zeta: 5 },
-  { id: 26,  text: 'Разработать чат-бота для VK с квизами по TZ', time: '4 ч', complexity: 'hard', zeta: 10 },
-  { id: 27,  text: 'Подготовить кейс-стади для LinkedIn', time: '2 ч', complexity: 'medium', zeta: 5 },
-  { id: 28,  text: 'Запустить VR-тур по анклаву (прототип)', time: '5 ч', complexity: 'hard', zeta: 15 },
-  { id: 29,  text: 'Организовать AMA-сессию в Telegram', time: '2 ч', complexity: 'medium', zeta: 5 },
-  { id: 30,  text: 'Сделать подборку статей про зететику', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 31,  text: 'Нарисовать набор NFT-марок TZ', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 32,  text: 'Создать демо-бота для отчётов в Discord', time: '4 ч', complexity: 'hard', zeta: 10 },
-  { id: 33,  text: 'Организовать флешмоб «Выйди из Матрицы»', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 34,  text: 'Запустить Telegram-игру «Завоюй анклав»', time: '6 ч', complexity: 'hard', zeta: 15 },
-  { id: 35,  text: 'Перевести сайт TZ на украинский', time: '3 ч', complexity: 'hard', zeta: 8 },
-  { id: 36,  text: 'Разработать «Z-метрологию» (единицы TZ)', time: '4 ч', complexity: 'hard', zeta: 10 },
-  { id: 37,  text: 'Создать «NearSky» стрим-камеру на IPFS', time: '6 ч', complexity: 'hard', zeta: 15 },
-  { id: 38,  text: 'Провести фото-репортаж из действующего анклава', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 39,  text: 'Написать методичку «Как стать Zetetic-послом»', time: '2 ч', complexity: 'medium', zeta: 5 },
-  { id: 40,  text: 'Организовать «книжный клуб» по Zetetic-литературе', time: '2 ч', complexity: 'medium', zeta: 5 },
-  { id: 41,  text: 'Запустить серию комиксов о плоской Земле', time: '5 ч', complexity: 'hard', zeta: 15 },
-  { id: 42,  text: 'Провести краудфандинг-кампанию в РФ', time: '4 ч', complexity: 'hard', zeta: 15 },
-  { id: 43,  text: 'Создать учебное видео «Что такое IPFS-паспорт»', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 44,  text: 'Разработать браузерный плагин «Flat-Earth»', time: '8 ч', complexity: 'hard', zeta: 20 },
-  { id: 45,  text: 'Провести серию сторис «20 дней в TZ»', time: '2 ч', complexity: 'simple', zeta: 3 },
-  { id: 46,  text: 'Организовать крауд-ревью научных статей', time: '4 ч', complexity: 'medium', zeta: 5 },
-  { id: 47,  text: 'Сделать веб-форму предложений по анклавам', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 48,  text: 'Создать «путеводитель по зоне TZ» в PDF', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 49,  text: 'Организовать локальный митап «Zetetic Nights»', time: '4 ч', complexity: 'medium', zeta: 5 },
-  { id: 50,  text: 'Разработать иконки для TZ-приложения', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 51,  text: 'Запустить канал TZ на Яндекс.Дзен', time: '2 ч', complexity: 'simple', zeta: 3 },
-  { id: 52,  text: 'Написать серию постов о DeFi-потенциале TZ', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 53,  text: 'Провести вебинар «Как работает Z-Coin»', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 54,  text: 'Организовать тест-нет майнинг ZETA', time: '4 ч', complexity: 'hard', zeta: 10 },
-  { id: 55,  text: 'Создать и вести чат-бот «Новости ZETA-курса»', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 56,  text: 'Написать гайд «Как создать свой анклав»', time: '2 ч', complexity: 'medium', zeta: 5 },
-  { id: 57,  text: 'Организовать сбор средств на оборудование анклава', time: '4 ч', complexity: 'hard', zeta: 15 },
-  { id: 58,  text: 'Провести онлайн-экспедицию «За края купола»', time: '6 ч', complexity: 'hard', zeta: 20 },
-  { id: 59,  text: 'Сделать серию иллюстраций «Плоская Земля»', time: '5 ч', complexity: 'hard', zeta: 15 },
-  { id: 60,  text: 'Запустить Telegram-канал «Zetetic Science»', time: '2 ч', complexity: 'simple', zeta: 3 },
-  { id: 61,  text: 'Перевести основную документацию TZ на казахский', time: '4 ч', complexity: 'hard', zeta: 10 },
-  { id: 62,  text: 'Серией сторис рассказать о Z-метрологии', time: '2 ч', complexity: 'simple', zeta: 3 },
-  { id: 63,  text: 'Организовать челлендж по созданию стихов о TZ', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 64,  text: 'Написать обзор «Как работает DAO» для Dev.to', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 65,  text: 'Сделать гайд-видео «Как редактировать карту TZ»', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 66,  text: 'Разработать мобильный прототип Z-ID', time: '6 ч', complexity: 'hard', zeta: 20 },
-  { id: 67,  text: 'Организовать фото-охоту за «местами силы» TZ', time: '4 ч', complexity: 'medium', zeta: 5 },
-  { id: 68,  text: 'Подготовить и провести курс «Zetetic Research»', time: '8 ч', complexity: 'hard', zeta: 20 },
-  { id: 69,  text: 'Создать VR-модель «купол над Землей»', time: '6 ч', complexity: 'hard', zeta: 20 },
-  { id: 70,  text: 'Организовать серию подкастов о Z-банке', time: '4 ч', complexity: 'medium', zeta: 5 },
-  { id: 71,  text: 'Запустить селфи-флешмоб «Я в TZ» в Snapchat', time: '1 ч', complexity: 'simple', zeta: 2 },
-  { id: 72,  text: 'Разработать шаблон NFT-паспорта TZ', time: '5 ч', complexity: 'hard', zeta: 15 },
-  { id: 73,  text: 'Снять интервью-ролик с основателем TZ', time: '4 ч', complexity: 'medium', zeta: 5 },
-  { id: 74,  text: 'Запустить челлендж по крауд-ревью статей', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 75,  text: 'Создать серию мемов про «Анклавы TZ»', time: '2 ч', complexity: 'simple', zeta: 3 },
-  { id: 76,  text: 'Организовать хакатон по DApp для TZ', time: '8 ч', complexity: 'hard', zeta: 20 },
-  { id: 77,  text: 'Перевести сайт TZ на башкирский', time: '3 ч', complexity: 'hard', zeta: 8 },
-  { id: 78,  text: 'Создать и вести чат «Zetetic Help» в VK', time: '2 ч', complexity: 'simple', zeta: 3 },
-  { id: 79,  text: 'Разработать и опубликовать блок-чейн гайд', time: '4 ч', complexity: 'medium', zeta: 5 },
-  { id: 80,  text: 'Организовать выставку карт TZ в галерее', time: '6 ч', complexity: 'hard', zeta: 20 },
-  { id: 81,  text: 'Сделать серию учебных видео по z-методу', time: '5 ч', complexity: 'hard', zeta: 15 },
-  { id: 82,  text: 'Подготовить и запустить VR-посольство TZ', time: '6 ч', complexity: 'hard', zeta: 20 },
-  { id: 83,  text: 'Написать и разослать презентацию для инвесторов', time: '4 ч', complexity: 'medium', zeta: 5 },
-  { id: 84,  text: 'Организовать местный Meetup TZ в вашем городе', time: '4 ч', complexity: 'medium', zeta: 5 },
-  { id: 85,  text: 'Запустить квест-игру «Найди землю TZ»', time: '6 ч', complexity: 'hard', zeta: 20 },
-  { id: 86,  text: 'Разработать иконки для социальной сети TZ', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 87,  text: 'Создать Telegram-бота для голосований', time: '4 ч', complexity: 'hard', zeta: 10 },
-  { id: 88,  text: 'Провести серию уроков для школьников о TZ', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 89,  text: 'Организовать «День открытых дверей» анклава', time: '5 ч', complexity: 'hard', zeta: 15 },
-  { id: 90,  text: 'Создать и вести телеграм-канал «Z-метро»', time: '2 ч', complexity: 'simple', zeta: 3 },
-  { id: 91,  text: 'Написать и презентовать Whitepaper TZ', time: '8 ч', complexity: 'hard', zeta: 20 },
-  { id: 92,  text: 'Запустить серию обучающих стримов по Solidity', time: '5 ч', complexity: 'hard', zeta: 15 },
-  { id: 93,  text: 'Организовать совместный проект с вузом', time: '6 ч', complexity: 'hard', zeta: 20 },
-  { id: 94,  text: 'Сделать подборку отзывов граждан TZ', time: '2 ч', complexity: 'simple', zeta: 3 },
-  { id: 95,  text: 'Запустить чат-бот для VK-группы TZ', time: '4 ч', complexity: 'hard', zeta: 10 },
-  { id: 96,  text: 'Организовать акцию «Я вышел из глобуса» офлайн', time: '5 ч', complexity: 'hard', zeta: 15 },
-  { id: 97,  text: 'Создать и вести канал «Z-DIY технологии»', time: '3 ч', complexity: 'medium', zeta: 5 },
-  { id: 98,  text: 'Провести онлайн-экспедицию за куполом', time: '6 ч', complexity: 'hard', zeta: 20 },
-  { id: 99,  text: 'Создать комикс «Приключения Zetetic»', time: '4 ч', complexity: 'hard', zeta: 15 },
-  { id: 100, text: 'Организовать Globe-Breaking Marathon', time: '8 ч', complexity: 'hard', zeta: 20 },
-];
+  { id: 1,  text: 'Репостить анонсы TZ в ВКонтакте', time: '10′', complexity: 'simple', zeta: 1 },
+  { id: 2,  text: 'Создать и вести группу TZ в VK', time: '1 ч', complexity: 'medium', zeta: 5 },
+  { id: 3,  text: 'Постить истории в Instagram с фактами о TZ', time: '15′', complexity: 'simple', zeta: 1 },
+  { id: 4,  text: 'Запустить региональный Telegram-канал TZ', time: '20′', complexity: 'simple', zeta: 1 },
+  { id: 5,  text: 'Перевести сайт проекта на русский', time: '2 ч', complexity: 'hard', zeta: 10 },
+  { id: 6,  text: 'Написать гостевой пост на vc.ru или Habr', time: '3 ч', complexity: 'hard', zeta: 8 },
+  { id: 7,  text: 'Снять 30-сек видео «Почему я в TZ»', time: '30′', complexity: 'medium', zeta: 2 },
+  { id: 8,  text: 'Сделать инфографику «Как работает DAO TZ»', time: '1 ч', complexity: 'medium', zeta: 3 },
+  { id: 9,  text: 'Организовать офлайн-встречу flat-earth сообщества', time: '4 ч', complexity: 'hard', zeta: 15 },
+  { id: 10, text: 'Подготовить и разослать пресс-релиз в локальные СМИ', time: '2 ч', complexity: 'medium', zeta: 5 },
+  { id: 11, text: 'Запустить подкаст о плоской Земле и TZ', time: '3 ч', complexity: 'hard', zeta: 10 },
+  { id: 12, text: 'Сделать подборку мемов про TZ', time: '1 ч', complexity: 'simple', zeta: 1 },
+  { id: 13, text: 'Перевести Конституцию TZ на татарский или башкирский', time: '3 ч', complexity: 'hard', zeta: 8 },
+  { id: 14, text: 'Запустить email-рассылку «Zetetic Digest»', time: '2 ч', complexity: 'medium', zeta: 5 },
+  { id: 15, text: 'Сделать аудио-гид по сайту TZ (60″)', time: '1 ч', complexity: 'medium', zeta: 3 },
+  { id: 16, text: 'Настроить GitHub Actions для автодеплоя сайта', time: '2 ч', complexity: 'hard', zeta: 10 },
+  { id: 17, text: 'Написать статью о ZetaCoin для VK-блога', time: '2 ч', complexity: 'medium', zeta: 5 },
+  { id: 18, text: 'Подготовить «шаблон анклава» в формате PDF', time: '2 ч', complexity: 'medium', zeta: 5 },
+  { id: 19, text: 'Организовать конкурс логотипов анклава', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 20, text: 'Собрать интервью с первыми гражданами TZ', time: '4 ч', complexity: 'hard', zeta: 10 },
+
+  { id: 21, text: 'Запустить челлендж #ЯвTZ в TikTok', time: '1 ч', complexity: 'simple', zeta: 2 },
+  { id: 22, text: 'Разместить афиши TZ в локальных кафе/коворкингах', time: '2 ч', complexity: 'simple', zeta: 2 },
+  { id: 23, text: 'Сделать видеогайд «Как подключить MetaMask»', time: '1 ч', complexity: 'medium', zeta: 5 },
+  { id: 24, text: 'Организовать мини-лекцию в университете', time: '3 ч', complexity: 'hard', zeta: 15 },
+  { id: 25, text: 'Создать карту анклавов TZ в Google Maps', time: '2 ч', complexity: 'medium', zeta: 5 },
+  { id: 26, text: 'Разработать чат-бота для VK с квизами по TZ', time: '4 ч', complexity: 'hard', zeta: 10 },
+  { id: 27, text: 'Подготовить кейс-стади для LinkedIn', time: '2 ч', complexity: 'medium', zeta: 5 },
+  { id: 28, text: 'Запустить VR-тур по анклаву (прототип)', time: '5 ч', complexity: 'hard', zeta: 15 },
+  { id: 29, text: 'Организовать AMA-сессию в Telegram', time: '2 ч', complexity: 'medium', zeta: 5 },
+  { id: 30, text: 'Сделать подборку статей про зететику', time: '3 ч', complexity: 'medium', zeta: 5 },
+
+  { id: 31, text: 'Нарисовать набор NFT-марок TZ', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 32, text: 'Создать демо-бота для отчётов в Discord', time: '4 ч', complexity: 'hard', zeta: 10 },
+  { id: 33, text: 'Организовать флешмоб «Выйди из Матрицы»', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 34, text: 'Запустить Telegram-игру «Завоюй анклав»', time: '6 ч', complexity: 'hard', zeta: 15 },
+  { id: 35, text: 'Перевести сайт TZ на украинский', time: '3 ч', complexity: 'hard', zeta: 8 },
+  { id: 36, text: 'Разработать «Z-метрологию» (единицы TZ)', time: '4 ч', complexity: 'hard', zeta: 10 },
+  { id: 37, text: 'Создать «NearSky» стрим-камеру на IPFS', time: '6 ч', complexity: 'hard', zeta: 15 },
+  { id: 38, text: 'Провести фото-репортаж из действующего анклава', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 39, text: 'Написать методичку «Как стать Zetetic-послом»', time: '2 ч', complexity: 'medium', zeta: 5 },
+  { id: 40, text: 'Организовать «книжный клуб» по Zetetic-литературе', time: '2 ч', complexity: 'medium', zeta: 5 },
+
+  { id: 41, text: 'Запустить серию комиксов о плоской Земле', time: '5 ч', complexity: 'hard', zeta: 15 },
+  { id: 42, text: 'Провести краудфандинг-кампанию в РФ', time: '4 ч', complexity: 'hard', zeta: 15 },
+  { id: 43, text: 'Создать учебное видео «Что такое IPFS-паспорт»', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 44, text: 'Разработать браузерный плагин «Flat-Earth»', time: '8 ч', complexity: 'hard', zeta: 20 },
+  { id: 45, text: 'Провести серию сторис «20 дней в TZ»', time: '2 ч', complexity: 'simple', zeta: 3 },
+  { id: 46, text: 'Организовать крауд-ревью научных статей', time: '4 ч', complexity: 'medium', zeta: 5 },
+  { id: 47, text: 'Сделать веб-форму предложений по анклавам', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 48, text: 'Создать «путеводитель по зоне TZ» в PDF', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 49, text: 'Организовать локальный митап «Zetetic Nights»', time: '4 ч', complexity: 'medium', zeta: 5 },
+  { id: 50, text: 'Разработать иконки для TZ-приложения', time: '3 ч', complexity: 'medium', zeta: 5 },
+
+  { id: 51, text: 'Запустить канал TZ на Яндекс.Дзен', time: '2 ч', complexity: 'simple', zeta: 3 },
+  { id: 52, text: 'Написать серию постов о DeFi-потенциале TZ', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 53, text: 'Провести вебинар «Как работает Z-Coin»', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 54, text: 'Организовать тест-нет майнинг ZETA', time: '4 ч', complexity: 'hard', zeta: 10 },
+  { id: 55, text: 'Создать и вести чат-бот «Новости ZETA-курса»', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 56, text: 'Написать гайд «Как создать свой анклав»', time: '2 ч', complexity: 'medium', zeta: 5 },
+  { id: 57, text: 'Организовать сбор средств на оборудование анклава', time: '4 ч', complexity: 'hard', zeta: 15 },
+  { id: 58, text: 'Провести онлайн-экспедицию «За края купола»', time: '6 ч', complexity: 'hard', zeta: 20 },
+  { id: 59, text: 'Сделать серию иллюстраций «Плоская Земля»', time: '5 ч', complexity: 'hard', zeta: 15 },
+  { id: 60, text: 'Запустить Telegram-канал «Zetetic Science»', time: '2 ч', complexity: 'simple', zeta: 3 },
+
+  { id: 61, text: 'Перевести основную документацию TZ на казахский', time: '4 ч', complexity: 'hard', zeta: 10 },
+  { id: 62, text: 'Серией сторис рассказать о Z-метрологии', time: '2 ч', complexity: 'simple', zeta: 3 },
+  { id: 63, text: 'Организовать челлендж по созданию стихов о TZ', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 64, text: 'Написать обзор «Как работает DAO» для Dev.to', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 65, text: 'Сделать гайд-видео «Как редактировать карту TZ»', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 66, text: 'Разработать мобильный прототип Z-ID', time: '6 ч', complexity: 'hard', zeta: 20 },
+  { id: 67, text: 'Организовать фото-охоту за местами силы TZ', time: '4 ч', complexity: 'medium', zeta: 5 },
+  { id: 68, text: 'Подготовить и провести курс «Zetetic Research»', time: '8 ч', complexity: 'hard', zeta: 20 },
+  { id: 69, text: 'Создать VR-модель «купол над Землей»', time: '6 ч', complexity: 'hard', zeta: 20 },
+  { id: 70, text: 'Организовать серию подкастов о Z-банке', time: '4 ч', complexity: 'medium', zeta: 5 },
+
+  { id: 71, text: 'Запустить селфи-флешмоб «Я в TZ» в Snapchat', time: '1 ч', complexity: 'simple', zeta: 2 },
+  { id: 72, text: 'Разработать шаблон NFT-паспорта TZ', time: '5 ч', complexity: 'hard', zeta: 15 },
+  { id: 73, text: 'Снять интервью-ролик с основателем TZ', time: '4 ч', complexity: 'medium', zeta: 5 },
+  { id: 74, text: 'Запустить челлендж по крауд-ревью статей', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 75, text: 'Создать серию мемов про анклавы TZ', time: '2 ч', complexity: 'simple', zeta: 3 },
+  { id: 76, text: 'Организовать хакатон по DApp для TZ', time: '8 ч', complexity: 'hard', zeta: 20 },
+  { id: 77, text: 'Перевести сайт TZ на башкирский', time: '3 ч', complexity: 'hard', zeta: 8 },
+  { id: 78, text: 'Создать и вести чат «Zetetic Help» в VK', time: '2 ч', complexity: 'simple', zeta: 3 },
+  { id: 79, text: 'Разработать и опубликовать блок-чейн гайд', time: '4 ч', complexity: 'medium', zeta: 5 },
+  { id: 80, text: 'Организовать выставку карт TZ в галерее', time: '6 ч', complexity: 'hard', zeta: 20 },
+
+  { id: 81, text: 'Сделать серию учебных видео по z-методу', time: '5 ч', complexity: 'hard', zeta: 15 },
+  { id: 82, text: 'Подготовить и запустить VR-посольство TZ', time: '6 ч', complexity: 'hard', zeta: 20 },
+  { id: 83, text: 'Написать и разослать презентацию для инвесторов', time: '4 ч', complexity: 'medium', zeta: 5 },
+  { id: 84, text: 'Организовать местный Meetup TZ в вашем городе', time: '4 ч', complexity: 'medium', zeta: 5 },
+  { id: 85, text: 'Запустить квест-игру «Найди землю TZ»', time: '6 ч', complexity: 'hard', zeta: 20 },
+  { id: 86, text: 'Разработать иконки для социальной сети TZ', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 87, text: 'Создать Telegram-бота для голосований', time: '4 ч', complexity: 'hard', zeta: 10 },
+  { id: 88, text: 'Провести серию уроков для школьников о TZ', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 89, text: 'Организовать «День открытых дверей» анклава', time: '5 ч', complexity: 'hard', zeta: 15 },
+  { id: 90, text: 'Создать и вести телеграм-канал «Z-метро»', time: '2 ч', complexity: 'simple', zeta: 3 },
+
+  { id: 91, text: 'Написать и презентовать Whitepaper TZ', time: '8 ч', complexity: 'hard', zeta: 20 },
+  { id: 92, text: 'Запустить серию обучающих стримов по Solidity', time: '5 ч', complexity: 'hard', zeta: 15 },
+  { id: 93, text: 'Организовать совместный проект с вузом', time: '6 ч', complexity: 'hard', zeta: 20 },
+  { id: 94, text: 'Сделать подборку отзывов граждан TZ', time: '2 ч', complexity: 'simple', zeta: 3 },
+  { id: 95, text: 'Запустить чат-бот для VK-группы TZ', time: '4 ч', complexity: 'hard', zeta: 10 },
+  { id: 96, text: 'Организовать акцию «Я вышел из глобуса» офлайн', time: '5 ч', complexity: 'hard', zeta: 15 },
+  { id: 97, text: 'Создать и вести канал «Z-DIY технологии»', time: '3 ч', complexity: 'medium', zeta: 5 },
+  { id: 98, text: 'Провести онлайн-экспедицию за куполом', time: '6 ч', complexity: 'hard', zeta: 20 },
+  { id: 99, text: 'Создать комикс «Приключения Zetetic»', time: '4 ч', complexity: 'hard', zeta: 15 },
+  { id:100, text: 'Организовать Globe-Breaking Marathon', time: '8 ч', complexity: 'hard', zeta: 20 },
+]
 
 export default function HelpUs() {
+  const levels = [
+    { key: 'simple', title: '⭐ Простые (1–3 ZETA)' },
+    { key: 'medium', title: '🌟 Средние (5–10 ZETA)' },
+    { key: 'hard',   title: '🚀 Сложные (15–20 ZETA)' },
+  ]
+
   return (
     <>
       <Head>
         <title>Внести вклад | Terra Zetetica</title>
       </Head>
-
-      <main className="wrapper" style={{ maxWidth: 960, margin: '0 auto', padding: '2rem 1rem' }}>
+      <main className="wrapper">
         <h1>Внести вклад в Terra Zetetica</h1>
-        <p>Выбери одну из задач ниже. Подробности и форма отчёта — в конце страницы.</p>
+        <p>Выберите раздел и задачу — получите ZETA за реальный вклад!</p>
 
-        <section style={{ overflowX: 'auto', marginTop: '1.5rem' }}>
-          <table style={{ width: '100%', minWidth: 600, borderCollapse: 'separate', borderSpacing: '0 8px' }}>
-            <thead>
-              <tr style={{ background: '#f0f0f0' }}>
-                <th style={{ padding: '12px', textAlign: 'left' }}>#</th>
-                <th style={{ padding: '12px', textAlign: 'left', width: '60%' }}>Задача</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Время</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Сложность</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>ZETA</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tasks.map(task => (
-                <tr key={task.id} style={{ background: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
-                  <td style={{ padding: '12px' }}>{task.id}</td>
-                  <td style={{ padding: '12px' }}>{task.text}</td>
-                  <td style={{ padding: '12px' }}>{task.time}</td>
-                  <td style={{ padding: '12px' }}>{complexityLabels[task.complexity]}</td>
-                  <td style={{ padding: '12px' }}>{task.zeta}</td>
-                </tr>
+        {levels.map(({ key, title }) => (
+          <section key={key} className="section">
+            <h2>{title}</h2>
+            <div className="tasks-list">
+              {tasks.filter(t => t.complexity === key).map(t => (
+                <div key={t.id} className="task-card">
+                  <div className="task-header">
+                    <span className="task-id">{t.id}.</span>
+                    <span className="task-text">{t.text}</span>
+                  </div>
+                  <div className="task-meta">
+                    <span className="task-time">⏱ {t.time}</span>
+                    <span className="badge">+{t.zeta} ZETA</span>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </section>
+            </div>
+          </section>
+        ))}
 
-        <aside style={{ marginTop: '2rem', padding: '1rem', background: '#f9f9f9', borderRadius: 4 }}>
-          <h2>Легенда по сложности</h2>
-          <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
-            <li>⭐ Простая — 1–3 ZETA</li>
-            <li>🌟 Средняя — 5–10 ZETA</li>
-            <li>🚀 Сложная — 15–20 ZETA</li>
-          </ul>
-        </aside>
-
-        <section style={{ marginTop: '3rem', padding: '2rem', background: '#e8f5e9', borderRadius: 8 }}>
+        <section className="report">
           <h2>📬 Отчёт о выполненной задаче</h2>
-          <p>После выполнения отправь свой Telegram-ID, номера задач и материалы через форму:</p>
+          <p>Заполните форму: укажите Telegram-ID, номера задач и ссылки на материалы.</p>
           <form
             action="https://formspree.io/f/твой_формспри_ид"
             method="POST"
-            style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', maxWidth: 600 }}
+            className="report-form"
           >
-            <input type="text" name="telegram_id" placeholder="Telegram-ID (число)" required style={{ padding:'0.75rem' }} />
-            <input type="text" name="task_ids" placeholder="Номера задач (через запятую)" required style={{ padding:'0.75rem' }} />
-            <input type="url" name="links" placeholder="Ссылки на материалы" required style={{ padding:'0.75rem' }} />
-            <input type="url" name="file_link" placeholder="Ссылка на Google Drive/Dropbox" style={{ padding:'0.75rem' }} />
-            <button type="submit" className="btn primary" style={{ justifySelf: 'start', padding: '0.75rem 1.5rem' }}>
-              Отправить отчёт
-            </button>
+            <input name="telegram_id" placeholder="Telegram-ID" required />
+            <input name="task_ids"    placeholder="Номера задач" required />
+            <input name="links"       placeholder="Ссылки на материалы" required />
+            <input name="file_link"   placeholder="Ссылка на файлы (Drive/Dropbox)" />
+            <button type="submit">Отправить отчёт</button>
           </form>
         </section>
       </main>
+
+      <style jsx>{`
+        .wrapper {
+          max-width: 960px;
+          margin: 0 auto;
+          padding: 2rem 1rem;
+        }
+        h1 { margin-bottom: 0.5rem; }
+        .section { margin-top: 2rem; }
+        .tasks-list {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+        @media (min-width: 600px) {
+          .tasks-list { grid-template-columns: 1fr 1fr; }
+        }
+        @media (min-width: 960px) {
+          .tasks-list { grid-template-columns: 1fr 1fr 1fr; }
+        }
+        .task-card {
+          background: #fff;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          padding: 1rem;
+        }
+        .task-header {
+          display: flex;
+          gap: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+        .task-id { font-weight: bold; }
+        .task-meta {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.9rem;
+        }
+        .badge {
+          background: #e0f7fa;
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+          font-weight: bold;
+        }
+        .report {
+          margin-top: 3rem;
+          padding: 2rem;
+          background: #f1f8e9;
+          border-radius: 8px;
+        }
+        .report-form {
+          display: grid;
+          gap: 1rem;
+          max-width: 600px;
+        }
+        .report-form input {
+          padding: 0.75rem;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+        }
+        .report-form button {
+          width: fit-content;
+          padding: 0.75rem 1.5rem;
+          background: #4caf50;
+          color: #fff;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+      `}</style>
     </>
   )
 }
