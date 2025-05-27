@@ -3,6 +3,7 @@ import Head from 'next/head'
 
 const videos = [
   'b800908bda2146b3b85a0fc8578ee90f', // пример – можно расширять массив
+  '17ad14b303ee426f8052e5816b1ee234', // ← добавлено
 ]
 
 export default function News() {
