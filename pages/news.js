@@ -2,7 +2,7 @@
 import Head from 'next/head'
 
 const videos = [
-  'b800908bda2146b3b85a0fc8578ee90f', // пример – можно расширять массив
+  '5b64fe1e1a054fe3a9acbbe080d5b66e', // пример – можно расширять массив
   'f0bb066500524cc8949d1f6e97e6a326', // ← добавлено
 ]
 
