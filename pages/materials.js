@@ -197,7 +197,7 @@ export default function Materials() {
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none', color: '#0066cc', fontWeight: 500 }}
                 >
-                  Слушать всё ▶
+                  Смотреть всё ▶
                 </a>
               </div>
             </div>
