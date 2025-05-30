@@ -20,6 +20,7 @@ export default function Nav() {
     faq:          locale === 'ru' ? 'Вопросы'        : 'FAQ',
     roadmap:      locale === 'ru' ? 'Дорожная карта' : 'Roadmap',
     materials:    locale === 'ru' ? 'Материалы'      : 'Materials',
+    search:       locale === 'ru' ? 'Поиск'          : 'Search',
     contacts:     locale === 'ru' ? 'Контакты'       : 'Contacts',
     apply:        locale === 'ru' ? 'Стать гражданином' : 'Become a citizen',
   }
@@ -42,6 +43,7 @@ export default function Nav() {
         <Link href="/faq">{t.faq}</Link>
         <Link href="/roadmap">{t.roadmap}</Link>
         <Link href="/materials">📚</Link>
+        <a href="https://zsearch.terra-zetetica.org" target="_blank" rel="noopener noreferrer" className={styles.searchLink}>🔍 {t.search}</a>
         <Link href="/contacts">{t.contacts}</Link>
         <Link className={styles.cta} href="/apply">{t.apply} ↗</Link>
         <LangSwitch />
@@ -56,6 +58,7 @@ export default function Nav() {
         <Link href="/faq" onClick={closeMenu}>{t.faq}</Link>
         <Link href="/roadmap" onClick={closeMenu}>{t.roadmap}</Link>
         <Link href="/materials" onClick={closeMenu}>📚 {t.materials}</Link>
+        <a href="https://zsearch.terra-zetetica.org" onClick={closeMenu} target="_blank" rel="noopener noreferrer" className={styles.searchLink}>🔍 {t.search}</a>
         <Link href="/contacts" onClick={closeMenu}>{t.contacts}</Link>
         <Link className={styles.cta} href="/apply" onClick={closeMenu}>{t.apply} ↗</Link>
         <LangSwitch />
