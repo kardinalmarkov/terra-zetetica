@@ -25,46 +25,71 @@ export default function NewEnclavePage() {
       <h1 className="text-3xl font-bold mb-6">🆕 Регистрация нового анклава</h1>
 
       {!showPreview && !sent && (
-        <form onSubmit={(e) => { e.preventDefault(); setShowPreview(true) }} className="grid grid-cols-1 gap-6 max-w-2xl bg-white border p-6 rounded-xl shadow-md">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input name="zid" value={form.zid} onChange={update} placeholder="Z-ID куратора" required className="input" />
-            <input name="name" value={form.name} onChange={update} placeholder="Название анклава (пример: Дом Единства)" required className="input" />
-            <select name="type" value={form.type} onChange={update} required className="input">
-              <option value="">Выберите тип анклава</option>
-              <option value="Жилой">Жилой</option>
-              <option value="Образовательный">Образовательный</option>
-              <option value="Культурный">Культурный</option>
-              <option value="Исследовательский">Исследовательский</option>
-            </select>
-            <input name="region" value={form.region} onChange={update} placeholder="Регион / область / район" required className="input" />
-          </div>
+        <form onSubmit={(e) => { e.preventDefault(); setShowPreview(true) }} className="bg-white border p-6 rounded-xl shadow-md max-w-3xl">
+          <table className="w-full text-sm space-y-2">
+            <tbody>
+              <tr>
+                <td className="pr-4 py-2 font-medium">Z-ID куратора:</td>
+                <td><input name="zid" value={form.zid} onChange={update} placeholder="например: ZID-0001" required className="input w-full" /></td>
+              </tr>
+              <tr>
+                <td className="pr-4 py-2 font-medium">Название анклава:</td>
+                <td><input name="name" value={form.name} onChange={update} placeholder="например: Дом Единства" required className="input w-full" /></td>
+              </tr>
+              <tr>
+                <td className="pr-4 py-2 font-medium">Тип анклава:</td>
+                <td>
+                  <select name="type" value={form.type} onChange={update} required className="input w-full">
+                    <option value="">Выберите тип анклава</option>
+                    <option value="Жилой">Жилой</option>
+                    <option value="Образовательный">Образовательный</option>
+                    <option value="Культурный">Культурный</option>
+                    <option value="Исследовательский">Исследовательский</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td className="pr-4 py-2 font-medium">Регион:</td>
+                <td><input name="region" value={form.region} onChange={update} placeholder="Страна / область / район" required className="input w-full" /></td>
+              </tr>
+              <tr>
+                <td className="pr-4 py-2 font-medium align-top">Описание:</td>
+                <td><textarea name="description" value={form.description} onChange={update} placeholder="Что за анклав, цели, доступ, задачи" rows={4} required className="textarea w-full" /></td>
+              </tr>
+              <tr>
+                <td className="pr-4 py-2 font-medium align-top">Координаты:</td>
+                <td>
+                  <div className="bg-gray-100 p-3 rounded text-sm mb-2">
+                    {form.coords ? `📍 cx=${form.coords.x}, cy=${form.coords.y}` : 'Нажмите по карте ниже, чтобы указать местоположение анклава.'}
+                  </div>
+                  <svg ref={svgRef} viewBox="0 0 1000 1000" className="w-full border rounded shadow-md cursor-crosshair"
+                    onClick={(e) => {
+                      const bounds = svgRef.current.getBoundingClientRect()
+                      const x = Math.max(0, Math.min(1000, Math.round((e.clientX - bounds.left) * (1000 / bounds.width))))
+                      const y = Math.max(0, Math.min(1000, Math.round((e.clientY - bounds.top) * (1000 / bounds.height))))
+                      setForm({ ...form, coords: { x, y } })
+                    }}>
+                    <image href="/images/terra-map-2d.webp" x="0" y="0" width="1000" height="1000" />
+                    {form.coords && (
+                      <circle cx={form.coords.x} cy={form.coords.y} r="10" fill="red" />
+                    )}
+                  </svg>
+                </td>
+              </tr>
+              <tr>
+                <td className="pr-4 py-2 font-medium">Правила (если есть):</td>
+                <td><input name="rules" value={form.rules} onChange={update} placeholder="Согласование, доступ, поведение..." className="input w-full" /></td>
+              </tr>
+              <tr>
+                <td className="pr-4 py-2 font-medium">Изображение:</td>
+                <td><input name="image" value={form.image} onChange={update} placeholder="URL изображения анклава (или IPFS CID)" className="input w-full" /></td>
+              </tr>
+            </tbody>
+          </table>
 
-          <textarea name="description" value={form.description} onChange={update} placeholder="Описание анклава, цели, кому доступен, что там можно делать" rows={4} required className="textarea w-full" />
+          <div className="text-sm text-gray-500 italic mt-2">⚠️ Только граждане с действующим Z-ID могут подать заявку на создание анклава.</div>
 
-          <div>
-            <label className="font-semibold block mb-1 mt-2">📍 Укажите координаты (нажмите по карте):</label>
-            <div className="bg-gray-100 p-3 rounded text-sm">
-              {form.coords ? `cx=${form.coords.x}, cy=${form.coords.y}` : 'Координаты ещё не выбраны.'}
-            </div>
-            <svg ref={svgRef} viewBox="0 0 1000 1000" className="w-full mt-2 border rounded shadow-md cursor-crosshair"
-              onClick={(e) => {
-                const bounds = svgRef.current.getBoundingClientRect()
-                const x = Math.max(0, Math.min(1000, Math.round((e.clientX - bounds.left) * (1000 / bounds.width))))
-                const y = Math.max(0, Math.min(1000, Math.round((e.clientY - bounds.top) * (1000 / bounds.height))))
-                setForm({ ...form, coords: { x, y } })
-              }}>
-              <image href="/images/terra-map-2d.webp" x="0" y="0" width="1000" height="1000" />
-            </svg>
-          </div>
-
-          <input name="rules" value={form.rules} onChange={update} placeholder="Правила анклава (если есть)" className="input w-full mt-2" />
-          <input name="image" value={form.image} onChange={update} placeholder="Ссылка на изображение анклава (если есть)" className="input w-full" />
-
-          <div className="text-sm text-gray-500 italic">
-            Только граждане с действующим Z-ID могут подать заявку. Проверьте корректность заполнения.
-          </div>
-
-          <button type="submit" className="btn primary w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 rounded mt-3">👁️ Предпросмотр</button>
+          <button type="submit" className="btn primary w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 rounded mt-4">👁️ Предпросмотр анклава</button>
         </form>
       )}
 
