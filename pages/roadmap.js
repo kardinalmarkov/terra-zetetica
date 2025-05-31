@@ -60,6 +60,30 @@ export default function Roadmap() {
         </section>
       ))}
 
+      <section style={{ marginTop: '3rem' }}>
+        <h2 style={{ fontSize: '1.6rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+          Ключевые этапы развития
+        </h2>
+        <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+          <li style={{ padding: '1rem', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+            🗺️ <strong>Вступление в UNPO</strong><br/>
+            Получение международного признания
+          </li>
+          <li style={{ padding: '1rem', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+            🏝️ <strong>Аренда острова</strong><br/>
+            Создание суверенного анклава на 99 лет
+          </li>
+          <li style={{ padding: '1rem', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+            🏫 <strong>Регистрация анклавов</strong><br/>
+            Как официальных НКО и школ
+          </li>
+          <li style={{ padding: '1rem', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+            📜 <strong>Паспорта и ID на блокчейне</strong><br/>
+            Верификация и защита данных через IPFS
+          </li>
+        </ul>
+      </section>
+
       <section className="mt-10">
         <h2 className="text-lg font-semibold mb-2">🔧 Что можем улучшить вместе?</h2>
         <p>Ознакомьтесь с нашим <a href="/checklist" className="text-blue-600 underline">чек-листом гражданина</a> и напишите предложения через <a href="/contact" className="text-blue-600 underline">форму обратной связи</a>.</p>
