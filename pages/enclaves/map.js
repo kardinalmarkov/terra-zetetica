@@ -1,19 +1,9 @@
 // pages/enclaves/map.js
 import Head from 'next/head'
 import { useState, useRef, useEffect } from 'react'
-import dynamic from 'next/dynamic'
+import { Viewer } from '../../components/Viewer'  // наш динамический компонент
 
-// ⬇️ SVG-viewer берём динамически, чтобы Next.js не пытался
-//     выполнить его на сервере (там нет window, поэтому падает)
-const UncontrolledReactSVGPanZoom = dynamic(
-  () =>
-    import('react-svg-pan-zoom').then(
-      mod => mod.UncontrolledReactSVGPanZoom
-    ),
-  { ssr: false }
-)
-
-// ⚠️ координаты даны в системе 1000×1000 px (под картинку)
+// Пример данных анклавов (координаты в системе 1000×1000 px)
 const enclaves = [
   {
     id: 'TZ-SPB-DOMISTINY',
@@ -29,79 +19,99 @@ const enclaves = [
     name: 'Светлый Улей',
     coords: { x: 555, y: 480 },
     color: '#10b981',
-    description: 'Аграрно-исследовательский дом в Брестской обл.',
+    description: 'Аграрно-исследовательский дом в Брестской области',
     curatorZid: 'ZID-0002',
     temp: '+19 °C'
   }
 ]
 
-export default function EnclaveMap () {
-  const viewer = useRef(null)
+export default function EnclaveMap() {
+  const viewerRef = useRef(null)
   const [active, setActive] = useState(null)
 
-  // когда viewer смонтирован — сразу Fit-to-Viewer
+  // После монтирования компонента — делаем Fit-to-Viewer
   useEffect(() => {
-    if (viewer.current) viewer.current.fitToViewer()
+    // метод fitToViewer() доступен только после рендера на клиенте
+    if (viewerRef.current) {
+      viewerRef.current.fitToViewer()
+    }
   }, [])
 
   return (
-    <main className='wrapper'>
-      <Head><title>🧭 Карта анклавов | Terra Zetetica</title></Head>
+    <main className="wrapper">
+      <Head>
+        <title>🧭 Карта анклавов | Terra Zetetica</title>
+      </Head>
 
-      <h1 style={{ textAlign: 'center', margin: '1.4rem 0' }}>🧭 Карта анклавов</h1>
+      <h1 style={{ textAlign: 'center', margin: '1.4rem 0' }}>
+        🧭 Карта анклавов
+      </h1>
 
       <div style={{ width: '100%', maxWidth: 1000, margin: '0 auto' }}>
-        <UncontrolledReactSVGPanZoom
-          ref={viewer}
+        {/** 
+         * <Viewer> — это динамически загружаемый компонент, 
+         * который в итоге рендерит <UncontrolledReactSVGPanZoom>
+         */}
+        <Viewer
+          ref={viewerRef}
           width={1000}
           height={600}
           detectAutoPan={false}
           toolbarProps={{ position: 'none' }}
           miniatureProps={{ position: 'none' }}
-          background='#ffffff'
+          background="#ffffff"
         >
           <svg width={1000} height={1000}>
-            {/* картинка карты Глисона */}
+            {/** 
+             * Схематическая картинка «под Куполом». 
+             * Положите файл images/terra-map-2d.webp в папку public/images 
+             */}
             <image
-              href='/images/terra-map-2d.webp'
-              x='0'
-              y='0'
-              width='1000'
-              height='1000'
+              href="/images/terra-map-2d.webp"
+              x="0"
+              y="0"
+              width="1000"
+              height="1000"
             />
 
-            {/* точки-анклавы */}
+            {/** Рендерим кружки-точки для каждого анклава */}
             {enclaves.map(e => (
               <g
                 key={e.id}
                 onClick={ev => {
-                  // преобразуем SVG-координаты в координаты экрана,
+                  // Преобразуем координаты (SVG → экранные),
                   // чтобы правильно позиционировать pop-up
                   const pt = ev.target.ownerSVGElement.createSVGPoint()
                   pt.x = e.coords.x
                   pt.y = e.coords.y
-                  const { x, y } = pt.matrixTransform(
+                  const screenPoint = pt.matrixTransform(
                     ev.target.getScreenCTM()
                   )
-                  setActive({ ...e, screen: { x, y } })
+                  setActive({
+                    ...e,
+                    screen: {
+                      x: screenPoint.x,
+                      y: screenPoint.y
+                    }
+                  })
                 }}
                 style={{ cursor: 'pointer' }}
               >
                 <circle
                   cx={e.coords.x}
                   cy={e.coords.y}
-                  r='10'
+                  r="10"
                   fill={e.color}
-                  stroke='#222'
-                  strokeWidth='1'
+                  stroke="#222"
+                  strokeWidth="1"
                 />
               </g>
             ))}
           </svg>
-        </UncontrolledReactSVGPanZoom>
+        </Viewer>
       </div>
 
-      {/* pop-up анклава */}
+      {/** Поп-ап с подробностями об активном анклаве */}
       {active && (
         <div
           style={{
@@ -122,9 +132,11 @@ export default function EnclaveMap () {
             {active.description}
           </div>
           <div style={{ fontSize: 13 }}>
-            🌡 Температура:&nbsp;<b>{active.temp}</b>
+            🌡 Температура: <b>{active.temp}</b>
           </div>
-          <div style={{ fontSize: 12, color: '#666' }}>🆔 {active.id}</div>
+          <div style={{ fontSize: 12, color: '#666' }}>
+            🆔 {active.id}
+          </div>
 
           <div
             style={{
@@ -136,7 +148,7 @@ export default function EnclaveMap () {
           >
             <a
               href={`/enclaves/${active.id}`}
-              className='btn primary'
+              className="btn primary"
               style={{ padding: '.35rem .8rem', fontSize: 13 }}
             >
               Подробнее →
@@ -170,7 +182,7 @@ export default function EnclaveMap () {
       </p>
 
       <div style={{ textAlign: 'center', marginTop: 24 }}>
-        <a href='/enclaves' className='btn primary'>
+        <a href="/enclaves" className="btn primary">
           ← Назад к анклавам
         </a>
       </div>
