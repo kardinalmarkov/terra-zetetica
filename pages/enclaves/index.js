@@ -5,7 +5,7 @@ export default function EnclavePage() {
   return (
     <main className="wrapper">
       <Head>
-        <title>🧱 Анклавы | Terra Zetetica</title>
+        <title>🧱 !Анклавы | Terra Zetetica</title>
       </Head>
 
       <h1 className="text-4xl font-bold mb-4">🧱 Анклавы Terra Zetetica</h1>
