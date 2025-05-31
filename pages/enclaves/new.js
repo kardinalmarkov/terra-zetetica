@@ -19,6 +19,17 @@ export default function NewEnclavePage() {
     setSent(true)
   }
 
+  const handleSvgClick = (e) => {
+    const bounds = svgRef.current.getBoundingClientRect()
+    const x = Math.round((e.clientX - bounds.left) * (1000 / bounds.width))
+    const y = Math.round((e.clientY - bounds.top) * (1000 / bounds.height))
+
+    // Ограничим выбор координат только в границах карты (примерно)
+    if (x >= 0 && x <= 1000 && y >= 0 && y <= 1000) {
+      setForm({ ...form, coords: { x, y } })
+    }
+  }
+
   return (
     <main className="wrapper">
       <Head><title>🆕 Новый анклав | Terra Zetetica</title></Head>
@@ -63,12 +74,7 @@ export default function NewEnclavePage() {
                     {form.coords ? `📍 cx=${form.coords.x}, cy=${form.coords.y}` : 'Нажмите по карте ниже, чтобы указать местоположение анклава.'}
                   </div>
                   <svg ref={svgRef} viewBox="0 0 1000 1000" className="w-full border rounded shadow-md cursor-crosshair"
-                    onClick={(e) => {
-                      const bounds = svgRef.current.getBoundingClientRect()
-                      const x = Math.max(0, Math.min(1000, Math.round((e.clientX - bounds.left) * (1000 / bounds.width))))
-                      const y = Math.max(0, Math.min(1000, Math.round((e.clientY - bounds.top) * (1000 / bounds.height))))
-                      setForm({ ...form, coords: { x, y } })
-                    }}>
+                    onClick={handleSvgClick}>
                     <image href="/images/terra-map-2d.webp" x="0" y="0" width="1000" height="1000" />
                     {form.coords && (
                       <circle cx={form.coords.x} cy={form.coords.y} r="10" fill="red" />
