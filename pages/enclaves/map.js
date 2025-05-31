@@ -8,8 +8,7 @@ const enclaves = [
     coords: { x: 540, y: 470 },
     color: '#f43f5e',
     description: 'Жилой анклав в Санкт-Петербурге. Открыт по запросу.',
-    curatorZid: 'ZID-0001',
-    icons: ['🏡', '🧪']
+    curatorZid: 'ZID-0001'
   },
   {
     id: 'TZ-BY-BRST-ULY-002',
@@ -17,8 +16,7 @@ const enclaves = [
     coords: { x: 550, y: 480 },
     color: '#10b981',
     description: 'Дом в Брестской области. Можно жить и развивать инициативы.',
-    curatorZid: 'ZID-0001',
-    icons: ['🏡', '📚']
+    curatorZid: 'ZID-0001'
   }
 ]
 
@@ -38,9 +36,6 @@ export default function MapPage() {
           {enclaves.map((e, i) => (
             <g key={i} onClick={() => setActive(e)} className="cursor-pointer">
               <circle cx={e.coords.x} cy={e.coords.y} r="12" fill={e.color} />
-              <text x={e.coords.x} y={e.coords.y + 4} textAnchor="middle" fontSize="14" fill="#fff">
-                {e.icons.join(' ')}
-              </text>
             </g>
           ))}
         </svg>
