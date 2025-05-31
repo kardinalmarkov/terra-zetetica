@@ -21,12 +21,12 @@ export default function MapPage() {
           {/* Санкт-Петербург */}
           <a href="/enclaves/TZ-SPB-DOMISTINY">
             <circle cx="778" cy="238" r="10" fill="#f43f5e" />
-            <text x="790" y="242" fontSize="12" fill="#111">Дом Истины</text>
+            <text x="416" y="371" fontSize="12" fill="#111">Дом Истины</text>
           </a>
 
           {/* Брест / Ивацевичи */}
           <a href="/enclaves/TZ-BY-BRST-ULY-002">
-            <circle cx="744" cy="273" r="10" fill="#10b981" />
+            <circle cx="424" cy="366" r="10" fill="#10b981" />
             <text x="758" y="277" fontSize="12" fill="#111">Светлый Улей</text>
           </a>
         </svg>
