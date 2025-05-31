@@ -5,7 +5,7 @@ const enclaves = [
   {
     id: 'TZ-SPB-DOMISTINY',
     name: 'Дом Истины',
-    coords: { x: 434, y: 370 },
+    coords: { x: 500, y: 500 },
     color: '#f43f5e',
     description: 'Жилой анклав в Санкт-Петербурге. Открыт по запросу.',
     curatorZid: 'ZID-0001',
@@ -14,7 +14,7 @@ const enclaves = [
   {
     id: 'TZ-BY-BRST-ULY-002',
     name: 'Светлый Улей',
-    coords: { x: 424, y: 366 },
+    coords: { x: 539, y: 480 },
     color: '#10b981',
     description: 'Дом в Брестской области. Можно жить и развивать инициативы.',
     curatorZid: 'ZID-0001',
