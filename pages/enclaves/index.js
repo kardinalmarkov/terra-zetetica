@@ -20,21 +20,17 @@ export default function EnclavePage() {
         <li>Подать заявку через DAO или форму</li>
       </ol>
 
-      <h2 className="text-2xl font-semibold mt-8 mb-2">📄 Форма заявки</h2>
-      <form action="https://formspree.io/f/mbloweze" method="POST" className="space-y-3 max-w-md">
-        <input name="name" placeholder="Ваше имя" required className="input w-full" />
-        <textarea name="message" placeholder="Описание анклава" rows={5} required className="textarea w-full" />
-        <button type="submit" className="btn primary w-full">📬 Отправить заявку</button>
-      </form>
-
       <h2 className="text-2xl font-semibold mt-8 mb-2">🧭 Быстрые ссылки:</h2>
       <ul className="list-disc list-inside space-y-2">
         <li><Link href="/enclaves/map" className="text-blue-600 hover:underline">🗺️ Интерактивная карта анклавов</Link></li>
         <li><Link href="/enclaves/mine" className="text-blue-600 hover:underline">🧱 Мои анклавы</Link></li>
         <li><Link href="/enclaves/TZ-SPB-DOMISTINY" className="text-blue-600 hover:underline">🏡 Дом Истины</Link></li>
+        <li><Link href="/enclaves/TZ-BY-UNITYHOUSE" className="text-blue-600 hover:underline">🏡 Дом Единства</Link></li>
         <li><Link href="/enclaves/apply" className="text-blue-600 hover:underline">📬 Подать анкла́в отдельно</Link></li>
         <li><Link href="/enclaves/new" className="text-blue-600 hover:underline">🆕 Создать анклав (расширенно)</Link></li>
       </ul>
+
+      <p className="text-gray-500 text-sm mt-10 italic">Белорусский анклав добавлен: Дом Единства (Брестская обл.)</p>
     </main>
   )
 }
