@@ -58,7 +58,7 @@ export default function NewEnclavePage() {
           <input name="rules" value={form.rules} onChange={update} placeholder="Правила анклава (если есть)" className="input w-full" />
           <input name="image" value={form.image} onChange={update} placeholder="Ссылка на изображение анклава (если есть)" className="input w-full" />
 
-          <button type="submit" className="btn primary w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 rounded">📄 Предпросмотр анклава</button>
+          <button type="submit" className="btn primary w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 rounded">👁️ Предпросмотр</button>
         </form>
       )}
 
@@ -75,8 +75,8 @@ export default function NewEnclavePage() {
           {form.image && <img src={form.image} alt="Изображение анклава" className="mt-2 rounded shadow max-w-xs" />}
 
           <div className="mt-4 space-x-2">
-            <button onClick={sendEnclave} className="btn bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-4 py-2 rounded">📤 Отправить заявку</button>
-            <button onClick={() => setShowPreview(false)} className="btn bg-gray-200 hover:bg-gray-300 text-black font-medium px-4 py-2 rounded">← Вернуться</button>
+            <button onClick={sendEnclave} type="button" className="btn bg-green-500 hover:bg-green-600 text-white font-semibold px-4 py-2 rounded">📤 Отправить заявку</button>
+            <button onClick={() => setShowPreview(false)} type="button" className="btn bg-gray-200 hover:bg-gray-300 text-black font-medium px-4 py-2 rounded">← Назад к редактированию</button>
           </div>
         </div>
       )}
