@@ -33,6 +33,7 @@ export default function EnclavePage() {
         <li><Link href="/enclaves/mine" className="text-blue-600 hover:underline">🧱 Мои анклавы</Link></li>
         <li><Link href="/enclaves/TZ-SPB-DOMISTINY" className="text-blue-600 hover:underline">🏡 Дом Истины</Link></li>
         <li><Link href="/enclaves/apply" className="text-blue-600 hover:underline">📬 Подать анкла́в отдельно</Link></li>
+        <li><Link href="/enclaves/new" className="text-blue-600 hover:underline">🆕 Создать анклав (расширенно)</Link></li>
       </ul>
     </main>
   )
