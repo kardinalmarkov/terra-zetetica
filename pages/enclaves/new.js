@@ -2,7 +2,18 @@ import Head from 'next/head'
 import { useState, useRef } from 'react'
 
 export default function NewEnclavePage() {
-  const [form, setForm] = useState({ zid: '', name: '', type: '', region: '', description: '', rules: '', image: '', coords: null })
+  const [form, setForm] = useState({
+    zid: '',
+    name: '',
+    type: '',
+    region: '',
+    description: '',
+    rules: '',
+    image: '',
+    coords: null,
+    contactName: '',
+    contactEmail: ''
+  })
   const [showPreview, setShowPreview] = useState(false)
   const [sent, setSent] = useState(false)
   const svgRef = useRef(null)
@@ -10,24 +21,13 @@ export default function NewEnclavePage() {
   const update = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   const sendEnclave = () => {
-    const body = `\nНовый анклав от ${form.zid}\n\nНазвание: ${form.name}\nТип: ${form.type}\nРегион: ${form.region}\nОписание: ${form.description}\nПравила: ${form.rules}\nКоординаты: ${form.coords ? `cx=${form.coords.x}, cy=${form.coords.y}` : 'не указаны'}\nИзображение: ${form.image}`
+    const body = `\nНовый анклав от ${form.zid}\n\nИмя отправителя: ${form.contactName}\nEmail: ${form.contactEmail}\n\nНазвание: ${form.name}\nТип: ${form.type}\nРегион: ${form.region}\nОписание: ${form.description}\nПравила: ${form.rules}\nКоординаты: ${form.coords ? `cx=${form.coords.x}, cy=${form.coords.y}` : 'не указаны'}\nИзображение: ${form.image}`
     fetch("https://formspree.io/f/mbloweze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: body })
     })
     setSent(true)
-  }
-
-  const handleSvgClick = (e) => {
-    const bounds = svgRef.current.getBoundingClientRect()
-    const x = Math.round((e.clientX - bounds.left) * (1000 / bounds.width))
-    const y = Math.round((e.clientY - bounds.top) * (1000 / bounds.height))
-
-    // Ограничим выбор координат только в границах карты (примерно)
-    if (x >= 0 && x <= 1000 && y >= 0 && y <= 1000) {
-      setForm({ ...form, coords: { x, y } })
-    }
   }
 
   return (
@@ -39,6 +39,14 @@ export default function NewEnclavePage() {
         <form onSubmit={(e) => { e.preventDefault(); setShowPreview(true) }} className="bg-white border p-6 rounded-xl shadow-md max-w-3xl">
           <table className="w-full text-sm space-y-2">
             <tbody>
+              <tr>
+                <td className="pr-4 py-2 font-medium">Имя отправителя:</td>
+                <td><input name="contactName" value={form.contactName} onChange={update} required className="input w-full" /></td>
+              </tr>
+              <tr>
+                <td className="pr-4 py-2 font-medium">Email:</td>
+                <td><input name="contactEmail" value={form.contactEmail} onChange={update} required type="email" className="input w-full" /></td>
+              </tr>
               <tr>
                 <td className="pr-4 py-2 font-medium">Z-ID куратора:</td>
                 <td><input name="zid" value={form.zid} onChange={update} placeholder="например: ZID-0001" required className="input w-full" /></td>
@@ -74,7 +82,12 @@ export default function NewEnclavePage() {
                     {form.coords ? `📍 cx=${form.coords.x}, cy=${form.coords.y}` : 'Нажмите по карте ниже, чтобы указать местоположение анклава.'}
                   </div>
                   <svg ref={svgRef} viewBox="0 0 1000 1000" className="w-full border rounded shadow-md cursor-crosshair"
-                    onClick={handleSvgClick}>
+                    onClick={(e) => {
+                      const bounds = svgRef.current.getBoundingClientRect()
+                      const x = Math.max(0, Math.min(1000, Math.round((e.clientX - bounds.left) * (1000 / bounds.width))))
+                      const y = Math.max(0, Math.min(1000, Math.round((e.clientY - bounds.top) * (1000 / bounds.height))))
+                      setForm({ ...form, coords: { x, y } })
+                    }}>
                     <image href="/images/terra-map-2d.webp" x="0" y="0" width="1000" height="1000" />
                     {form.coords && (
                       <circle cx={form.coords.x} cy={form.coords.y} r="10" fill="red" />
@@ -102,8 +115,10 @@ export default function NewEnclavePage() {
       {showPreview && !sent && (
         <div className="bg-white border rounded p-6 mt-6 shadow-lg max-w-xl">
           <h2 className="text-xl font-bold mb-2">📄 Превью анклава</h2>
-          <p><strong>Название:</strong> {form.name}</p>
+          <p><strong>Имя:</strong> {form.contactName}</p>
+          <p><strong>Email:</strong> {form.contactEmail}</p>
           <p><strong>Z-ID:</strong> {form.zid}</p>
+          <p><strong>Название:</strong> {form.name}</p>
           <p><strong>Тип:</strong> {form.type}</p>
           <p><strong>Регион:</strong> {form.region}</p>
           <p><strong>Описание:</strong> {form.description}</p>
