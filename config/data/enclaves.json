@@ -1,0 +1,30 @@
+[
+  {
+    "id": "TZ-BY-BRST-ULY-002",
+    "name": "Светлый Улей",
+    "lat": 52.18,
+    "lon": 24.35,
+    "founded": "2025-10-12",
+    "areaHa": 1.2,
+    "population": 7,
+    "twitter": "https://twitter.com/uliy",
+    "gallery": [
+      "/img/uly/1.jpg",
+      "/img/uly/2.jpg"
+    ]
+  },
+  {
+    "id": "TZ-SPB-DOMISTINY",
+    "name": "Dom i Stiny",
+    "lat": 52.18,
+    "lon": 24.35,
+    "founded": "2025-10-12",
+    "areaHa": 1.2,
+    "population": 7,
+    "twitter": "https://twitter.com/uliy",
+    "gallery": [
+      "/img/uly/1.jpg",
+      "/img/uly/2.jpg"
+    ...
+  }
+]
