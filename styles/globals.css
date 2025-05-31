@@ -327,7 +327,3 @@ a:hover {
   box-shadow: 0 2px 8px rgba(0,0,0,.15);
 }
 
-@media (max-width: 640px){
-  .toolbar{ flex-direction:row; bottom:12px; top:auto; right:50%; transform:translateX(50%); }
-}
-
