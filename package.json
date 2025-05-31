@@ -8,12 +8,13 @@
     "start": "next start"
   },
   "dependencies": {
+    "framer-motion": "latest",
+    "i18next": "^23.0.0",
     "next": "latest",
+    "next-i18next": "^15.0.0",
     "react": "latest",
     "react-dom": "latest",
-    "next-i18next": "^15.0.0",
     "react-i18next": "^13.0.0",
-    "i18next": "^23.0.0",
-    "framer-motion": "latest"
+    "react-svg-pan-zoom": "^3.13.1"
   }
 }
