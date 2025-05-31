@@ -5,21 +5,23 @@ const enclaves = [
   {
     id: 'TZ-SPB-DOMISTINY',
     name: 'Дом Истины',
-    coords: { x: 778, y: 238 },
+    coords: { x: 434, y: 370 },
     color: '#f43f5e',
     description: 'Жилой анклав в Санкт-Петербурге. Открыт по запросу.',
+    curatorZid: 'ZID-0001'
   },
   {
     id: 'TZ-BY-BRST-ULY-002',
     name: 'Светлый Улей',
     coords: { x: 424, y: 366 },
     color: '#10b981',
-    description: 'Дом в Ивацевичском районе. Можно заниматься и развивать.',
+    description: 'Дом в Брестской области. Можно жить и развивать инициативы.',
+    curatorZid: 'ZID-0001'
   }
 ]
 
 export default function MapPage() {
-  const [hovered, setHovered] = useState(null)
+  const [active, setActive] = useState(null)
 
   return (
     <main className="wrapper">
@@ -28,33 +30,37 @@ export default function MapPage() {
       <h1 className="text-3xl font-bold text-center my-6">🧭 Карта анклавов</h1>
 
       <div className="relative flex justify-center">
-        <svg viewBox="0 0 1000 1000" className="w-full max-w-4xl bg-white border rounded-xl shadow-md"
-          onClick={(e) => {
-            const bounds = e.currentTarget.getBoundingClientRect()
-            const x = Math.round(e.clientX - bounds.left)
-            const y = Math.round(e.clientY - bounds.top)
-            alert(`📍 Координаты: cx=${x}, cy=${y}`)
-          }}>
+        <svg viewBox="0 0 1000 1000" className="w-full max-w-4xl bg-white border rounded-xl shadow-md">
           <image href="/images/terra-map-2d.webp" x="0" y="0" width="1000" height="1000" />
 
           {enclaves.map((e, i) => (
-            <g key={i} onMouseEnter={() => setHovered(e)} onMouseLeave={() => setHovered(null)}>
+            <g key={i} onClick={() => setActive(e)} className="cursor-pointer">
               <circle cx={e.coords.x} cy={e.coords.y} r="10" fill={e.color} />
               <text x={e.coords.x + 12} y={e.coords.y + 4} fontSize="12" fill="#111">{e.name}</text>
             </g>
           ))}
         </svg>
 
-        {hovered && (
-          <div className="absolute bg-white border rounded shadow-lg p-4 text-sm max-w-sm" style={{
-            top: hovered.coords.y * 0.75,
-            left: hovered.coords.x * 0.72
-          }}>
-            <div className="font-semibold text-lg mb-1">{hovered.name}</div>
-            <p className="mb-2">{hovered.description}</p>
-            <a href={`/enclaves/${hovered.id}`} className="inline-block px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
-              Подробнее →
-            </a>
+        {active && (
+          <div className="absolute bg-white border rounded shadow-lg p-4 text-sm max-w-sm z-10"
+            style={{
+              top: active.coords.y * 0.75,
+              left: active.coords.x * 0.75
+            }}>
+            <div className="font-semibold text-lg mb-1">{active.name}</div>
+            <p className="mb-1">{active.description}</p>
+            <p className="mb-2 text-gray-600 text-sm">🧭 ID: {active.id}</p>
+            <div className="space-x-2">
+              <a href={`/enclaves/${active.id}`} className="inline-block px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+                Подробнее →
+              </a>
+              <a href={`https://formspree.io/f/mbloweze?zid=${active.curatorZid}`} className="inline-block px-3 py-1 bg-gray-300 text-black rounded hover:bg-gray-400">
+                📬 Связаться
+              </a>
+              <button onClick={() => setActive(null)} className="inline-block px-3 py-1 text-gray-500 hover:text-black">
+                ✖
+              </button>
+            </div>
           </div>
         )}
       </div>
