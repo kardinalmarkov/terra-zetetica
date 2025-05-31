@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const enclaves = [
   {
@@ -8,7 +8,7 @@ const enclaves = [
     coords: { x: 540, y: 470 },
     color: '#f43f5e',
     description: 'Жилой анклав в Санкт-Петербурге. Открыт по запросу.',
-    curatorZid: 'ZID-0001'
+    curatorZid: 'ZID-0001',
   },
   {
     id: 'TZ-BY-BRST-ULY-002',
@@ -16,36 +16,43 @@ const enclaves = [
     coords: { x: 550, y: 480 },
     color: '#10b981',
     description: 'Дом в Брестской области. Можно жить и развивать инициативы.',
-    curatorZid: 'ZID-0001'
+    curatorZid: 'ZID-0001',
   }
 ]
 
 export default function MapPage() {
   const [active, setActive] = useState(null)
+  const [popupPos, setPopupPos] = useState({ top: 0, left: 0 })
+  const svgRef = useRef(null)
+
+  const handleMarkerClick = (e, enclave) => {
+    const rect = svgRef.current.getBoundingClientRect()
+    const scaleX = rect.width / 1000
+    const scaleY = rect.height / 1000
+    setPopupPos({
+      top: enclave.coords.y * scaleY + rect.top + window.scrollY,
+      left: enclave.coords.x * scaleX + rect.left + window.scrollX
+    })
+    setActive(enclave)
+  }
 
   return (
     <main className="wrapper">
       <Head><title>🧭 Карта анклавов | Terra Zetetica</title></Head>
-
       <h1 className="text-3xl font-bold text-center my-6">🧭 Карта анклавов</h1>
 
       <div className="relative flex justify-center">
-        <svg viewBox="0 0 1000 1000" className="w-full max-w-4xl bg-white border rounded-xl shadow-md">
+        <svg ref={svgRef} viewBox="0 0 1000 1000" className="w-full max-w-4xl bg-white border rounded-xl shadow-md">
           <image href="/images/terra-map-2d.webp" x="0" y="0" width="1000" height="1000" />
-
           {enclaves.map((e, i) => (
-            <g key={i} onClick={() => setActive(e)} className="cursor-pointer">
-              <circle cx={e.coords.x} cy={e.coords.y} r="12" fill={e.color} />
-            </g>
+            <circle key={i} cx={e.coords.x} cy={e.coords.y} r="12" fill={e.color} className="cursor-pointer"
+              onClick={(event) => handleMarkerClick(event, e)} />
           ))}
         </svg>
 
         {active && (
           <div className="absolute bg-white border rounded shadow-lg p-4 text-sm max-w-sm z-10"
-            style={{
-              top: active.coords.y * 0.75,
-              left: active.coords.x * 0.75
-            }}>
+            style={{ top: popupPos.top, left: popupPos.left, transform: 'translate(-50%, -100%)' }}>
             <div className="font-semibold text-lg mb-1">{active.name}</div>
             <p className="mb-1">{active.description}</p>
             <p className="mb-2 text-gray-600 text-sm">🧭 ID: {active.id}</p>
