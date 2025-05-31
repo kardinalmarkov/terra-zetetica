@@ -52,6 +52,25 @@ export default function Apply() {
           ➤ Верификация паспорта
         </a>
       </p>
+      <section style={{ marginTop: '3rem' }}>
+        <h2 style={{ fontSize: '1.6rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+          Дополнительные преимущества гражданства
+        </h2>
+        <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+          <li style={{ padding: '1rem', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+            💎 <strong>Персональная дивидендная пенсия</strong>
+          </li>
+          <li style={{ padding: '1rem', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+            🛡️ <strong>Безналоговое гражданство + паспорт-щит</strong>
+          </li>
+          <li style={{ padding: '1rem', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+            🎓 <strong>DAO-стипендии до $10,000</strong>
+          </li>
+          <li style={{ padding: '1rem', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+            🌱 <strong>Земельный титул Основателя анклава</strong>
+          </li>
+        </ul>
+      </section>
 
       <p><strong>Terra Zetetica — это не просто идея. Это рождение нового мира. И ты — его гражданин.</strong></p>
     </main>
