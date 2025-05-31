@@ -1,5 +1,22 @@
-# macOS
+# Игнорировать macOS-файлы
 .DS_Store
 .env.local
+
+# Игнорировать папку node_modules
 node_modules/
+
+# Игнорировать всё, что генерит Next.js во время сборки
+.next/
+out/
+
+# Если вы используете yarn, игнорировать lock-файл yarn (опционально)
+# yarn.lock
+
+# Игнорируем файлы пакетного менеджера, если используете pnpm
+# .pnpm-debug.log
+
+# Логи
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
