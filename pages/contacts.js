@@ -41,11 +41,6 @@ export default function Contact() {
               </a> – для официальных объявлений и новостей
             </li>
             <li>
-              ✅ <a href="https://github.com/terra-zetetica" target="_blank" rel="noopener noreferrer">
-                GitHub: репозиторий проекта
-              </a>
-            </li>
-            <li>
               ✅ <a href="/enclaves" target="_blank" rel="noopener noreferrer">
                 Раздел анклавов – инструкции по созданию и актуальный список
               </a>
@@ -106,7 +101,7 @@ export default function Contact() {
             <input
               type="text"
               name="name"
-              placeholder="Например, Ivan_12345"
+              placeholder="Например, Ivan Z-12345"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
