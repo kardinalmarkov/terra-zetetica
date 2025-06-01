@@ -327,26 +327,177 @@ a:hover {
   box-shadow: 0 2px 8px rgba(0,0,0,.15);
 }
 
-/* Дополнительные стили для Чек-листа */
-.wrapper input[type="text"] {
-  width: 100%;
-  box-sizing: border-box;
+
+
+
+
+
+
+/* -------------------------------
+   Стили для страницы /checklist
+-------------------------------- */
+
+/* Обёртка */
+.wrapper {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
+
+/* Заголовки */
+.wrapper h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
 .wrapper h2 {
-  color: #222;
+  font-size: 1.5rem;
+  margin-top: 2rem;
   margin-bottom: 0.5rem;
+  color: #222;
 }
+
 .wrapper h3 {
   font-size: 1rem;
   color: #555;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+/* Параграф под заголовком */
+.wrapper p {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+/* Блок «Своё задание» */
+.custom-tasks {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #fafafa;
+  padding: 1rem;
+}
+
+.custom-input-wrapper {
+  display: flex;
+  gap: 0.5rem;
   margin-bottom: 1rem;
 }
-.wrapper button.btn.primary {
+
+.custom-input-wrapper input[type="text"] {
+  flex-grow: 1;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+.custom-input-wrapper .btn.primary {
+  padding: 0.45rem 1rem;
   background-color: #facc15;
   color: #111;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
   transition: background 0.2s;
 }
-.wrapper button.btn.primary:hover {
+
+.custom-input-wrapper .btn.primary:hover {
   background-color: #fde047;
 }
+
+.custom-tasks-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.custom-tasks-list li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.custom-tasks-list input[type="checkbox"] {
+  margin-right: 0.75rem;
+}
+
+.custom-tasks-list span {
+  flex-grow: 1;
+  font-size: 1rem;
+  color: #111;
+}
+
+.custom-tasks-list span.done {
+  text-decoration: line-through;
+  color: #777;
+}
+
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: #c0392b;
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+  margin-left: 0.5rem;
+}
+
+/* Основные блоки чек-листа */
+.block-section {
+  margin-bottom: 2.5rem;
+}
+
+.block-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.block-list li {
+  margin-bottom: 0.5rem;
+}
+
+.block-list input[type="checkbox"] {
+  margin-right: 0.75rem;
+}
+
+.block-list span {
+  font-size: 1rem;
+  color: #111;
+}
+
+.block-list span.done {
+  text-decoration: line-through;
+  color: #777;
+}
+
+/* Кнопки outline (если где-то остаются) */
+.btn.outline {
+  background: transparent;
+  border: 2px solid #111;
+  color: #111;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  border-radius: 4px;
+}
+
+.btn.outline:hover {
+  background: #111;
+  color: #fff;
+}
+
+/* Подвал */
+.checklist-footer {
+  margin-top: 3rem;
+  font-size: 0.9rem;
+  color: #777;
+  text-align: center;
+}
+
+
 
