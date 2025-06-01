@@ -25,8 +25,6 @@ export default function EnclavePage() {
         <li><Link href="/enclaves/map" className="text-blue-600 hover:underline">🗺️ Интерактивная карта анклавов</Link></li>
         <li><Link href="/enclaves/new" className="text-blue-600 hover:underline">🆕 Создать анклав (расширенно)</Link></li>
       </ul>
-
-      <p className="text-gray-500 text-sm mt-10 italic">Белорусский анклав добавлен: Дом Единства (Брестская обл.)</p>
     </main>
   )
 }

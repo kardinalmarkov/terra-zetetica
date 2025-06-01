@@ -36,12 +36,6 @@ export default function Contact() {
             <li>✅ <a href="https://t.me/TerraZetetica" target="_blank" rel="noopener noreferrer">
               Telegram-канал: <strong>@TerraZetetica</strong>
             </a> — для официальных объявлений и новостей</li>
-            <li>✅ <a href="https://discord.gg/ваша_ссылка" target="_blank" rel="noopener noreferrer">
-              Discord-сервер (можно добавить, если заведём)
-            </a></li>
-            <li>✅ <a href="https://github.com/terra-zetetica" target="_blank" rel="noopener noreferrer">
-              GitHub: репозиторий проекта
-            </a></li>
             <li>✅ <a href="/checklist" target="_blank" rel="noopener noreferrer">
               Ваш список дел: <strong>Чек-лист гражданина</strong>
             </a> — если хотите сразу отметить выполнение пунктов
