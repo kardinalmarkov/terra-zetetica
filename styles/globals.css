@@ -327,3 +327,26 @@ a:hover {
   box-shadow: 0 2px 8px rgba(0,0,0,.15);
 }
 
+/* Дополнительные стили для Чек-листа */
+.wrapper input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+.wrapper h2 {
+  color: #222;
+  margin-bottom: 0.5rem;
+}
+.wrapper h3 {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+.wrapper button.btn.primary {
+  background-color: #facc15;
+  color: #111;
+  transition: background 0.2s;
+}
+.wrapper button.btn.primary:hover {
+  background-color: #fde047;
+}
+
