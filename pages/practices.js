@@ -50,6 +50,16 @@ const checklistData = {
       'Почувствовал благодарность к Неведомому',
       'Пробудил в себе сострадание к незнающим'
     ],
+    negatives: [
+      'Стал оправдываться и защищаться перед невежеством',
+      'Пытался «исправить» других вместо служения',
+      'Ощутил себя жертвой — вместо ученика',
+      'Проявил гордыню или стремление доказать истину',
+      'Захотел одобрения, признания или благодарности',
+      'Раздражался на медлительность других',
+      'Ушёл в уныние или сомнение в Пути',
+      'Стал отвлекаться и терять внутреннюю осознанность'
+    ],
     content: `
       <p><strong>Откровения Инсайдера</strong> раскрывают путь души, идущей через иллюзию разделённости, страха и контроля — но выбирающей Свет через внутреннее посвящение. Этот путь требует честности, смирения и понимания Закона Причины.</p>
       <p>Скачать текст книги:</p>
@@ -80,10 +90,14 @@ const checklistData = {
 
 export default function Practices() {
   const [checkedItems, setCheckedItems] = useState({});
+  const [history, setHistory] = useState([]);
 
   useEffect(() => {
     const saved = localStorage.getItem('practices_progress');
     if (saved) setCheckedItems(JSON.parse(saved));
+
+    const savedHistory = localStorage.getItem('practices_history');
+    if (savedHistory) setHistory(JSON.parse(savedHistory));
   }, []);
 
   useEffect(() => {
@@ -104,6 +118,15 @@ export default function Practices() {
   };
 
   const resetDay = () => {
+    const today = new Date().toLocaleDateString();
+    const result = Object.entries(checklistData).map(([key]) => {
+      const positives = checkedItems[key]?.length || 0;
+      const negatives = checkedItems[`${key}_neg`]?.length || 0;
+      return { date: today, key, positives, negatives };
+    });
+    const updatedHistory = [...history, ...result];
+    localStorage.setItem('practices_history', JSON.stringify(updatedHistory));
+    setHistory(updatedHistory);
     setCheckedItems({});
   };
 
@@ -124,11 +147,22 @@ export default function Practices() {
         <p>Простые шаги на Пути Пробуждения, которые можно начать уже сегодня. Отмечайте, что удалось выполнить.</p>
 
         <button onClick={resetDay} style={{ margin: '1rem 0', background: '#eee', padding: '0.5rem 1rem', borderRadius: 6 }}>
-          🔄 Сбросить отметки за день
+          🔄 Сбросить отметки за день и сохранить в историю
         </button>
 
         {Object.entries(checklistData).map(([key, data]) => {
           const { positives, negatives } = count(key);
+          let resultMessage = '';
+          if (key === '51') {
+            resultMessage = positives > negatives
+              ? '✅ Свет преобладает — ты прошёл испытание'
+              : '❌ Превалирует эго — день провален';
+          } else if (key === 'insider') {
+            resultMessage = positives > negatives
+              ? '🌀 Ты сохранил внутренний Путь — день был посвящением'
+              : '⚠️ Внимание: день показал, где ещё управляет эго. Наблюдай.';
+          }
+
           return (
             <div key={key} style={{ marginBottom: '3rem', padding: '1rem', border: '1px solid #ddd', borderRadius: 8 }}>
               <h2>{data.title}</h2>
@@ -169,12 +203,7 @@ export default function Practices() {
                 </>
               )}
 
-              <div style={{ marginTop: '1rem', fontWeight: 600 }}>
-                🌗 Баланс дня: +{positives} / −{negatives} →{' '}
-                {positives > negatives
-                  ? '✅ Свет преобладает — ты прошёл испытание'
-                  : '❌ Превалирует эго — день провален'}
-              </div>
+              <div style={{ marginTop: '1rem', fontWeight: 600 }}>{resultMessage}</div>
             </div>
           );
         })}
