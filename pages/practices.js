@@ -54,7 +54,7 @@ const checklistData = {
       <p><strong>Суть практики:</strong> это путь без сопротивления. Всё, что приходит — заслужено. Твоя роль выбрана заранее, и честность перед собой — ключ к выходу из Игры.</p>
       <p style="margin-top: 1rem; font-size: 0.85em;">
         <a href="/materials/docs/Откровения_инсайдера.pdf" target="_blank" rel="noopener noreferrer" style="color:#3366cc;">
-          📘 PDF-текст «Откровений Инсайдера»
+          📘 PDF-текст «Откровения Инсайдера»
         </a>
       </p>
     `
@@ -66,22 +66,28 @@ export default function Practices() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
     const saved = localStorage.getItem('practices_progress');
     if (saved) setCheckedItems(JSON.parse(saved));
+
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
     localStorage.setItem('practices_progress', JSON.stringify(checkedItems));
   }, [checkedItems]);
 
-  const toggle = (key, index) => {
-    setCheckedItems((prev) => {
-      const section = prev[key] || [];
+  const toggle = (key, index, isNegative = false) => {
+    const storageKey = isNegative ? `${key}_neg` : key;
+    setCheckedItems(prev => {
+      const section = prev[storageKey] || [];
       return {
         ...prev,
-        [key]: section.includes(index)
-          ? section.filter((i) => i !== index)
+        [storageKey]: section.includes(index)
+          ? section.filter(i => i !== index)
           : [...section, index]
       };
     });
@@ -91,64 +97,121 @@ export default function Practices() {
     setCheckedItems({});
   };
 
-  const count = (key) => {
-    return checkedItems[key]?.length || 0;
+  const countPosNeg = key => {
+    const posCount = (checkedItems[key] || []).length;
+    const negCount = (checkedItems[`${key}_neg`] || []).length;
+    return { posCount, negCount };
   };
 
   return (
     <>
       <Head>
-        <title>Практика | Terra Zetetica</title>
+        <title>Практики | Terra Zetetica</title>
       </Head>
 
       <main className="wrapper" style={{ maxWidth: 900, margin: '0 auto', padding: '2rem 1rem' }}>
-        <button onClick={resetDay} style={{ margin: '1rem 0', background: '#eee', padding: '0.5rem 1rem', borderRadius: 6 }}>
+        <button
+          onClick={resetDay}
+          style={{ margin: '1rem 0', background: '#eee', padding: '0.5rem 1rem', borderRadius: 6 }}
+        >
           🔄 Сбросить отметки за день
         </button>
 
         {Object.entries(checklistData).map(([key, data]) => {
-          const total = count(key);
+          const { posCount, negCount } = countPosNeg(key);
+
           return (
-            <div key={key} style={{ marginBottom: '3rem', padding: '1rem', border: '1px solid #ddd', borderRadius: 8 }}>
+            <div
+              key={key}
+              style={{ marginBottom: '3rem', padding: '1rem', border: '1px solid #ddd', borderRadius: 8 }}
+            >
               <h2>{data.title}</h2>
               <p>{data.description}</p>
               <div style={{ margin: '1rem 0' }} dangerouslySetInnerHTML={{ __html: data.content }} />
 
-              <div>
-                {data.items.map((item, i) => {
-                  const [label, tooltip] = item.split('|');
-                  return (
-                    <label key={i} style={{ display: 'flex', alignItems: 'center', padding: '0.5rem 0', position: 'relative' }}>
+              {key === '51' && (
+                <>
+                  <h4>✅ Позитивные действия:</h4>
+                  {data.items.map((item, i) => (
+                    <label
+                      key={i}
+                      style={{ display: 'flex', alignItems: 'center', padding: '0.5rem 0', position: 'relative' }}
+                    >
                       <input
                         type="checkbox"
                         checked={(checkedItems[key] || []).includes(i)}
-                        onChange={() => toggle(key, i)}
+                        onChange={() => toggle(key, i, false)}
                         style={{ marginRight: '0.75rem' }}
                       />
-                      {label}
-                      {tooltip && (
-                        isMobile ? (
-                          <details style={{ marginLeft: '0.5rem', fontSize: '0.9em', color: '#666' }}>
-                            <summary style={{ cursor: 'pointer' }}>ⓘ</summary>
-                            <div style={{ paddingTop: '0.2rem' }}>{tooltip}</div>
-                          </details>
-                        ) : (
-                          <span
-                            style={{ marginLeft: '0.5rem', color: '#888', cursor: 'help', fontSize: '0.9em' }}
-                            title={tooltip}
-                          >
-                            ⓘ
-                          </span>
-                        )
-                      )}
+                      {item}
                     </label>
-                  );
-                })}
-              </div>
+                  ))}
 
-              <div style={{ marginTop: '1rem', fontWeight: 600 }}>
-                ✅ Отмечено пунктов: {total} / {data.items.length}
-              </div>
+                  <h4 style={{ marginTop: '1.5rem' }}>⚠️ Негативные проявления:</h4>
+                  {data.negatives.map((item, i) => (
+                    <label
+                      key={i}
+                      style={{ display: 'flex', alignItems: 'center', padding: '0.5rem 0', position: 'relative' }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={(checkedItems[`${key}_neg`] || []).includes(i)}
+                        onChange={() => toggle(key, i, true)}
+                        style={{ marginRight: '0.75rem' }}
+                      />
+                      {item}
+                    </label>
+                  ))}
+
+                  <div style={{ marginTop: '1rem', fontWeight: 600 }}>
+                    🌗 Баланс дня: +{posCount} / −{negCount} →{' '}
+                    {posCount > negCount
+                      ? '✅ Свет преобладает — ты прошёл испытание'
+                      : '❌ Превалирует эго — день провален'}
+                  </div>
+                </>
+              )}
+
+              {key !== '51' && (
+                <>
+                  {data.items.map((item, i) => {
+                    const [label, tooltip] = item.split('|');
+                    return (
+                      <label
+                        key={i}
+                        style={{ display: 'flex', alignItems: 'center', padding: '0.5rem 0', position: 'relative' }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={(checkedItems[key] || []).includes(i)}
+                          onChange={() => toggle(key, i, false)}
+                          style={{ marginRight: '0.75rem' }}
+                        />
+                        {label}
+                        {tooltip && (
+                          isMobile ? (
+                            <details style={{ marginLeft: '0.5rem', fontSize: '0.9em', color: '#666' }}>
+                              <summary style={{ cursor: 'pointer' }}>ⓘ</summary>
+                              <div style={{ paddingTop: '0.2rem' }}>{tooltip}</div>
+                            </details>
+                          ) : (
+                            <span
+                              style={{ marginLeft: '0.5rem', color: '#888', cursor: 'help', fontSize: '0.9em' }}
+                              title={tooltip}
+                            >
+                              ⓘ
+                            </span>
+                          )
+                        )}
+                      </label>
+                    );
+                  })}
+
+                  <div style={{ marginTop: '1rem', fontWeight: 600 }}>
+                    ✅ Отмечено пунктов: {posCount} / {data.items.length}
+                  </div>
+                </>
+              )}
             </div>
           );
         })}
