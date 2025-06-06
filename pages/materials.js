@@ -48,7 +48,7 @@ const materials = [
   {
     key: 'practices',
     icon: '🧘',
-    title: 'Практики внутреннего развития',
+    title: 'Внутреннее развитие',
     description: 'Интерактивные практики.',
     previewSrc: '/images/practices-preview.jpg',
     driveLink: '/practices',
