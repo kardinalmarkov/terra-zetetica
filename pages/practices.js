@@ -18,6 +18,18 @@ const checklistData = {
       'Преодолел лень ради помощи другому',
       'Проявил любовь к ближнему через заботу'
     ],
+    negatives: [
+      'Осудил другого (вслух или про себя)',
+      'Проявил агрессию, раздражение',
+      'Поставил себя выше другого',
+      'Был равнодушен к чужой боли',
+      'Навязал своё мнение или правду',
+      'Проигнорировал просьбу о помощи',
+      'Оговорил или осмеял кого-то',
+      'Соврал ради выгоды',
+      'Позавидовал без попытки осознать',
+      'Выбрал эгоизм, хотя мог бы помочь'
+    ],
     content: `
       <p><strong>Суть практики:</strong> служение другим хотя бы в 51% действий, мыслей и намерений. Это не подвиг, а путь маленьких ежедневных шагов.</p>
       <p>Практика 51%+ является ключом для перехода на следующую ступень эволюции сознания в терминах Закона Одного. Именно такая поляризация позволяет выйти за пределы повторного воплощения в низших плотностях.</p>
@@ -71,25 +83,34 @@ export default function Practices() {
 
   useEffect(() => {
     const saved = localStorage.getItem('practices_progress');
-    if (saved) {
-      setCheckedItems(JSON.parse(saved));
-    }
+    if (saved) setCheckedItems(JSON.parse(saved));
   }, []);
 
   useEffect(() => {
     localStorage.setItem('practices_progress', JSON.stringify(checkedItems));
   }, [checkedItems]);
 
-  const toggle = (key, index) => {
+  const toggle = (key, index, isNegative = false) => {
     setCheckedItems((prev) => {
-      const section = prev[key] || [];
+      const posKey = isNegative ? `${key}_neg` : key;
+      const section = prev[posKey] || [];
       return {
         ...prev,
-        [key]: section.includes(index)
+        [posKey]: section.includes(index)
           ? section.filter((i) => i !== index)
           : [...section, index]
       };
     });
+  };
+
+  const resetDay = () => {
+    setCheckedItems({});
+  };
+
+  const count = (key) => {
+    const positives = checkedItems[key]?.length || 0;
+    const negatives = checkedItems[`${key}_neg`]?.length || 0;
+    return { positives, negatives };
   };
 
   return (
@@ -102,27 +123,58 @@ export default function Practices() {
         <h1>🌟 Практики внутреннего развития</h1>
         <p>Простые шаги на Пути Пробуждения, которые можно начать уже сегодня. Отмечайте, что удалось выполнить.</p>
 
-        {Object.entries(checklistData).map(([key, data]) => (
-          <div key={key} style={{ marginBottom: '3rem', padding: '1rem', border: '1px solid #ddd', borderRadius: 8 }}>
-            <h2>{data.title}</h2>
-            <p>{data.description}</p>
-            <div style={{ margin: '1rem 0' }} dangerouslySetInnerHTML={{ __html: data.content }} />
+        <button onClick={resetDay} style={{ margin: '1rem 0', background: '#eee', padding: '0.5rem 1rem', borderRadius: 6 }}>
+          🔄 Сбросить отметки за день
+        </button>
 
-            <div>
-              {data.items.map((item, i) => (
-                <label key={i} style={{ display: 'flex', alignItems: 'center', padding: '0.5rem 0' }}>
-                  <input
-                    type="checkbox"
-                    checked={(checkedItems[key] || []).includes(i)}
-                    onChange={() => toggle(key, i)}
-                    style={{ marginRight: '0.75rem' }}
-                  />
-                  {item}
-                </label>
-              ))}
+        {Object.entries(checklistData).map(([key, data]) => {
+          const { positives, negatives } = count(key);
+          return (
+            <div key={key} style={{ marginBottom: '3rem', padding: '1rem', border: '1px solid #ddd', borderRadius: 8 }}>
+              <h2>{data.title}</h2>
+              <p>{data.description}</p>
+              <div style={{ margin: '1rem 0' }} dangerouslySetInnerHTML={{ __html: data.content }} />
+
+              <h4>✅ Позитивные действия:</h4>
+              <div>
+                {data.items.map((item, i) => (
+                  <label key={i} style={{ display: 'flex', alignItems: 'center', padding: '0.5rem 0' }}>
+                    <input
+                      type="checkbox"
+                      checked={(checkedItems[key] || []).includes(i)}
+                      onChange={() => toggle(key, i)}
+                      style={{ marginRight: '0.75rem' }}
+                    />
+                    {item}
+                  </label>
+                ))}
+              </div>
+
+              {data.negatives && (
+                <>
+                  <h4 style={{ marginTop: '1.5rem' }}>⚠️ Негативные проявления:</h4>
+                  <div>
+                    {data.negatives.map((item, i) => (
+                      <label key={i} style={{ display: 'flex', alignItems: 'center', padding: '0.5rem 0' }}>
+                        <input
+                          type="checkbox"
+                          checked={(checkedItems[`${key}_neg`] || []).includes(i)}
+                          onChange={() => toggle(key, i, true)}
+                          style={{ marginRight: '0.75rem' }}
+                        />
+                        {item}
+                      </label>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              <div style={{ marginTop: '1rem', fontWeight: 600 }}>
+                🌗 Баланс дня: +{positives} / −{negatives} → {positives - negatives >= 0 ? 'преобладает Свет' : 'нужно пересмотреть путь'}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </main>
     </>
   );
