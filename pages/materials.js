@@ -49,7 +49,7 @@ const materials = [
     key: 'practices',
     icon: '🧘',
     title: 'Практики внутреннего развития',
-    description: 'Интерактивные практики: Путь 51%+ и Откровения Инсайдера.',
+    description: 'Интерактивные практики.',
     previewSrc: '/images/practices-preview.jpg',
     driveLink: '/practices',
   }  
