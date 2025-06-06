@@ -44,7 +44,15 @@ const materials = [
       { title: 'Лунный свет', src: '/media/2.mp3' },
     ],
     driveLink: 'https://www.terra-zetetica.org/music',
-  }
+  },
+  {
+    key: 'practices',
+    icon: '🧘',
+    title: 'Практики внутреннего развития',
+    description: 'Интерактивные практики: Путь 51%+ и Откровения Инсайдера.',
+    previewSrc: '/images/practices-preview.jpg',
+    driveLink: '/practices',
+  }  
 ];
 
 export default function Materials() {
