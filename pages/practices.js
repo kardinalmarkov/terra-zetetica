@@ -51,20 +51,18 @@ const checklistData = {
       'Пробудил в себе сострадание к незнающим'
     ],
     negatives: [
-      'Ожидал награды или признания за молчание',
-      'Использовал знание для превосходства',
-      'Уходил от ответственности, прикрываясь смирением',
-      'Поддался цинизму или презрению к невежеству',
-      'Сомневался в Пути, забывая об Источнике',
-      'Жаловался на одиночество, вместо благодарности',
-      'Утаил истину не из мудрости, а из страха',
-      'Обесценил путь других, считая его ложным',
-      'Служил лишь себе, избегая самопожертвования'
+      'Ожидал признания или одобрения',
+      'Сбежал от тишины, заняв себя пустым',
+      'Сомневался в пути и выбрал компромисс',
+      'Испугался глубины и отвернулся от неё',
+      'Поддался унынию, не увидев смысла',
+      'Возжелал власти или контроля',
+      'Проявил ложную смиренность (подавил себя)',
+      'Укрылся в гордыне вместо честного взгляда внутрь'
     ],
     content: `
       <p><strong>Откровения Инсайдера</strong> раскрывают путь души, идущей через иллюзию разделённости, страха и контроля — но выбирающей Свет через внутреннее посвящение. Этот путь требует честности, смирения и понимания Закона Причины.</p>
-      <p>Скачать текст книги:</p>
-      <a href="/materials/docs/Откровения_инсайдера.pdf" target="_blank" rel="noopener noreferrer" style="color:#0066cc;font-weight:500">📥 Откровения Инсайдера (PDF)</a>
+      <p style="font-size: 90%; margin-top: 1rem">📄 <a href="/materials/docs/Откровения_инсайдера.pdf" target="_blank" rel="noopener noreferrer" style="color:#0066cc;font-weight:500">Скачать текст книги (PDF)</a></p>
     `
   }
 };
@@ -72,11 +70,11 @@ const checklistData = {
 export default function Practices() {
   const [checkedItems, setCheckedItems] = useState({});
   const [history, setHistory] = useState([]);
+  const [showLegend, setShowLegend] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('practices_progress');
     if (saved) setCheckedItems(JSON.parse(saved));
-
     const savedHistory = localStorage.getItem('practices_history');
     if (savedHistory) setHistory(JSON.parse(savedHistory));
   }, []);
@@ -99,16 +97,15 @@ export default function Practices() {
   };
 
   const resetDay = () => {
-    const todaySummary = {};
+    const daySummary = {};
     Object.keys(checklistData).forEach((key) => {
       const positives = checkedItems[key]?.length || 0;
       const negatives = checkedItems[`${key}_neg`]?.length || 0;
-      todaySummary[key] = { positives, negatives };
+      daySummary[key] = { positives, negatives, date: new Date().toISOString() };
     });
-    const date = new Date().toISOString().split('T')[0];
-    const updatedHistory = [...history, { date, summary: todaySummary }];
-    localStorage.setItem('practices_history', JSON.stringify(updatedHistory));
+    const updatedHistory = [...history, daySummary];
     setHistory(updatedHistory);
+    localStorage.setItem('practices_history', JSON.stringify(updatedHistory));
     setCheckedItems({});
   };
 
@@ -118,11 +115,11 @@ export default function Practices() {
     return { positives, negatives };
   };
 
-  const getMedal = (positives) => {
-    if (positives >= 9) return '🥇 Проводник Света';
-    if (positives >= 6) return '🥈 Служение в действии';
-    if (positives >= 3) return '🥉 Доброе намерение';
-    return '—';
+  const getBadge = (count) => {
+    if (count >= 9) return '🥇 Проводник Света';
+    if (count >= 6) return '🥈 Служение в действии';
+    if (count >= 3) return '🥉 Доброе намерение';
+    return '';
   };
 
   return (
@@ -132,26 +129,32 @@ export default function Practices() {
       </Head>
 
       <main className="wrapper" style={{ maxWidth: 900, margin: '0 auto', padding: '2rem 1rem' }}>
-        <h1>🌟 Практики внутреннего развития</h1>
-        <p>Простые шаги на Пути Пробуждения, которые можно начать уже сегодня. Отмечайте, что удалось выполнить.</p>
-
-        <details style={{ margin: '1rem 0' }}>
-          <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>📘 Легенда и ранги</summary>
-          <ul>
-            <li>🥉 3+ — Доброе намерение</li>
-            <li>🥈 6+ — Служение в действии</li>
-            <li>🥇 9+ — Проводник Света</li>
-            <li>🌗 Баланс дня: если + > − — день прошёл на Свет</li>
-          </ul>
-        </details>
+        <h1>🌀 Практики служения и посвящения</h1>
+        <p>Простые шаги на Пути Пробуждения, которые можно начать уже сегодня. Отмечайте, что удалось выполнить. Баланс и прогресс — ваш Проводник.</p>
 
         <button onClick={resetDay} style={{ margin: '1rem 0', background: '#eee', padding: '0.5rem 1rem', borderRadius: 6 }}>
-          🔄 Сбросить отметки за день и сохранить в историю
+          🔄 Сбросить отметки за день (и сохранить в историю)
         </button>
+
+        <button onClick={() => setShowLegend(!showLegend)} style={{ marginBottom: '1rem' }}>
+          📖 {showLegend ? 'Скрыть легенду' : 'Показать легенду'}
+        </button>
+
+        {showLegend && (
+          <div style={{ background: '#f7f7f7', padding: '1rem', borderRadius: 8, marginBottom: '2rem', fontSize: '90%' }}>
+            <p><strong>Легенда:</strong></p>
+            <ul>
+              <li>🥉 3+ выполнено — <em>Доброе намерение</em></li>
+              <li>🥈 6+ — <em>Служение в действии</em></li>
+              <li>🥇 9+ — <em>Проводник Света</em></li>
+              <li>🌗 Итог: если позитивных больше — день засчитан как Светлый</li>
+            </ul>
+          </div>
+        )}
 
         {Object.entries(checklistData).map(([key, data]) => {
           const { positives, negatives } = count(key);
-          const medal = getMedal(positives);
+          const badge = getBadge(positives);
           return (
             <div key={key} style={{ marginBottom: '3rem', padding: '1rem', border: '1px solid #ddd', borderRadius: 8 }}>
               <h2>{data.title}</h2>
@@ -197,8 +200,8 @@ export default function Practices() {
                 {positives > negatives
                   ? '✅ Свет преобладает — ты прошёл испытание'
                   : '❌ Превалирует эго — день провален'}
+                {badge && ` — ${badge}`}
               </div>
-              <div style={{ marginTop: '0.5rem' }}>🏅 Медаль дня: {medal}</div>
             </div>
           );
         })}
