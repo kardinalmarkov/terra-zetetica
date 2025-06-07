@@ -41,29 +41,29 @@ export default function MyPath() {
                 const obs = log.checkedItems?.observer?.length || 0;
                 const total = pos + neg + obs || 1;
 
+                const posPct = (pos / total) * 100;
+                const obsPct = (obs / total) * 100;
+                const negPct = (neg / total) * 100;
+
                 return (
                   <div key={i} style={{ textAlign: 'center', width: '20px' }}>
                     <div style={{
-                      height: `${(pos / total) * 100}%`,
-                      background: '#a5d6a7',
-                      borderTopLeftRadius: 2,
-                      borderTopRightRadius: 2
-                    }} />
-                    <div style={{
-                      height: `${(obs / total) * 100}%`,
-                      background: '#e0e0e0'
-                    }} />
-                    <div style={{
-                      height: `${(neg / total) * 100}%`,
-                      background: '#ef9a9a',
-                      borderBottomLeftRadius: 2,
-                      borderBottomRightRadius: 2
-                    }} />
-                    <div style={{ fontSize: '0.65rem', marginTop: 2 }}>{log.date.slice(5)}</div>
+                      height: '100px',
+                      display: 'flex',
+                      flexDirection: 'column-reverse',
+                      borderRadius: 4,
+                      overflow: 'hidden'
+                    }}>
+                      <div style={{ height: `${negPct}%`, background: '#ef9a9a' }} />
+                      <div style={{ height: `${obsPct}%`, background: '#e0e0e0' }} />
+                      <div style={{ height: `${posPct}%`, background: '#a5d6a7' }} />
+                    </div>
+                    <div style={{ fontSize: '0.65rem', marginTop: 4 }}>{log.date.slice(5)}</div>
                   </div>
                 );
               })}
             </div>
+
 
             {/* 🗓️ История по дням */}
             <ul style={{ listStyle: 'none', padding: 0 }}>
