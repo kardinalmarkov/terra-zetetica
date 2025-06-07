@@ -232,27 +232,7 @@ export default function InsiderPractices() {
     <div style={{ flex: total.observer, background: '#e0e0e0' }} />
     <div style={{ flex: total.negative, background: '#ef9a9a' }} />
 
-    {/* Порог Служения другим (3 из 5) */}
-    <div style={{
-      position: 'absolute',
-      left: `${(3 / 5) * 100}%`,
-      top: 0,
-      bottom: 0,
-      width: '2px',
-      background: '#4caf50',
-      opacity: 0.7
-    }} title="Порог Служения другим (3/5)" />
-
-    {/* Порог Служения себе (5 из 5) */}
-    <div style={{
-      position: 'absolute',
-      left: `${(5 / 5) * 100}%`,
-      top: 0,
-      bottom: 0,
-      width: '2px',
-      background: '#d32f2f',
-      opacity: 0.7
-    }} title="Порог Служения себе (5/5)" />
+    
   </div>
 
   <div style={{
@@ -271,16 +251,7 @@ export default function InsiderPractices() {
 
 
 
-          <details style={{ margin: '1rem 0' }}>
-            <summary style={{ cursor: 'pointer', fontWeight: 600 }}>
-              📌 Возможные исходы после Жатвы
-            </summary>
-            <ul style={{ marginTop: '1rem' }}>
-              <li>🧘 <strong>4D Позитивная:</strong> Мир Любви, Сострадания, Телепатии.</li>
-              <li>🌀 <strong>4D Негативная:</strong> Мир Служения Себе, Кармического Возмещения.</li>
-              <li>⚖️ <strong>Остаток / 3D:</strong> Невыбор → откат на другую 3D-планету.</li>
-            </ul>
-          </details>
+
 
           <div style={{ marginTop: '1rem', padding: '1rem', background: '#f0f4ff', borderRadius: 6 }}>
             <h3>📈 Итог дня:</h3>
@@ -330,6 +301,18 @@ export default function InsiderPractices() {
               }
             })()}
           </div>
+
+
+          <details style={{ margin: '1rem 0' }}>
+            <summary style={{ cursor: 'pointer', fontWeight: 600 }}>
+              📌 Возможные исходы после Жатвы
+            </summary>
+            <ul style={{ marginTop: '1rem' }}>
+              <li>🧘 <strong>4D Позитивная:</strong> Мир Любви, Сострадания, Телепатии.</li>
+              <li>🌀 <strong>4D Негативная:</strong> Мир Служения Себе, Кармического Возмещения.</li>
+              <li>⚖️ <strong>Остаток / 3D:</strong> Невыбор → откат на другую 3D-планету.</li>
+            </ul>
+          </details>
 
           <details style={{ marginTop: '2rem' }}>
             <summary style={{ fontWeight: 600, cursor: 'pointer' }}>📘 Легенда и Смысл</summary>
