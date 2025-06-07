@@ -23,6 +23,8 @@ function validateTelegramAuth(data) {
 export default async function handler(req, res) {
   const { query } = req
 
+  console.log('[auth] query:', query) // 👉 Добавь для отладки
+
   if (!validateTelegramAuth(query)) {
     return res.status(403).send('Invalid Telegram login')
   }
