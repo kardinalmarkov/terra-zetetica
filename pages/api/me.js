@@ -7,13 +7,25 @@ export default async function handler(req, res) {
   }
 
   try {
-    const apiUrl = `http://91.243.71.199:5050/api/user/${telegramId}` // 👈 укажи IP и порт!
+    const apiUrl = `http://91.243.71.199:5050/api/user/${telegramId}`
     const response = await fetch(apiUrl)
-    if (!response.ok) throw new Error('User not found')
-    const user = await response.json()
 
-    res.status(200).json({ user })
+    if (response.ok) {
+      const user = await response.json()
+      return res.status(200).json({ user })
+    }
+
+    // 🧭 Если не найден в БД — создаём временный профиль
+    return res.status(200).json({
+      user: {
+        telegram_id: telegramId,
+        full_name: 'Гость Zetetica',
+        status: 'незарегистрирован',
+        zetetic_id: null,
+        ipfs_url: null
+      }
+    })
   } catch (error) {
-    res.status(404).json({ user: null })
+    return res.status(500).json({ user: null })
   }
 }

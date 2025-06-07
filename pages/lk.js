@@ -42,9 +42,20 @@ export default function LK() {
       {user && (
         <div>
           <p><strong>Имя:</strong> {user.full_name}</p>
-          <p><strong>Z-ID:</strong> {user.zetetic_id}</p>
-          <p><strong>Статус:</strong> {user.status || 'не установлен'}</p>
-          <p><a href={user.ipfs_url}>🌀 Перейти к паспорту</a></p>
+
+          {user.zetetic_id ? (
+            <>
+              <p><strong>Z-ID:</strong> {user.zetetic_id}</p>
+              <p><strong>Статус:</strong> {user.status || 'не установлен'}</p>
+              <p><a href={user.ipfs_url}>🌀 Перейти к паспорту</a></p>
+            </>
+          ) : (
+            <>
+              <p>⚠️ Вы ещё не зарегистрированы как гражданин Terra Zetetica.</p>
+              <p>🔹 Чтобы получить Z-ID и доступ к паспорту, начните регистрацию:</p>
+              <a href="/apply" className="btn">🧱 Стать гражданином</a>
+            </>
+          )}
         </div>
       )}
     </main>
