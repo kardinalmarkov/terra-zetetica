@@ -218,41 +218,56 @@ export default function InsiderPractices() {
             ))}
           </ul>
 
-<div style={{
-  display: 'flex',
-  height: '14px',
-  margin: '1rem 0',
-  borderRadius: 8,
-  overflow: 'hidden',
-  background: '#eee',
-  position: 'relative'
-}}>
-  <div style={{ flex: total.positive, background: '#a5d6a7' }} />
-  <div style={{ flex: total.observer, background: '#e0e0e0' }} />
-  <div style={{ flex: total.negative, background: '#ef9a9a' }} />
-
-  {/* Порог 51% (3/5) */}
+<div style={{ marginTop: '1.5rem' }}>
   <div style={{
-    position: 'absolute',
-    left: `${(3 / 5) * 100}%`,
-    top: 0,
-    bottom: 0,
-    width: '2px',
-    background: '#333',
-    opacity: 0.6
-  }} title="Порог 51%" />
+    display: 'flex',
+    height: '14px',
+    borderRadius: 8,
+    overflow: 'hidden',
+    background: '#eee',
+    position: 'relative',
+    marginBottom: '0.5rem'
+  }}>
+    <div style={{ flex: total.positive, background: '#a5d6a7' }} />
+    <div style={{ flex: total.observer, background: '#e0e0e0' }} />
+    <div style={{ flex: total.negative, background: '#ef9a9a' }} />
 
-  {/* Порог 95% (5/5) */}
+    {/* Порог Служения другим (3 из 5) */}
+    <div style={{
+      position: 'absolute',
+      left: `${(3 / 5) * 100}%`,
+      top: 0,
+      bottom: 0,
+      width: '2px',
+      background: '#4caf50',
+      opacity: 0.7
+    }} title="Порог Служения другим (3/5)" />
+
+    {/* Порог Служения себе (5 из 5) */}
+    <div style={{
+      position: 'absolute',
+      left: `${(5 / 5) * 100}%`,
+      top: 0,
+      bottom: 0,
+      width: '2px',
+      background: '#d32f2f',
+      opacity: 0.7
+    }} title="Порог Служения себе (5/5)" />
+  </div>
+
   <div style={{
-    position: 'absolute',
-    left: `${(5 / 5) * 100}%`,
-    top: 0,
-    bottom: 0,
-    width: '2px',
-    background: '#000',
-    opacity: 0.8
-  }} title="Порог 95%" />
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: '0.85rem',
+    color: '#555',
+    padding: '0 2px'
+  }}>
+    <div>🧘 {total.positive} / 5</div>
+    <div>⚖️ {total.observer} / 5</div>
+    <div>🌀 {total.negative} / 5</div>
+  </div>
 </div>
+
 
 
 
