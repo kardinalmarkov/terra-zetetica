@@ -242,9 +242,10 @@ export default function InsiderPractices() {
             {(() => {
               const positive = countMarked('positive');
               const negative = countMarked('negative');
+              const observer = countMarked('observer');
 
-              const normPositive = positive / 3; // порог 3 действия (51%)
-              const normNegative = negative / 5; // порог 5 действий (95%)
+              const normPositive = positive / 3;
+              const normNegative = negative / 5;
 
               if (normNegative >= 1 && normNegative > normPositive) {
                 return (
@@ -260,6 +261,13 @@ export default function InsiderPractices() {
                     <em>«Вы не должны бороться — лишь выбрать, быть Искренним и Благодарным»</em>
                   </>
                 );
+              } else if (normNegative >= 1 && normPositive >= 1 && normPositive === normNegative) {
+                return (
+                  <>
+                    <p>⚔️ Ты сегодня балансировал между Светом и Силой. Выбор всё ещё не сделан.</p>
+                    <em>«Даже баланс — это иллюзия. Тебе всё равно придётся выбрать.»</em>
+                  </>
+                );
               } else {
                 return (
                   <>
@@ -269,6 +277,7 @@ export default function InsiderPractices() {
                 );
               }
             })()}
+
           </div>
 
 
