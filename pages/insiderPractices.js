@@ -63,8 +63,13 @@ export default function InsiderPractices() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('insider_progress', JSON.stringify(checkedItems));
-  }, [checkedItems]);
+    localStorage.setItem('insider_progress', JSON.stringify({
+      checkedItems,
+      insight,
+      dailyLog
+    }));
+  }, [checkedItems, insight, dailyLog]);
+
 
   const toggle = (key, index) => {
     setCheckedItems(prev => {
@@ -93,8 +98,15 @@ export default function InsiderPractices() {
     const hasData = Object.values(checkedItems).some(arr => arr.length > 0) || insight.trim() !== '';
 
     if (hasData) {
-      setDailyLog(prev => [...prev.filter(log => log.date !== totalToday.date), totalToday]);
+      const updatedLog = [...dailyLog.filter(log => log.date !== totalToday.date), totalToday];
+      setDailyLog(updatedLog);
+      localStorage.setItem('insider_progress', JSON.stringify({
+        checkedItems: {},
+        insight: '',
+        dailyLog: updatedLog
+      }));
     }
+
 
     setCheckedItems({});
     setChosen(false);
@@ -376,7 +388,8 @@ export default function InsiderPractices() {
             <div style={{ marginTop: '1rem', fontSize: '0.95rem', lineHeight: '1.6' }}>
               <p>✅ <strong>Порог Служения другим:</strong> минимум 3 из 5 (51%)</p>
               <p>🌀 <strong>Порог Служения себе:</strong> 5 из 5 (95%)</p>
-              <p>⚖️ <strong>Порог наблюдателя:</strong> минимум 3 — но не ведёт к поляризации</p>
+              <p>⚖️ <strong>Путь наблюдателя:</strong> путь осознания и размышлений. Но без полярности (любви или воли) — переход в 4D невозможен.</p>
+              <em>«Невыбор — это тоже выбор. Он обнуляет Игру.»</em>
               <hr />
               <p>🧘 Путь Света = Любовь, отдача, чувствование Единства</p>
               <p>🌀 Путь Силы = контроль, воля, одиночество</p>
