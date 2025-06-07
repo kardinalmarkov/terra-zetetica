@@ -218,22 +218,42 @@ export default function InsiderPractices() {
             ))}
           </ul>
 
-          <div style={{ position: 'relative', height: '14px', margin: '1rem 0', borderRadius: 8, overflow: 'hidden', background: '#eee' }}>
-            <div style={{ width: `${total.positive * 20}%`, background: '#a5d6a7', height: '100%', position: 'absolute', left: 0 }} />
-            <div style={{ width: `${total.observer * 20}%`, background: '#e0e0e0', height: '100%', position: 'absolute', left: `${total.positive * 20}%` }} />
-            <div style={{ width: `${total.negative * 20}%`, background: '#ef9a9a', height: '100%', position: 'absolute', left: `${(total.positive + total.observer) * 20}%` }} />
-            
-            {/* Порог 51% (3/5) и 95% (5/5) в пикселях от всей ширины */}
-            <div style={{
-              position: 'absolute', left: `${(3 / 5) * 100}%`, top: 0, bottom: 0,
-              width: '2px', background: '#333', opacity: 0.5
-            }} title="Порог 51%" />
+<div style={{
+  display: 'flex',
+  height: '14px',
+  margin: '1rem 0',
+  borderRadius: 8,
+  overflow: 'hidden',
+  background: '#eee',
+  position: 'relative'
+}}>
+  <div style={{ flex: total.positive, background: '#a5d6a7' }} />
+  <div style={{ flex: total.observer, background: '#e0e0e0' }} />
+  <div style={{ flex: total.negative, background: '#ef9a9a' }} />
 
-            <div style={{
-              position: 'absolute', left: `${(5 / 5) * 100}%`, top: 0, bottom: 0,
-              width: '2px', background: '#000', opacity: 0.7
-            }} title="Порог 95%" />
-          </div>
+  {/* Порог 51% (3/5) */}
+  <div style={{
+    position: 'absolute',
+    left: `${(3 / 5) * 100}%`,
+    top: 0,
+    bottom: 0,
+    width: '2px',
+    background: '#333',
+    opacity: 0.6
+  }} title="Порог 51%" />
+
+  {/* Порог 95% (5/5) */}
+  <div style={{
+    position: 'absolute',
+    left: `${(5 / 5) * 100}%`,
+    top: 0,
+    bottom: 0,
+    width: '2px',
+    background: '#000',
+    opacity: 0.8
+  }} title="Порог 95%" />
+</div>
+
 
 
           <details style={{ margin: '1rem 0' }}>
