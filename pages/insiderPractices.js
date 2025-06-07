@@ -227,45 +227,53 @@ export default function InsiderPractices() {
             <div style={{ width: `${total.negative * 20}%`, background: '#ef9a9a' }} />
           </div>
 
-          <div style={{ margin: '1rem 0', background: '#f9f9f9', padding: '1rem', borderRadius: 6 }}>
-            <h3>📌 Возможные исходы после Жатвы:</h3>
-            <ul>
+          <details style={{ margin: '1rem 0' }}>
+            <summary style={{ cursor: 'pointer', fontWeight: 600 }}>
+              📌 Возможные исходы после Жатвы
+            </summary>
+            <ul style={{ marginTop: '1rem' }}>
               <li>🧘 <strong>4D Позитивная:</strong> Мир Любви, Сострадания, Телепатии.</li>
               <li>🌀 <strong>4D Негативная:</strong> Мир Служения Себе, Кармического Возмещения.</li>
               <li>⚖️ <strong>Остаток / 3D:</strong> Невыбор → откат на другую 3D-планету.</li>
             </ul>
-          </div>
+          </details>
 
           <div style={{ marginTop: '1rem', padding: '1rem', background: '#f0f4ff', borderRadius: 6 }}>
             <h3>📈 Итог дня:</h3>
-
             {(() => {
-              const positive = countMarked('positive');
-              const negative = countMarked('negative');
-              const observer = countMarked('observer');
+              const p = countMarked('positive');
+              const n = countMarked('negative');
+              const o = countMarked('observer');
 
-              const normPositive = positive / 3;
-              const normNegative = negative / 5;
+              const pPass = p >= 3;
+              const nPass = n >= 5;
 
-              if (normNegative >= 1 && normNegative > normPositive) {
+              if (nPass && !pPass) {
                 return (
                   <>
                     <p>🔴 Ты поляризован в сторону Служения Себе — путь 4D негативной.</p>
                     <em>«Служение себе — труднейший путь. Но он ведёт в 4D так же, как и Свет.»</em>
                   </>
                 );
-              } else if (normPositive >= 1 && normPositive > normNegative) {
+              } else if (pPass && !nPass) {
                 return (
                   <>
                     <p>🟢 Ты сегодня двигался к Светлой 4D — служение другим.</p>
                     <em>«Вы не должны бороться — лишь выбрать, быть Искренним и Благодарным»</em>
                   </>
                 );
-              } else if (normNegative >= 1 && normPositive >= 1 && normPositive === normNegative) {
+              } else if (pPass && nPass) {
                 return (
                   <>
-                    <p>⚔️ Ты сегодня балансировал между Светом и Силой. Выбор всё ещё не сделан.</p>
+                    <p>⚔️ Ты балансируешь между Светом и Силой. Выбор ещё не сделан.</p>
                     <em>«Даже баланс — это иллюзия. Тебе всё равно придётся выбрать.»</em>
+                  </>
+                );
+              } else if (o >= 3 && !pPass && !nPass) {
+                return (
+                  <>
+                    <p>⚖️ Ты наблюдатель. Ты на краю, но ещё не выбрал путь.</p>
+                    <em>«Наблюдение без действия — ещё не Путь. Путь — это Воля.»</em>
                   </>
                 );
               } else {
@@ -277,8 +285,23 @@ export default function InsiderPractices() {
                 );
               }
             })()}
-
           </div>
+
+          <details style={{ marginTop: '2rem' }}>
+            <summary style={{ fontWeight: 600, cursor: 'pointer' }}>📘 Легенда и Смысл</summary>
+            <div style={{ marginTop: '1rem', fontSize: '0.95rem', lineHeight: '1.6' }}>
+              <p>✅ <strong>Порог Служения другим:</strong> минимум 3 из 5 (51%)</p>
+              <p>🌀 <strong>Порог Служения себе:</strong> 5 из 5 (95%)</p>
+              <p>⚖️ <strong>Порог наблюдателя:</strong> минимум 3 — но не ведёт к поляризации</p>
+              <hr />
+              <p>🧘 Путь Света = Любовь, отдача, чувствование Единства</p>
+              <p>🌀 Путь Силы = контроль, воля, одиночество</p>
+              <p>⚪ Зона нуля = перезапуск, новое воплощение в 3D</p>
+              <hr />
+              <p><em>«Оба пути ведут к Источнику. Вопрос — через боль или любовь.»</em></p>
+            </div>
+          </details>
+
 
 
           <p style={{ marginTop: '2rem', fontStyle: 'italic', textAlign: 'center', color: '#555' }}>
