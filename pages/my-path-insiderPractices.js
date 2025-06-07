@@ -45,8 +45,11 @@ export default function MyPath() {
                 const obsPct = (obs / total) * 100;
                 const negPct = (neg / total) * 100;
 
+                const dateParts = log.date.split('-');
+                const shortDate = `${dateParts[2]}.${dateParts[1]}`; // формат ДД.ММ
+
                 return (
-                  <div key={i} style={{ textAlign: 'center', width: '20px' }}>
+                  <div key={i} style={{ textAlign: 'center', width: '24px' }}>
                     <div style={{
                       height: '100px',
                       display: 'flex',
@@ -58,11 +61,12 @@ export default function MyPath() {
                       <div style={{ height: `${obsPct}%`, background: '#e0e0e0' }} />
                       <div style={{ height: `${posPct}%`, background: '#a5d6a7' }} />
                     </div>
-                    <div style={{ fontSize: '0.65rem', marginTop: 4 }}>{log.date.slice(5)}</div>
+                    <div style={{ fontSize: '0.7rem', marginTop: 4 }}>{shortDate}</div>
                   </div>
                 );
               })}
             </div>
+
 
 
             {/* 🗓️ История по дням */}
