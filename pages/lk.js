@@ -6,7 +6,6 @@ export default function LK() {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
-    // Проверяем есть ли Telegram данные в сессии (установлены сервером через куки)
     fetch('/api/me')
       .then((res) => res.json())
       .then((data) => setUser(data.user || null))
@@ -23,16 +22,20 @@ export default function LK() {
       {!user && (
         <div>
           <p>Пожалуйста, авторизуйтесь через Telegram:</p>
-          <script
-            async
-            src="https://telegram.org/js/telegram-widget.js?7"
-            data-telegram-login="ZeteticID_bot"
-            data-size="large"
-            data-userpic="true"
-            data-request-access="write"
-            data-auth-url="/api/auth"
-            data-lang="ru"
-          ></script>
+          <div
+            className="telegram-login"
+            dangerouslySetInnerHTML={{
+              __html: `
+                <script async src="https://telegram.org/js/telegram-widget.js?7"
+                  data-telegram-login="ZeteticID_bot"
+                  data-size="large"
+                  data-userpic="true"
+                  data-request-access="write"
+                  data-auth-url="/api/auth"
+                  data-lang="ru"></script>
+              `,
+            }}
+          ></div>
         </div>
       )}
 
