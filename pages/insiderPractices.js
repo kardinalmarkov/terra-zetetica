@@ -76,6 +76,12 @@ export default function InsiderPractices() {
 
   const countMarked = (key) => (checkedItems[key] || []).length;
 
+  const total = {
+    positive: countMarked('positive'),
+    negative: countMarked('negative'),
+    observer: countMarked('observer'),
+  };
+
   return (
     <>
       <Head>
@@ -85,11 +91,20 @@ export default function InsiderPractices() {
       <main className="wrapper" style={{ maxWidth: 900, margin: '0 auto', padding: '2rem 1rem' }}>
         <h1>🧬 Практика по Откровениям Инсайдера</h1>
 
+        <div style={{ margin: '1rem 0', padding: '0.75rem 1rem', background: '#f8f9fb', borderLeft: '4px solid #6c63ff', borderRadius: 6 }}>
+          <strong>📊 Навигация:</strong> В течение дня ты действуешь из одной или нескольких полярностей:
+          <ul style={{ paddingLeft: '1.2rem', marginTop: '0.5rem' }}>
+            <li><strong>🧘 Служение другим</strong> → путь сердца, эмпатии, отдачи</li>
+            <li><strong>🌀 Служение себе</strong> → путь воли, дисциплины, трансформации</li>
+            <li><strong>⚖️ Наблюдатель</strong> → путь наблюдения, но без выбора (ведёт к повтору)</li>
+          </ul>
+        </div>
+
         <details style={{ marginBottom: '1.5rem' }}>
           <summary style={{ cursor: 'pointer', fontWeight: 500 }}>
             📖 Описание учения и 4D переходов
           </summary>
-          <div style={{ marginTop: '1rem', lineHeight: '1.6' }}>
+          <div style={{ marginTop: '1rem', lineHeight: '1.6', fontSize: '0.95rem', color: '#444' }}>
             <p><strong>🌀 Три исхода после Жатвы:</strong><br />
               • <strong>4D Позитив:</strong> Мир Любви, Единства, Сострадания.<br />
               <em>«Вы будете творить чудесные вещи… Это будет волшебное время.»</em><br />
@@ -109,6 +124,8 @@ export default function InsiderPractices() {
               <strong>🌑 Путь Силы:</strong> Контроль, Самоцентризм, Жертва<br />
               <strong>⚪ Невыбор:</strong> Перезапуск цикла
             </p>
+
+            <p><em>✨ Оба пути — Света и Силы — ведут к Источнику. Вопрос лишь в том, каким маршрутом ты хочешь идти.</em></p>
 
             <details style={{ marginTop: '1rem' }}>
               <summary style={{ cursor: 'pointer', fontWeight: 500 }}>
@@ -139,7 +156,6 @@ export default function InsiderPractices() {
           </div>
         </details>
 
-
         <div style={{ margin: '1rem 0', padding: '1rem', border: '1px dashed #aaa', borderRadius: 6 }}>
           <label>
             <input type="checkbox" checked={chosen} onChange={() => setChosen(!chosen)} style={{ marginRight: '0.5rem' }} />
@@ -162,7 +178,7 @@ export default function InsiderPractices() {
               style={{ marginBottom: '3rem', padding: '1rem', border: '1px solid #ddd', borderRadius: 8 }}
             >
               <h2>{data.title}</h2>
-              <p>{data.description}</p>
+              <p style={{ fontSize: '0.95rem', color: '#444' }}>{data.description}</p>
               {data.items.map((item, i) => (
                 <label
                   key={i}
@@ -192,7 +208,7 @@ export default function InsiderPractices() {
         })}
 
         <div style={{ padding: '1rem', borderTop: '1px solid #ccc' }}>
-          <h2>🎯 Вектор Пути</h2>
+          <h2>🎯 Вектор Пути <span title="4D — это уровень сознания, следующий за нашей реальностью. Там ты творишь мыслями, общаешься телепатически и действуешь согласно своей вибрации.">ℹ️</span></h2>
           <p>Посмотри, какой энергии в тебе было больше сегодня:</p>
           <ul>
             {Object.keys(checklistData).map(key => (
@@ -201,6 +217,15 @@ export default function InsiderPractices() {
               </li>
             ))}
           </ul>
+
+          <div style={{
+            display: 'flex', height: '14px', margin: '1rem 0',
+            borderRadius: 8, overflow: 'hidden', background: '#eee'
+          }}>
+            <div style={{ width: `${total.positive * 20}%`, background: '#a5d6a7' }} />
+            <div style={{ width: `${total.observer * 20}%`, background: '#e0e0e0' }} />
+            <div style={{ width: `${total.negative * 20}%`, background: '#ef9a9a' }} />
+          </div>
 
           <div style={{ margin: '1rem 0', background: '#f9f9f9', padding: '1rem', borderRadius: 6 }}>
             <h3>📌 Возможные исходы после Жатвы:</h3>
@@ -221,6 +246,10 @@ export default function InsiderPractices() {
                   : '⚪ Пока недостаточно действий — ты остаёшься в нейтральной зоне.'}
             </p>
           </div>
+
+          <p style={{ marginTop: '2rem', fontStyle: 'italic', textAlign: 'center', color: '#555' }}>
+            «Свет и Тьма — лишь инструменты. Оба ведут к Источнику. Вопрос — каким маршрутом ты хочешь идти.»
+          </p>
         </div>
       </main>
     </>
