@@ -27,6 +27,10 @@ export default async function handler(req, res) {
     return res.status(403).send('Invalid Telegram login')
   }
 
-  res.setHeader('Set-Cookie', `telegram_id=${query.id}; Path=/; HttpOnly`)
+  res.setHeader(
+    'Set-Cookie',
+    `telegram_id=${query.id}; Path=/; HttpOnly; SameSite=Lax; Secure`
+  )
+
   res.redirect('/lk')
 }
