@@ -41,6 +41,9 @@ export default function InsiderPractices() {
   const [checkedItems, setCheckedItems] = useState({});
   const [isMobile, setIsMobile] = useState(false);
   const [chosen, setChosen] = useState(false);
+  const [insight, setInsight] = useState('');
+  const [dailyLog, setDailyLog] = useState([]);
+
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -48,7 +51,13 @@ export default function InsiderPractices() {
     window.addEventListener('resize', handleResize);
 
     const saved = localStorage.getItem('insider_progress');
-    if (saved) setCheckedItems(JSON.parse(saved));
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setCheckedItems(parsed.checkedItems || {});
+      setInsight(parsed.insight || '');
+      setDailyLog(parsed.dailyLog || []);
+    }
+
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -72,6 +81,24 @@ export default function InsiderPractices() {
   const resetDay = () => {
     setCheckedItems({});
     setChosen(false);
+  };
+
+  const completeDay = () => {
+    const totalToday = {
+      date: new Date().toISOString().split('T')[0],
+      checkedItems,
+      insight
+    };
+
+    const hasData = Object.values(checkedItems).some(arr => arr.length > 0) || insight.trim() !== '';
+
+    if (hasData) {
+      setDailyLog(prev => [...prev.filter(log => log.date !== totalToday.date), totalToday]);
+    }
+
+    setCheckedItems({});
+    setChosen(false);
+    setInsight('');
   };
 
   const countMarked = (key) => (checkedItems[key] || []).length;
@@ -163,12 +190,42 @@ export default function InsiderPractices() {
           </label>
         </div>
 
+        <div style={{ margin: '2rem 0' }}>
+          <label htmlFor="insight" style={{ fontWeight: 600 }}>
+            💡 Озарение дня:
+          </label>
+          <textarea
+            id="insight"
+            value={insight}
+            onChange={(e) => setInsight(e.target.value)}
+            placeholder="Что ты понял(а), осознал(а) сегодня?"
+            style={{
+              display: 'block',
+              width: '100%',
+              marginTop: '0.5rem',
+              padding: '0.75rem',
+              borderRadius: 6,
+              border: '1px solid #ccc',
+              fontSize: '1rem',
+              minHeight: '100px'
+            }}
+          />
+        </div>
+
         <button
-          onClick={resetDay}
-          style={{ marginBottom: '2rem', background: '#eee', padding: '0.5rem 1rem', borderRadius: 6 }}
+          onClick={() => window.location.href = '/my-path-insiderPractices'}
+          style={{ marginBottom: '1rem', background: '#e3f2fd', padding: '0.5rem 1rem', borderRadius: 6 }}
         >
-          🔄 Сбросить отметки за день
+          📊 Мой путь
         </button>
+
+        <button
+          onClick={completeDay}
+          style={{ marginBottom: '2rem', background: '#dcedc8', padding: '0.75rem 1.25rem', borderRadius: 6, fontWeight: 600 }}
+        >
+          💾 Завершить день и начать новый
+        </button>
+
 
         {Object.entries(checklistData).map(([key, data]) => {
           const markedCount = countMarked(key);
