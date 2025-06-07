@@ -23,8 +23,6 @@ function validateTelegramAuth(data) {
 export default async function handler(req, res) {
   const { query } = req
 
-  console.log('[auth] query:', query) // 👉 Добавь для отладки
-
   if (!validateTelegramAuth(query)) {
     return res.status(403).send('Invalid Telegram login')
   }
@@ -34,5 +32,7 @@ export default async function handler(req, res) {
     `telegram_id=${query.id}; Path=/; HttpOnly; SameSite=Lax; Secure`
   )
 
-  res.redirect('/lk')
+  // 👇 Перенаправление с кэшем запрещено (чтобы useEffect сработал точно)
+  res.setHeader('Cache-Control', 'no-store')
+  res.redirect(302, '/lk') // ⬅️ явный редирект с перезагрузкой
 }
