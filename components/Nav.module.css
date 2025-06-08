@@ -1,115 +1,46 @@
-/* components/Nav.module.css */
-
-.bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 64px;
-  background: #374151; /* тёмно-серый фон */
-  color: white;
-  padding: 0 1rem;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
+/* components/Nav.module.css  – 2025-06-09 */
+.bar{
+  display:flex;align-items:center;justify-content:space-between;
+  height:64px;padding:0 1rem;background:#374151;color:#fff;
+  position:fixed;top:0;left:0;right:0;z-index:1000;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  font-weight: bold;
-  font-size: 1rem;
-  color: white;
+/* ─── левая часть ─── */
+.logo{display:flex;align-items:center;gap:.45rem;font-weight:700}
+.dot{width:8px;height:8px;background:#facc15;border-radius:50%}
+.brand{color:#fff;text-decoration:none;font-size:1rem}
+
+/* ─── desktop-меню ─── */
+.menu{display:flex;align-items:center;gap:1rem}
+.menu a{color:#fff;text-decoration:none;font-weight:500;white-space:nowrap}
+.searchLink{display:flex;align-items:center;gap:.25rem}
+.cta{
+  background:#facc15;color:#111827;padding:.45rem 1rem;border-radius:6px;
+  font-weight:600;text-decoration:none
 }
 
-.mark {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  background: #facc15;
-  border-radius: 50%;
-  margin-right: 0.5rem;
+/* ─── аватар / вход ─── */
+.avatarWrap{display:flex}
+.avatar{width:28px;height:28px;border-radius:50%;object-fit:cover}
+.noAvatar{font-size:1.4rem;line-height:1}
+.login{padding:.35rem .8rem;border:1px solid #facc15;border-radius:6px}
+
+/* ─── мобильная кнопка ─── */
+.burger{
+  display:none;background:none;border:none;font-size:2rem;color:#fff;cursor:pointer
 }
 
-.menu {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+/* ─── mobile-панель ─── */
+.mobile{
+  display:none;flex-direction:column;gap:.8rem;
+  position:fixed;top:64px;left:0;right:0;background:#fff;padding:1rem;z-index:999
 }
+.mobile a{color:#111827;text-decoration:none;font-weight:500}
+.cta.mobile{background:#facc15;color:#111827}
+.open{display:flex}
 
-.menu a {
-  text-decoration: none;
-  color: white;
-  font-weight: 500;
-}
-
-.cta {
-  background: #facc15;
-  color: #111827;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  white-space: nowrap;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.hamburger {
-  display: none;
-  font-size: 1.75rem;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-}
-
-.mobileMenu {
-  display: none;
-}
-
-/* Мобильный вид */
-@media (max-width: 768px) {
-  .menu {
-    display: none;
-  }
-
-  .hamburger {
-    display: block;
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    z-index: 1001;
-  }
-
-  .mobileMenu {
-    position: fixed;
-    top: 64px;
-    left: 0;
-    right: 0;
-    background: white;
-    border-top: 1px solid #ddd;
-    display: none;
-    flex-direction: column;
-    padding: 1rem;
-    z-index: 1000;
-  }
-
-  .mobileMenu.open {
-    display: flex;
-  }
-
-  .mobileMenu a {
-    padding: 0.75rem 0;
-    font-weight: 500;
-    color: #111827;
-    text-decoration: none;
-    border-bottom: 1px solid #eee;
-  }
-}
-
-/* Убрать мобильное меню на больших экранах полностью */
-@media (min-width: 769px) {
-  .mobileMenu {
-    display: none !important;
-  }
+/* ─── брейк-поинт ─── */
+@media(max-width:880px){
+  .menu{display:none}
+  .burger{display:block}
 }

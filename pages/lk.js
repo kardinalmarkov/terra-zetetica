@@ -133,8 +133,20 @@ export default function LK ({ user }) {
             {user.username && <p>Username: <b>@{user.username}</b></p>}
             <p>{citizen ? 'Запись найдена в БД ✔️' : 'В БД записи нет ❌'}</p>
             <p><b>Статус:</b> {renderStatus()}</p>
+            <p style={{marginTop:16}}>
+              <Link href="/contacts?from=help" className="btn-secondary">
+                🤝 {locale==='ru' ? 'Предложить помощь проекту' : 'Offer help'}
+              </Link>
+            </p>
+
           </section>
         )}
+
+      <p style={{marginTop:16}}>
+        <Link href="/contacts?from=help" className="btn-secondary">
+          🤝 {locale==='ru' ? 'Предложить помощь проекту' : 'Offer help'}
+        </Link>
+      </p>
 
         {/* ─── Паспорт / Челлендж ─── */}
         {tab==='passport' && (
@@ -168,6 +180,9 @@ export default function LK ({ user }) {
               }}/>
             </div>
             {progress===0 && <p style={{opacity:.6}}>Нажмите «Присоединиться» на странице «Дом за шар», чтобы начать.</p>}
+            {progress >= 7  && <span style={{marginLeft:8,fontSize:'1.3rem'}}>🏅</span>}
+            {progress === 14 && <span style={{marginLeft:4,fontSize:'1.3rem'}}>🎖</span>}
+
           </section>
         )}
       </main>
