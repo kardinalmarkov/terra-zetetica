@@ -1,35 +1,28 @@
 // pages/lk.js
 //
-// 📄 Полностью рабочий файл “Личный кабинет”.
-// ▸ Показывает данные Telegram-пользователя и (если есть) запись в таблице `citizens` Supabase.
-// ▸ Три вкладки: Профиль, Паспорт / Челлендж, Прогресс.
-// ▸ Корректно определяет статус гражданства: ✅ valid | ❓ pending | ✖ not-found.
-// ▸ Кнопка «Выйти» удаляет cookie tg и перекидывает на главную.
-// ────────────────────────────────────────────────────────────────────────────────
-
+// 🔒 Личный кабинет Terra Zetetica
+// ───────────────────────────────────────────────────────────────
 import Head from 'next/head'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { parse } from 'cookie'
-import { supabase } from '../lib/supabase'           // путь без '@/…' — так Next найдёт файл
+import { supabase } from '../lib/supabase'      // <projectRoot>/lib/supabase.js
 
-/** Простенькие вкладки — без сторонних библиотек */
-function Tabs ({ tabs, active, setActive }) {
+/** Кнопочный Tab-навигация без сторонних библиотек */
+function Tabs ({ tabs, active, onChange }) {
   return (
-    <nav style={{display:'flex',gap:12,margin:'0 0 1rem'}}>
+    <nav style={{display:'flex',gap:12,margin:'0 0 1.2rem'}}>
       {tabs.map(t => (
-        <button
-          key={t.key}
-          onClick={() => setActive(t.key)}
-          style={{
-            padding:'.4rem .9rem',
-            border:'1px solid #ccc',
-            borderBottom: active===t.key ? '3px solid #6c63ff' : '1px solid #ccc',
-            background: active===t.key ? '#f9f9ff' : '#fff',
-            cursor:'pointer',
-            borderRadius:6
-          }}
-        >
+        <button key={t.key}
+                onClick={() => onChange(t.key)}
+                style={{
+                  padding:'.45rem .9rem',
+                  borderRadius:6,
+                  border: active===t.key ? '2px solid #6c63ff' : '1px solid #ccc',
+                  background: active===t.key ? '#f7f7ff' : '#fff',
+                  cursor:'pointer'
+                }}>
           {t.label}
         </button>
       ))}
@@ -37,95 +30,116 @@ function Tabs ({ tabs, active, setActive }) {
   )
 }
 
+/** Микро-спиннер «…» */
+function Dots () {
+  return (
+    <span style={{fontFamily:'monospace',letterSpacing:2}}>
+      <span style={{animation:'blink 1s infinite'}}>.</span>
+      <span style={{animation:'blink 1s .2s infinite'}}>.</span>
+      <span style={{animation:'blink 1s .4s infinite'}}>.</span>
+      <style jsx>{`@keyframes blink{0%,60%{opacity:0}100%{opacity:1}}`}</style>
+    </span>
+  )
+}
+
 export default function LK ({ user }) {
-  const router = useRouter()
-  const [citizen, setCitizen] = useState(null)
-  const [tab, setTab] = useState('profile')
+  const router           = useRouter()
+  const [citizen,setCit] = useState()      // undefined -> ждём / null -> нет строки
+  const [tab,setTab]     = useState('profile')
 
-  // ───────── Запрашиваем запись о гражданине ─────────
+  /* ─── Если есть пользователь — ищем его в Supabase ─── */
   useEffect(() => {
-    if (!user) return router.replace('/')          // если нет куки — на главную
-
-    supabase
-      .from('citizens')
-      .select('*')
-      .eq('telegram_id', user.id)
-      .maybeSingle()                               // вернёт null, если нет строки
-      .then(({ data, error }) => {
-        if (error) console.error(error)
-        setCitizen(data)
-      })
+    if (!user) return             // без авторизации просто покажем виджет
+    supabase.from('citizens')
+            .select('*')
+            .eq('telegram_id', user.id)
+            .maybeSingle()
+            .then(({ data, error }) => {
+              if (error) console.error(error)
+              setCit(data ?? null)
+            })
   }, [user])
 
-  // ───────── Выход: сбрасываем cookie и на / ─────────
+  /* ─── Выход: убиваем cookie tg и на главную ─── */
   async function handleLogout () {
     await fetch('/api/logout', { method:'POST' })
-    router.push('/')
+    router.push('/')              // страница перезагрузится без куки
   }
 
-  // ───────── Красивые метки статусов ─────────
-  function renderStatus () {
-    if (!citizen) return '✖ Гражданство не получено'
-    if (citizen.status === 'valid') return '✅ Гражданин Terra Zetetica'
+  /* ─── Хелпер статусов ─── */
+  const renderStatus = () => {
+    if (!citizen)             return '✖ Гражданство не получено'
+    if (citizen.status==='valid') return '✅ Гражданин Terra Zetetica'
     return '❓ Гражданство в обработке'
   }
 
+  /* ─── 0) Нет куки → кнопка входа Telegram ─── */
   if (!user) {
     return (
-      <main style={{maxWidth:820,margin:'0 auto',padding:'2rem 1rem'}}>
-        <p>Вы не авторизованы. Пожалуйста, войдите через Telegram:</p>
-        <script async src="https://telegram.org/js/telegram-widget.js?15"
-                data-telegram-login="@ZeteticID_bot"
-                data-size="large"
-                data-userpic="false"
-                data-radius="8"
-                data-lang="ru"
-                data-auth-url="/api/auth">
-        </script>
+      <main style={{maxWidth:640,margin:'0 auto',padding:'2rem 1rem'}}>
+        <h2>Авторизация</h2>
+        <p>Пожалуйста, войдите через Telegram:</p>
+        <div
+          dangerouslySetInnerHTML={{
+            __html: `
+<script async src="https://telegram.org/js/telegram-widget.js?15"
+  data-telegram-login="ZeteticID_bot"
+  data-size="large"
+  data-userpic="true"
+  data-lang="ru"
+  data-auth-url="/api/auth"
+  data-request-access="write"></script>`}}
+        />
       </main>
     )
   }
-  if (citizen === null) return <p style={{padding:'2rem'}}>Загрузка…</p>
 
+  /* ─── 1) Авторизованы, но ещё ждём Supabase ─── */
+  if (citizen === undefined) {
+    return (
+      <main style={{padding:'2.5rem',textAlign:'center'}}>
+        <p>Загружаем ваши данные <Dots/></p>
+      </main>
+    )
+  }
+
+  /* ─── 2) Нормальный кабинет ─── */
   return (
     <>
       <Head><title>Личный кабинет • Terra Zetetica</title></Head>
-
-      <main style={{maxWidth:820,margin:'0 auto',padding:'2rem 1rem',fontSize:'1.02rem'}}>
-        <div style={{display:'flex',justifyContent:'space-between',marginBottom:16}}>
-          <strong>Здравствуйте, {user.first_name} {user.last_name || ''}! 🙌 Рады вас видеть.</strong>
-          <button onClick={handleLogout} style={{padding:'.35rem .8rem'}}>Выйти</button>
+      <main style={{maxWidth:820,margin:'0 auto',padding:'2rem 1rem',fontSize:'1.04rem'}}>
+        <div style={{display:'flex',justifyContent:'space-between',marginBottom:20}}>
+          <strong>Здравствуйте, {user.first_name} {user.last_name||''}! 🙌&nbsp;Рады вас видеть.</strong>
+          <button onClick={handleLogout} style={{padding:'.35rem .9rem',cursor:'pointer'}}>Выйти</button>
         </div>
 
         <Tabs
-          active={tab}
-          setActive={setTab}
           tabs={[
-            { key:'profile',   label:'🙏 Профиль' },
-            { key:'passport',  label:'📜 Паспорт / 🏠 Челлендж' },
-            { key:'progress',  label:'📈 Прогресс' }
+            {key:'profile',  label:'🙏 Профиль'},
+            {key:'passport', label:'📜 Паспорт / 🏠 Челлендж'},
+            {key:'progress', label:'📈 Прогресс'}
           ]}
+          active={tab}
+          onChange={setTab}
         />
 
-        {/* ───────── Вкладка 1: Профиль ───────── */}
+        {/* ───────── Профиль ───────── */}
         {tab==='profile' && (
           <section>
-<img
-  src={user.photo_url}
-  alt="avatar"
-  width={120}
-  height={120}
-  style={{ borderRadius: 8 }}
-/>
-
+            {/* Аватар с <img>, чтобы не возиться с remotePatterns */}
+            <img src={user.photo_url}
+                 alt="avatar"
+                 width={120}
+                 height={120}
+                 style={{borderRadius:8,objectFit:'cover'}} />
             <p>ID Telegram: <b>{user.id}</b></p>
-            <p>Телеграм имя: <b>@{user.username || '—'}</b></p>
-            <p>{citizen ? 'Запись найдена в БД ✔️' : 'В БД записи нет ❌'}</p>
+            <p>Телеграм имя: <b>@{user.username||'—'}</b></p>
+            <p>{citizen ? 'Запись найдена в БД ✔️':'В БД записи нет ❌'}</p>
             <p>Статус: {renderStatus()}</p>
           </section>
         )}
 
-        {/* ───────── Вкладка 2: Паспорт / Челлендж ───────── */}
+        {/* ───────── Паспорт / Челлендж ───────── */}
         {tab==='passport' && (
           <section>
             {citizen ? (
@@ -141,20 +155,21 @@ export default function LK ({ user }) {
               </>
             ) : (
               <>
-                <p>У вас пока нет гражданства — получите его на вкладке «Стать гражданином».</p>
-                <a className="btn" href="/apply" style={{padding:'.5rem 1rem',border:'1px solid #ccc',borderRadius:6}}>
-                  Стать гражданином
-                </a>
+                <p>У вас пока нет гражданства. Подать заявку можно здесь:</p>
+                <a href="/apply"
+                   style={{display:'inline-block',padding:'.5rem 1.1rem',
+                           border:'1px solid #6c63ff',borderRadius:6,
+                           color:'#6c63ff',textDecoration:'none'}}>Стать гражданином</a>
               </>
             )}
           </section>
         )}
 
-        {/* ───────── Вкладка 3: Прогресс ───────── */}
+        {/* ───────── Прогресс (плейсхолдер) ───────── */}
         {tab==='progress' && (
           <section>
-            <p>Здесь будет отображаться ваш прогресс по заданиям и практикам.</p>
-            <p style={{opacity:.6}}>Раздел готовится.</p>
+            <p>Здесь будет отображаться ваш прогресс по заданиям.</p>
+            <p style={{opacity:.55}}>Раздел в разработке.</p>
           </section>
         )}
       </main>
@@ -162,14 +177,14 @@ export default function LK ({ user }) {
   )
 }
 
-// ───────────────────── SSR: достаём Telegram-cookie ─────────────────────
+/* ───────── SSR: достаём Telegram-cookie, но НЕ редиректим ───────── */
 export async function getServerSideProps ({ req }) {
   const cookies = parse(req.headers.cookie || '')
   let user = null
   if (cookies.tg) {
     try {
-      user = JSON.parse(Buffer.from(cookies.tg, 'base64').toString())
-    } catch { /* невалидная кука */ }
+      user = JSON.parse(Buffer.from(cookies.tg,'base64').toString())
+    } catch {/* повреждённая кука — игнор */}
   }
-  return { props: { user } }
+  return { props:{ user } }
 }
