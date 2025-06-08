@@ -8,6 +8,12 @@ export default function DomChallenge() {
       <Head>
         <title>🏠 Вызов: Докажи шар — получи дом | Terra Zetetica</title>
       </Head>
+<script async src="https://telegram.org/js/telegram-widget.js?7"
+        data-telegram-login="your_bot_username"
+        data-size="large"
+        data-userpic="true"
+        data-auth-url="/api/auth"
+        data-request-access="write"></script>
 
       <h1>🏠 Челлендж: Докажи шар — получи дом в Европе</h1>
       <p>
