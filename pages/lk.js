@@ -2,6 +2,7 @@
 // Личный кабинет + прогресс челленджа
 
 import Head from 'next/head'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { parse } from 'cookie'
@@ -30,7 +31,8 @@ function Tabs ({ tabs, active, onChange }) {
 }
 
 export default function LK ({ user }) {
-  const router = useRouter()
+  const router        = useRouter()
+  const { locale }    = router
   const [citizen,  setCitizen]  = useState()      // undefined → loading
   const [progress, setProgress] = useState(0)     // 0‒14
   const [tab,      setTab]      = useState('profile')
@@ -142,12 +144,6 @@ export default function LK ({ user }) {
           </section>
         )}
 
-      <p style={{marginTop:16}}>
-        <Link href="/contacts?from=help" className="btn-secondary">
-          🤝 {locale==='ru' ? 'Предложить помощь проекту' : 'Offer help'}
-        </Link>
-      </p>
-
         {/* ─── Паспорт / Челлендж ─── */}
         {tab==='passport' && (
           <section>
@@ -175,7 +171,7 @@ export default function LK ({ user }) {
               <div style={{
                 height:'100%',
                 width:`${(progress/14)*100}%`,
-                background:'#6c63ff',
+                background:'var(--brand, #6c63ff)',
                 borderRadius:6
               }}/>
             </div>

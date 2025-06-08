@@ -30,7 +30,7 @@ export default async function handler (req, res) {
     .upsert({
       citizen_id: Number(cid),
       day_no:     day,
-      answer,                      // хранить сам ответ тоже полезно
+      answer:     reply,           // ✔️ правильный ключ
     })
 
   /* ─── последний день – меняем статус ─── */
