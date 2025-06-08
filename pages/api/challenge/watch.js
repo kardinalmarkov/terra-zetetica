@@ -3,15 +3,24 @@ import { supabase } from '../../../lib/supabase'
 import { parse } from 'cookie'
 
 export default async function handler (req, res) {
-  if (req.method!=='POST') return res.status(405).end()
-  const { cid } = parse(req.headers.cookie||'')
-  const { day } = req.body
-  if (!cid || !day) return res.status(400).end()
+  if (req.method !== 'POST') return res.status(405).send('Method not allowed')
 
-  const { error } = await supabase
-    .from('daily_progress')
-    .upsert({ citizen_id:cid, day_no:day })
+  const { tg, cid } = parse(req.headers.cookie || '')
+  if (!tg || !cid) return res.status(401).send('Not auth')
 
-  if (error) return res.status(500).json({ error:error.message })
+  const { day } = req.body          // { day: 3 }
+  if (!day) return res.status(400).send('No day')
+
+  // пишем progress
+  await supabase.from('daily_progress')
+    .insert({ citizen_id: Number(cid), day_no: day })
+
+  // последний день → finished
+  if (day === 14) {
+    await supabase.from('citizens')
+      .update({ challenge_status:'finished' })
+      .eq('id', cid)
+  }
+
   res.json({ ok:true })
 }
