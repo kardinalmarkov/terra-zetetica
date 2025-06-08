@@ -1,14 +1,20 @@
-/* pages/api/me.js */
-import cookie from 'cookie'
+// pages/api/me.js
+import { parse } from 'cookie'           // ← named import
 
 export default function handler(req, res) {
-  const { tg, last_auth } = cookie.parse(req.headers.cookie || '')
-  if (!tg) return res.status(401).json({ error: 'no_auth' })
+  const cookies = parse(req.headers.cookie || '')
+  const raw = cookies.tg
+  if (!raw) return res.status(401).json({ error: 'no_auth' })
 
+  let telegram
   try {
-    const telegram = JSON.parse(Buffer.from(tg, 'base64').toString())
-    res.json({ telegram, last_auth: last_auth ? Number(last_auth) : null })
+    telegram = JSON.parse(Buffer.from(raw, 'base64').toString())
   } catch {
-    res.status(400).json({ error: 'invalid_tg_cookie' })
+    return res.status(400).json({ error: 'invalid_tg_cookie' })
   }
+
+  return res.json({
+    telegram,
+    last_auth: cookies.last_auth ? Number(cookies.last_auth) : null
+  })
 }
