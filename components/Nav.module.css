@@ -44,3 +44,26 @@
   .menu{display:none}
   .burger{display:block}
 }
+/* ▼ добавьте в самый конец файла ------------------------------------ */
+
+/* ─── аватар / вход ─── */
+.avatarWrap{display:flex}
+.avatar{width:28px;height:28px;border-radius:50%;object-fit:cover}
+.noAvatar{font-size:1.4rem;line-height:1}
+.login{padding:.35rem .8rem;border:1px solid #facc15;border-radius:6px}
+
+/* ─── мобильная кнопка ─── */
+.burger{display:none;background:none;border:none;
+        font-size:2rem;color:#fff;cursor:pointer}
+
+/* ─── mobile-панель ─── */
+.mobile{display:none;flex-direction:column;gap:.8rem;
+        position:fixed;top:64px;left:0;right:0;
+        background:#fff;padding:1rem;z-index:999}
+.mobile a{color:#111827;text-decoration:none;font-weight:500}
+.open{display:flex}
+
+/* breakpoint */
+@media(max-width:880px){
+  .menu{display:none}.burger{display:block}
+}

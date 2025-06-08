@@ -1,0 +1,5 @@
+{
+  "cron": [
+    { "path": "/api/next-day", "schedule": "0 9 * * *" }
+  ]
+}
