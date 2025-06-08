@@ -2,21 +2,24 @@
 import cookie from 'cookie'
 
 export default function handler(req, res) {
-  // Парсим cookie
-  const { tg: tgEncoded } = cookie.parse(req.headers.cookie || '')
+  // Парсим все cookie из заголовка
+  const cookies = cookie.parse(req.headers.cookie || '')
+  const tgEncoded = cookies.tg
+
   if (!tgEncoded) {
-    return res.status(401).json({ error: 'Не авторизован' })
+    // Нет авторизации
+    return res.status(401).json({ error: 'no_auth' })
   }
 
-  // Декодируем Base64 и парсим JSON
-  let telegramData
+  let telegram
   try {
+    // Base64 → JSON
     const json = Buffer.from(tgEncoded, 'base64').toString('utf-8')
-    telegramData = JSON.parse(json)
+    telegram = JSON.parse(json)
   } catch (e) {
-    return res.status(400).json({ error: 'Неверные данные Telegram' })
+    return res.status(400).json({ error: 'invalid_tg_cookie' })
   }
 
-  // Возвращаем все доступные поля из Telegram
-  return res.status(200).json({ telegram: telegramData })
+  // Отдаем все доступные поля
+  return res.status(200).json({ telegram })
 }
