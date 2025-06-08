@@ -1,27 +1,47 @@
 // pages/lk.js
-import { useEffect, useState } from 'react'
-import Head from 'next/head'
-import Router from 'next/router'
+import { useEffect, useState } from 'react';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { parse } from 'cookie';
+import { supabase } from '@/lib/supabase';
 
-export default function LK() {
-  const [data, setData] = useState(null)
+export default function Lk({ user }) {
+  const router = useRouter();
+  const [citizen, setCitizen] = useState(null);
+
+  // если нет cookie — редирект на главную
   useEffect(() => {
-    fetch('/api/me')
-      .then((r) => r.json())
-      .then(setData)
-      .catch(console.error)
-  }, [])
+    if (!user) {
+      router.replace('/');
+      return;
+    }
+    // подгружаем запись из Supabase
+    supabase
+      .from('citizens')
+      .select('*')
+      .eq('telegram_id', user.id)
+      .single()
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Ошибка загрузки гражданина:', error);
+        } else {
+          setCitizen(data);
+        }
+      });
+  }, [user]);
 
-  if (!data) {
-    return <div>⏳ Загрузка...</div>
-  }
+  const handleLogout = async () => {
+    // вызываем API, которое сбросит куку
+    await fetch('/api/logout');
+    router.replace('/');
+  };
 
-  const { telegram, citizen, last_auth } = data
-  const isCitizen = Boolean(citizen?.zetetic_id)
-
-  const logout = () => {
-    document.cookie = 'telegram_id=; path=/; max-age=0'
-    Router.push('/')
+  if (!user || !citizen) {
+    return (
+      <main className="wrapper">
+        <p>Загрузка...</p>
+      </main>
+    );
   }
 
   return (
@@ -29,52 +49,57 @@ export default function LK() {
       <Head>
         <title>Личный кабинет | Terra Zetetica</title>
       </Head>
-
       <main className="wrapper">
-        {/* Приветствие */}
-        <h1>🙍‍♂️ Личный кабинет</h1>
-        <p>Здравствуйте, {telegram.first_name} {telegram.last_name} 🇷🇺! Рады вас видеть.</p>
-        <button onClick={logout}>Выйти</button>
+        <button onClick={handleLogout} style={{ marginBottom: 20 }}>Выйти</button>
 
-        {/* Карточка Профиля */}
-        <section className="card">
+        {/* Приветствие */}
+        <h1>👤 Личный кабинет</h1>
+        <p>Здравствуйте, {user.first_name} {user.last_name}! 🇷🇺</p>
+
+        {/* 1. Профиль */}
+        <section style={{ marginTop: 30 }}>
           <h2>🙏 Профиль</h2>
-          <img src={telegram.photo_url} width={100} height={100} alt="Фото"/>
-          <p><strong>ID:</strong> {telegram.id}</p>
-          <p><strong>Имя:</strong> {telegram.first_name} {telegram.last_name}</p>
-          <p><strong>Username:</strong> @{telegram.username}</p>
-          <p><strong>Язык:</strong> {telegram.auth_date ? citizen?.lang || '—' : '—'}</p>
+          <img
+            src={user.photo_url}
+            alt="avatar"
+            style={{ width: 120, borderRadius: '50%', marginBottom: 10 }}
+          />
+          <p><strong>ID:</strong> {user.id}</p>
+          <p><strong>Телеграм имя:</strong> @{user.username || '—'}</p>
           <p>
             <strong>Статус:</strong>{' '}
-            {isCitizen
+            {citizen.status === 'valid'
               ? '✅ Гражданин Terra Zetetica'
-              : '⚠️ Вы ещё не гражданин'}
+              : '❓ Не гражданин'}
           </p>
         </section>
 
-        {/* Карточка Паспорт / Челлендж */}
-        <section className="card">
+        {/* 2. Паспорт / Челлендж */}
+        <section style={{ marginTop: 30 }}>
           <h2>📜 Паспорт / 🏠 Челлендж</h2>
-          {isCitizen ? (
-            <>
-              <p><strong>Z-ID:</strong> {citizen.zetetic_id}</p>
-              <p><strong>IPFS:</strong> <a href={citizen.ipfs_url}>ссылка</a></p>
-              <p><strong>Статус челленджа:</strong> {citizen.status || '—'}</p>
-            </>
-          ) : (
-            <p>
-              Чтобы получить Z-ID и доступ к паспорту, начните регистрацию:{' '}
-              <a href="/apply">🧱 Стать гражданином</a>
-            </p>
-          )}
+          <p><strong>Z-ID:</strong> {citizen.zetetic_id || '—'}</p>
+          <p>
+            <strong>IPFS:</strong>{' '}
+            {citizen.ipfs_url
+              ? <a href={citizen.ipfs_url} target="_blank">ссылка</a>
+              : '—'}
+          </p>
+          <p><strong>Статус челленджа:</strong> {citizen.challenge_status || '—'}</p>
         </section>
 
-        {/* Карточка Прогресса (пока пустая) */}
-        {/* <section className="card">
+        {/* 3. Прогресс (заглушка) */}
+        <section style={{ marginTop: 30 }}>
           <h2>📈 Мой прогресс</h2>
-          <p>Скоро появится трекер ежедневных заданий…</p>
-        </section> */}
+          <p>Здесь будет отображаться ваш ежедневный прогресс по челленджу.</p>
+        </section>
       </main>
     </>
-  )
+  );
+}
+
+// этот `getServerSideProps` нужен, чтобы забрать куку и разобрать её до рендера
+export async function getServerSideProps({ req }) {
+  const cookies = parse(req.headers.cookie || '');
+  const user = cookies.user ? JSON.parse(cookies.user) : null;
+  return { props: { user } };
 }
