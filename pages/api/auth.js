@@ -1,10 +1,10 @@
 // pages/api/auth.js  ✅ рабочая версия
-import cookie from 'cookie'
-import crypto from 'crypto'
+const cookie = require('cookie')
+const crypto = require('crypto')
 
-const BOT_TOKEN = process.env.BOT_TOKEN           // обязательно задайте в Vercel
+const BOT_TOKEN = process.env.BOT_TOKEN           // ← обязательно в Vercel ENV
 
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   try {
     if (!BOT_TOKEN) throw new Error('BOT_TOKEN is not defined')
 
@@ -18,12 +18,12 @@ export default function handler(req, res) {
     const prod = process.env.NODE_ENV === 'production'
     const opts = { httpOnly: true, sameSite: 'lax', path: '/', secure: prod, maxAge: 60*60*24*30 }
 
-    const tgCookie   = cookie.serialize('tg',  Buffer.from(JSON.stringify(auth)).toString('base64'), opts)
-    const lastCookie = cookie.serialize('last_auth', auth.auth_date, { ...opts, httpOnly: false })
+    const tg   = cookie.serialize('tg',  Buffer.from(JSON.stringify(auth)).toString('base64'), opts)
+    const last = cookie.serialize('last_auth', auth.auth_date, { ...opts, httpOnly: false })
 
-    res.setHeader('Set-Cookie', [tgCookie, lastCookie])
+    res.setHeader('Set-Cookie', [tg, last])
     res.setHeader('Cache-Control', 'no-store')
-    return res.redirect(302, '/lk')
+    res.redirect(302, '/lk')
   } catch (e) {
     console.error('[api/auth] error:', e)
     res.status(500).send(`Auth error: ${e.message}`)
