@@ -1,14 +1,15 @@
 // pages/api/auth.js
 import crypto from 'crypto'
-import cookie from 'cookie'
+import { serialize } from 'cookie'          // <-- именованный импорт
 
 const BOT_TOKEN = process.env.BOT_TOKEN
 
 export default function handler(req, res) {
   try {
     if (!BOT_TOKEN) throw new Error('BOT_TOKEN is not defined')
+    if (typeof serialize !== 'function') throw new Error('cookie.serialize is undefined')
 
-    const { hash, ...auth } = req.query            // всё, что прислал виджет
+    const { hash, ...auth } = req.query
     const dataCheck = Object.keys(auth).sort().map(k => `${k}=${auth[k]}`).join('\n')
 
     const secret = crypto.createHash('sha256').update(BOT_TOKEN).digest()
@@ -18,17 +19,10 @@ export default function handler(req, res) {
     const prod = process.env.NODE_ENV === 'production'
     const opts = { httpOnly: true, sameSite: 'lax', path: '/', secure: prod, maxAge: 60*60*24*30 }
 
-    // cookie с данными Telegram (без hash)
-    const tg = cookie.serialize('tg', Buffer.from(JSON.stringify(auth)).toString('base64'), opts)
+    const tgCookie   = serialize('tg',  Buffer.from(JSON.stringify(auth)).toString('base64'), opts)
+    const lastCookie = serialize('last_auth', auth.auth_date, { ...opts, httpOnly: false })
 
-    // cookie с последней датой входа (доступна JS-коду на клиенте)
-    const last = cookie.serialize(
-      'last_auth',
-      auth.auth_date,
-      { sameSite: 'lax', path: '/', secure: prod, maxAge: 60*60*24*30 }
-    )
-
-    res.setHeader('Set-Cookie', [tg, last])
+    res.setHeader('Set-Cookie', [tgCookie, lastCookie])
     res.setHeader('Cache-Control', 'no-store')
     return res.redirect(302, '/lk')
   } catch (e) {

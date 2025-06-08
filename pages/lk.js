@@ -12,10 +12,8 @@ export default function LK() {
       .then(setResp)
   }, [])
 
-  // 1 — ждём ответ
   if (resp === null) return <p style={{ padding: 32 }}>⏳ Загрузка…</p>
 
-  // 2 — не авторизован → виджет
   if (!resp.ok) {
     return (
       <div style={{ padding: 32 }}>
@@ -33,7 +31,6 @@ export default function LK() {
     )
   }
 
-  // 3 — данные есть
   const { telegram: t, last_auth } = resp.body
 
   return (
@@ -42,18 +39,16 @@ export default function LK() {
 
       <h1>👤 Личный кабинет</h1>
 
-      <h2>Данные из Telegram</h2>
       {t.photo_url && (
-        <img src={t.photo_url} width={96} height={96} alt="" style={{ borderRadius: '50%' }}/>
+        <img src={t.photo_url} alt="" width="96" height="96" style={{ borderRadius: '50%' }}/>
       )}
-      <p><strong>ID:</strong> {t.id}</p>
-      <p><strong>Имя:</strong> {t.first_name} {t.last_name || ''}</p>
-      {t.username && <p><strong>Username:</strong> @{t.username}</p>}
-      <p><strong>Язык:</strong> {t.language_code || '—'}</p>
-      <p><strong>Время текущего входа:</strong> {new Date(t.auth_date*1000).toLocaleString()}</p>
-
+      <p><b>ID:</b> {t.id}</p>
+      <p><b>Имя:</b> {t.first_name} {t.last_name || ''}</p>
+      {t.username && <p><b>Username:</b> @{t.username}</p>}
+      <p><b>Язык:</b> {t.language_code || '—'}</p>
+      <p><b>Текущий вход:</b> {new Date(t.auth_date*1000).toLocaleString()}</p>
       {last_auth && last_auth !== t.auth_date && (
-        <p><strong>Последний вход раньше:</strong> {new Date(last_auth*1000).toLocaleString()}</p>
+        <p><b>Последний вход:</b> {new Date(last_auth*1000).toLocaleString()}</p>
       )}
     </main>
   )
