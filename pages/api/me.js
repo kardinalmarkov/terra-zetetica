@@ -1,20 +1,17 @@
 // pages/api/me.js
-import { parse } from 'cookie'           // ← named import
+import { parse } from 'cookie'
+import { supabase } from '@/lib/supabase'
 
-export default function handler(req, res) {
-  const cookies = parse(req.headers.cookie || '')
-  const raw = cookies.tg
-  if (!raw) return res.status(401).json({ error: 'no_auth' })
+export default async function handler(req,res){
+  const { tg, cid } = parse(req.headers.cookie ?? '')
+  if (!tg || !cid) return res.status(401).json({error:'no_auth'})
 
-  let telegram
-  try {
-    telegram = JSON.parse(Buffer.from(raw, 'base64').toString())
-  } catch {
-    return res.status(400).json({ error: 'invalid_tg_cookie' })
-  }
+  // базовые данные Telegram
+  const telegram = JSON.parse(Buffer.from(tg,'base64').toString())
 
-  return res.json({
-    telegram,
-    last_auth: cookies.last_auth ? Number(cookies.last_auth) : null
-  })
+  // расширенные поля из БД
+  const { data: citizen } = await supabase
+    .from('citizens').select('*').eq('id', cid).single()
+
+  res.json({ telegram, citizen, last_auth: parseInt(parse(req.headers.cookie).last_auth) })
 }

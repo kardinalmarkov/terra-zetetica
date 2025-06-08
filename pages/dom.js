@@ -62,8 +62,8 @@ export default function DomChallenge() {
       </section>
 
       <div style={{ marginTop: '2rem' }}>
-        <a href="https://t.me/ZeteticID_bot" target="_blank" rel="noopener noreferrer" className="btn primary">
-          🚀 Начать путь через Telegram
+        <a href="/lk" className="btn primary">
+          🚀 Личный кабинет – регистрация и задания
         </a>
       </div>
     </main>
