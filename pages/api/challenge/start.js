@@ -3,7 +3,11 @@ import { supabase } from '../../../lib/supabase'
 import { parse } from 'cookie'
 
 export default async function handler (req, res) {
-  if (req.method !== 'POST') return res.status(405).send('Method not allowed')
+  // тест-режим: GET …/start?debug=fast
+  if (req.method === 'GET' && req.query.debug === 'fast') {
+    req.method = 'POST'
+  }
+  if (req.method !== 'POST') return res.status(405).end()
 
   const { tg } = parse(req.headers.cookie || '')
   if (!tg) return res.status(401).send('Not auth')

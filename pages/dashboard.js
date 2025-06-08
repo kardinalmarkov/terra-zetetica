@@ -2,7 +2,7 @@
 import { supabase } from '../lib/supabase';
 import { parse } from 'cookie';
 
-const ADMIN_ID = 1199933222;   // ваш Telegram-id
+const ADMINS = [1199933222]           // <-- добавьте id здесь
 
 export async function getServerSideProps ({ req }) {
   const { tg } = parse(req.headers.cookie || '');
