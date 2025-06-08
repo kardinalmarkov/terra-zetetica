@@ -2,13 +2,9 @@
 import crypto from 'crypto'
 
 const BOT_TOKEN = process.env.BOT_TOKEN
-const SECRET_KEY = process.env.SECRET_KEY || 'supersecret'
 
 function validateTelegramAuth(data) {
-  const authData = { ...data }
-  const hash = authData.hash
-  delete authData.hash
-
+  const { hash, ...authData } = data
   const dataCheckString = Object.keys(authData)
     .sort()
     .map((key) => `${key}=${authData[key]}`)
@@ -20,19 +16,27 @@ function validateTelegramAuth(data) {
   return hmac === hash
 }
 
-export default async function handler(req, res) {
-  const { query } = req
+export default function handler(req, res) {
+  const data = req.query
 
-  if (!validateTelegramAuth(query)) {
-    return res.status(403).send('Invalid Telegram login')
+  if (!validateTelegramAuth(data)) {
+    return res.status(403).send('❌ Invalid Telegram login')
   }
 
-  res.setHeader(
-    'Set-Cookie',
-    `telegram_id=${query.id}; Path=/; HttpOnly; SameSite=Lax; Secure`
-  )
+  const userData = {
+    id: data.id,
+    username: data.username,
+    first_name: data.first_name,
+    last_name: data.last_name,
+    photo_url: data.photo_url
+  }
 
-  // 👇 Перенаправление с кэшем запрещено (чтобы useEffect сработал точно)
+  res.setHeader('Set-Cookie', [
+    `telegram_id=${userData.id}; Path=/; HttpOnly; SameSite=Lax`,
+    `user_name=${encodeURIComponent(userData.first_name)}; Path=/; SameSite=Lax`,
+    `username=${userData.username || ''}; Path=/; SameSite=Lax`
+  ])
+
   res.setHeader('Cache-Control', 'no-store')
-  res.redirect(302, '/lk') // ⬅️ явный редирект с перезагрузкой
+  res.redirect('/lk')
 }

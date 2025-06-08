@@ -1,31 +1,21 @@
 // pages/api/me.js
-export default async function handler(req, res) {
-  const telegramId = req.cookies.telegram_id
+export default function handler(req, res) {
+  const cookies = req.headers.cookie
+  if (!cookies) return res.status(401).json({ error: 'No cookie' })
 
-  if (!telegramId) {
-    return res.status(401).json({ user: null })
+  const user = {}
+  cookies.split(';').forEach(c => {
+    const [key, value] = c.trim().split('=')
+    user[key] = decodeURIComponent(value)
+  })
+
+  if (!user.telegram_id) {
+    return res.status(401).json({ error: 'Unauthorized' })
   }
 
-  try {
-    const apiUrl = `http://91.243.71.199:5050/api/user/${telegramId}`
-    const response = await fetch(apiUrl)
-
-    if (response.ok) {
-      const user = await response.json()
-      return res.status(200).json({ user })
-    }
-
-    // 🧭 Если не найден в БД — создаём временный профиль
-    return res.status(200).json({
-      user: {
-        telegram_id: telegramId,
-        full_name: 'Гость Zetetica',
-        status: 'незарегистрирован',
-        zetetic_id: null,
-        ipfs_url: null
-      }
-    })
-  } catch (error) {
-    return res.status(500).json({ user: null })
-  }
+  res.json({
+    telegram_id: user.telegram_id,
+    first_name: user.user_name,
+    username: user.username || null
+  })
 }

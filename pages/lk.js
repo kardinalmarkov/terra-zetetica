@@ -1,16 +1,25 @@
 // pages/lk.js
 import { useEffect, useState } from 'react'
-import Head from 'next/head'
 
 export default function LK() {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
     fetch('/api/me')
-      .then((res) => res.json())
-      .then((data) => setUser(data.user || null))
-      .catch(() => setUser(null))
+      .then(res => res.ok ? res.json() : null)
+      .then(setUser)
   }, [])
+
+  if (!user) return <p>⏳ Загрузка...</p>
+
+  return (
+    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
+      <h1>Добро пожаловать, {user.first_name}!</h1>
+      <p>Ваш Telegram ID: {user.telegram_id}</p>
+      {user.username && <p>Username: @{user.username}</p>}
+    </div>
+  )
+}
 
   return (
     <main className="wrapper">
