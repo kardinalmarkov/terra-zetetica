@@ -12,7 +12,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { parse } from 'cookie'
 import { supabase } from '../lib/supabase'           // путь без '@/…' — так Next найдёт файл
-import Image from 'next/image'
 
 /** Простенькие вкладки — без сторонних библиотек */
 function Tabs ({ tabs, active, setActive }) {
@@ -97,13 +96,14 @@ export default function LK ({ user }) {
         {/* ───────── Вкладка 1: Профиль ───────── */}
         {tab==='profile' && (
           <section>
-            <Image
-              src={user.photo_url}
-              alt="avatar"
-              width={120}
-              height={120}
-              style={{borderRadius:8}}
-            />
+<img
+  src={user.photo_url}
+  alt="avatar"
+  width={120}
+  height={120}
+  style={{ borderRadius: 8 }}
+/>
+
             <p>ID Telegram: <b>{user.id}</b></p>
             <p>Телеграм имя: <b>@{user.username || '—'}</b></p>
             <p>{citizen ? 'Запись найдена в БД ✔️' : 'В БД записи нет ❌'}</p>
