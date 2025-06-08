@@ -1,8 +1,8 @@
-// pages/api/me.js
-import { parse } from 'cookie'             // <-- именованный импорт
+// pages/api/me.js  ✅ рабочая версия
+import cookie from 'cookie'
 
 export default function handler(req, res) {
-  const { tg: raw, last_auth } = parse(req.headers.cookie || '')
+  const { tg: raw, last_auth } = cookie.parse(req.headers.cookie || '')
   if (!raw) return res.status(401).json({ error: 'no_auth' })
 
   try {
