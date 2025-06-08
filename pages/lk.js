@@ -1,105 +1,71 @@
 // pages/lk.js
-import { useEffect, useState } from 'react';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { parse } from 'cookie';
-import { supabase } from '@/lib/supabase';
+import Head from 'next/head'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import { parse } from 'cookie'
+import { supabase } from '../lib/supabase'
 
 export default function Lk({ user }) {
-  const router = useRouter();
-  const [citizen, setCitizen] = useState(null);
+  const router = useRouter()
+  const [citizen, setCitizen] = useState(null)
 
-  // если нет cookie — редирект на главную
   useEffect(() => {
-    if (!user) {
-      router.replace('/');
-      return;
-    }
-    // подгружаем запись из Supabase
+    if (!user) return router.replace('/')
     supabase
       .from('citizens')
       .select('*')
       .eq('telegram_id', user.id)
       .single()
-      .then(({ data, error }) => {
-        if (error) {
-          console.error('Ошибка загрузки гражданина:', error);
-        } else {
-          setCitizen(data);
-        }
-      });
-  }, [user]);
+      .then(({ data }) => setCitizen(data))
+  }, [user])
 
-  const handleLogout = async () => {
-    // вызываем API, которое сбросит куку
-    await fetch('/api/logout');
-    router.replace('/');
-  };
+  const logout = async () => {
+    await fetch('/api/logout')
+    router.replace('/')
+  }
 
   if (!user || !citizen) {
-    return (
-      <main className="wrapper">
-        <p>Загрузка...</p>
-      </main>
-    );
+    return <main className="wrapper"><p>Загрузка...</p></main>
   }
 
   return (
     <>
-      <Head>
-        <title>Личный кабинет | Terra Zetetica</title>
-      </Head>
+      <Head><title>Личный кабинет | TZ</title></Head>
       <main className="wrapper">
-        <button onClick={handleLogout} style={{ marginBottom: 20 }}>Выйти</button>
-
-        {/* Приветствие */}
+        <button onClick={logout}>Выйти</button>
         <h1>👤 Личный кабинет</h1>
-        <p>Здравствуйте, {user.first_name} {user.last_name}! 🇷🇺</p>
+        <p>Здравствуйте, {user.first_name} {user.last_name}! 🇷🇺 Рады вас видеть.</p>
 
-        {/* 1. Профиль */}
-        <section style={{ marginTop: 30 }}>
-          <h2>🙏 Профиль</h2>
-          <img
-            src={user.photo_url}
-            alt="avatar"
-            style={{ width: 120, borderRadius: '50%', marginBottom: 10 }}
-          />
-          <p><strong>ID:</strong> {user.id}</p>
-          <p><strong>Телеграм имя:</strong> @{user.username || '—'}</p>
+        <section><h2>🙏 Профиль</h2>
+          <img src={user.photo_url} width="120" style={{borderRadius:8}} />
+          <p>ID: {user.id}</p>
+          <p>Телеграм имя: @{user.username || '—'}</p>
+          <p>Вашу запись {citizen ? 'найдено в БД ✔️' : 'не найдено ❗'}</p>
           <p>
-            <strong>Статус:</strong>{' '}
-            {citizen.status === 'valid'
+            Статус: {citizen.challenge_status === 'valid'
               ? '✅ Гражданин Terra Zetetica'
               : '❓ Не гражданин'}
           </p>
         </section>
 
-        {/* 2. Паспорт / Челлендж */}
-        <section style={{ marginTop: 30 }}>
-          <h2>📜 Паспорт / 🏠 Челлендж</h2>
-          <p><strong>Z-ID:</strong> {citizen.zetetic_id || '—'}</p>
-          <p>
-            <strong>IPFS:</strong>{' '}
-            {citizen.ipfs_url
-              ? <a href={citizen.ipfs_url} target="_blank">ссылка</a>
-              : '—'}
-          </p>
-          <p><strong>Статус челленджа:</strong> {citizen.challenge_status || '—'}</p>
+        <section><h2>📜 Паспорт / 🏠 Челлендж</h2>
+          <p>Z-ID: {citizen.zetetic_id || '—'}</p>
+          <p>IPFS: {citizen.ipfs_url
+            ? <a href={citizen.ipfs_url} target="_blank">ссылка</a>
+            : '—'}</p>
+          <p>Статус челленджа: {citizen.challenge_status}</p>
         </section>
 
-        {/* 3. Прогресс (заглушка) */}
-        <section style={{ marginTop: 30 }}>
-          <h2>📈 Мой прогресс</h2>
-          <p>Здесь будет отображаться ваш ежедневный прогресс по челленджу.</p>
+        <section><h2>📈 Мой прогресс</h2>
+          <p>Здесь будет отображаться ваш прогресс</p>
         </section>
       </main>
     </>
-  );
+  )
 }
 
-// этот `getServerSideProps` нужен, чтобы забрать куку и разобрать её до рендера
 export async function getServerSideProps({ req }) {
-  const cookies = parse(req.headers.cookie || '');
-  const user = cookies.user ? JSON.parse(cookies.user) : null;
-  return { props: { user } };
+  const cookies = parse(req.headers.cookie || '')
+  const tg = cookies.tg ? JSON.parse(Buffer.from(cookies.tg,'base64').toString()) : null
+  return { props: { user: tg } }
 }
