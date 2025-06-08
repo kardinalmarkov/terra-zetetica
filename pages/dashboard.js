@@ -2,7 +2,7 @@
 import { supabase } from '../lib/supabase';
 import { parse } from 'cookie';
 
-const ADMINS = [1199933222]           // <-- добавьте id здесь
+const ADMINS = [1199933222, 555666777]; // ← ваши ID
 
 export async function getServerSideProps ({ req }) {
   const { tg } = parse(req.headers.cookie || '');
