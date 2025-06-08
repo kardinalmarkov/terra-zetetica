@@ -70,7 +70,21 @@ export default function LK ({ user }) {
     return '❓ Гражданство в обработке'
   }
 
-  if (!user) return null               // 1-й рендер на сервере: будет редирект из getServerSideProps
+  if (!user) {
+    return (
+      <main style={{maxWidth:820,margin:'0 auto',padding:'2rem 1rem'}}>
+        <p>Вы не авторизованы. Пожалуйста, войдите через Telegram:</p>
+        <script async src="https://telegram.org/js/telegram-widget.js?15"
+                data-telegram-login="@ZeteticID_bot"
+                data-size="large"
+                data-userpic="false"
+                data-radius="8"
+                data-lang="ru"
+                data-auth-url="/api/auth">
+        </script>
+      </main>
+    )
+  }
   if (citizen === null) return <p style={{padding:'2rem'}}>Загрузка…</p>
 
   return (
@@ -156,10 +170,6 @@ export async function getServerSideProps ({ req }) {
     try {
       user = JSON.parse(Buffer.from(cookies.tg, 'base64').toString())
     } catch { /* невалидная кука */ }
-  }
-  if (!user) {
-    // Без авторизации → сразу на главную
-    return { redirect: { destination: '/', permanent: false } }
   }
   return { props: { user } }
 }
