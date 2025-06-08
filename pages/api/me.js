@@ -1,16 +1,14 @@
-// pages/api/me.js  ✅ рабочая версия
-const cookie = require('cookie')
+/* pages/api/me.js */
+import cookie from 'cookie'
 
-module.exports = function handler(req, res) {
-  const { tg: raw, last_auth } = cookie.parse(req.headers.cookie || '')
-  if (!raw) return res.status(401).json({ error: 'no_auth' })
+export default function handler(req, res) {
+  const { tg, last_auth } = cookie.parse(req.headers.cookie || '')
+  if (!tg) return res.status(401).json({ error: 'no_auth' })
 
-  let telegram
   try {
-    telegram = JSON.parse(Buffer.from(raw, 'base64').toString())
+    const telegram = JSON.parse(Buffer.from(tg, 'base64').toString())
+    res.json({ telegram, last_auth: last_auth ? Number(last_auth) : null })
   } catch {
-    return res.status(400).json({ error: 'invalid_tg_cookie' })
+    res.status(400).json({ error: 'invalid_tg_cookie' })
   }
-
-  res.json({ telegram, last_auth: last_auth ? Number(last_auth) : null })
 }

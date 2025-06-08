@@ -1,10 +1,10 @@
-// pages/api/auth.js  ✅ рабочая версия
-const cookie = require('cookie')
-const crypto = require('crypto')
+/* pages/api/auth.js */
+import cookie from 'cookie'          // default-импорт гарантированно существует
+import crypto from 'crypto'
 
-const BOT_TOKEN = process.env.BOT_TOKEN           // ← обязательно в Vercel ENV
+const BOT_TOKEN = process.env.BOT_TOKEN     // обязательно в Vercel ENV
 
-module.exports = function handler(req, res) {
+export default function handler(req, res) {
   try {
     if (!BOT_TOKEN) throw new Error('BOT_TOKEN is not defined')
 
