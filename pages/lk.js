@@ -1,55 +1,80 @@
 // pages/lk.js
 import { useEffect, useState } from 'react'
 import Head from 'next/head'
-import Script from 'next/script'
+import Router from 'next/router'
 
 export default function LK() {
-  const [resp, setResp] = useState(null)
-
+  const [data, setData] = useState(null)
   useEffect(() => {
     fetch('/api/me')
-      .then(async r => ({ ok: r.ok, body: r.ok ? await r.json() : null }))
-      .then(setResp)
+      .then((r) => r.json())
+      .then(setData)
+      .catch(console.error)
   }, [])
 
-  if (resp === null) return <p style={{ padding: 32 }}>⏳ Загрузка…</p>
-
-  if (!resp.ok) {
-    return (
-      <div style={{ padding: 32 }}>
-        <p>Пожалуйста, авторизуйтесь через Telegram:</p>
-        <Script
-          async
-          src="https://telegram.org/js/telegram-widget.js?7"
-          data-telegram-login="ZeteticID_bot"
-          data-size="large"
-          data-userpic="true"
-          data-request-access="write"
-          data-auth-url="https://www.terra-zetetica.org/api/auth"
-        />
-      </div>
-    )
+  if (!data) {
+    return <div>⏳ Загрузка...</div>
   }
 
-  const { telegram: t, last_auth } = resp.body
+  const { telegram, citizen, last_auth } = data
+  const isCitizen = Boolean(citizen?.zetetic_id)
+
+  const logout = () => {
+    document.cookie = 'telegram_id=; path=/; max-age=0'
+    Router.push('/')
+  }
 
   return (
-    <main style={{ maxWidth: 640, margin: '0 auto', padding: '1.5rem' }}>
-      <Head><title>👤 Личный кабинет | Terra Zetetica</title></Head>
+    <>
+      <Head>
+        <title>Личный кабинет | Terra Zetetica</title>
+      </Head>
 
-      <h1>👤 Личный кабинет</h1>
+      <main className="wrapper">
+        {/* Приветствие */}
+        <h1>🙍‍♂️ Личный кабинет</h1>
+        <p>Здравствуйте, {telegram.first_name} {telegram.last_name} 🇷🇺! Рады вас видеть.</p>
+        <button onClick={logout}>Выйти</button>
 
-      {t.photo_url && (
-        <img src={t.photo_url} alt="" width="96" height="96" style={{ borderRadius: '50%' }}/>
-      )}
-      <p><b>ID:</b> {t.id}</p>
-      <p><b>Имя:</b> {t.first_name} {t.last_name || ''}</p>
-      {t.username && <p><b>Username:</b> @{t.username}</p>}
-      <p><b>Язык:</b> {t.language_code || '—'}</p>
-      <p><b>Текущий вход:</b> {new Date(t.auth_date*1000).toLocaleString()}</p>
-      {last_auth && last_auth !== t.auth_date && (
-        <p><b>Последний вход:</b> {new Date(last_auth*1000).toLocaleString()}</p>
-      )}
-    </main>
+        {/* Карточка Профиля */}
+        <section className="card">
+          <h2>🙏 Профиль</h2>
+          <img src={telegram.photo_url} width={100} height={100} alt="Фото"/>
+          <p><strong>ID:</strong> {telegram.id}</p>
+          <p><strong>Имя:</strong> {telegram.first_name} {telegram.last_name}</p>
+          <p><strong>Username:</strong> @{telegram.username}</p>
+          <p><strong>Язык:</strong> {telegram.auth_date ? citizen?.lang || '—' : '—'}</p>
+          <p>
+            <strong>Статус:</strong>{' '}
+            {isCitizen
+              ? '✅ Гражданин Terra Zetetica'
+              : '⚠️ Вы ещё не гражданин'}
+          </p>
+        </section>
+
+        {/* Карточка Паспорт / Челлендж */}
+        <section className="card">
+          <h2>📜 Паспорт / 🏠 Челлендж</h2>
+          {isCitizen ? (
+            <>
+              <p><strong>Z-ID:</strong> {citizen.zetetic_id}</p>
+              <p><strong>IPFS:</strong> <a href={citizen.ipfs_url}>ссылка</a></p>
+              <p><strong>Статус челленджа:</strong> {citizen.status || '—'}</p>
+            </>
+          ) : (
+            <p>
+              Чтобы получить Z-ID и доступ к паспорту, начните регистрацию:{' '}
+              <a href="/apply">🧱 Стать гражданином</a>
+            </p>
+          )}
+        </section>
+
+        {/* Карточка Прогресса (пока пустая) */}
+        {/* <section className="card">
+          <h2>📈 Мой прогресс</h2>
+          <p>Скоро появится трекер ежедневных заданий…</p>
+        </section> */}
+      </main>
+    </>
   )
 }
