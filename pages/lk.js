@@ -179,25 +179,21 @@ export default function LK ({ user }) {
             {progress===0 && <p style={{opacity:.6}}><Link href="/dom">Нажмите «Присоединиться» на странице «Дом за шар»</Link>, чтобы начать.</p>}
             {progress >= 7  && <span style={{marginLeft:8,fontSize:'1.3rem'}}>🏅</span>}
             {progress === 14 && <span style={{marginLeft:4,fontSize:'1.3rem'}}>🎖</span>}
-            {progress>0 && (
-              <>
-                <p style={{marginTop:12}}>
-                  ↩️ <Link href={`/challenge?day=${progress}`}>Пересмотреть текущий день</Link>
-                </p>
-                <select onChange={e=>router.push('/challenge?day='+e.target.value)}
-                        defaultValue={progress} style={{marginTop:12}}>
-                  {Array.from({length:progress}).map((_,i)=>
-                    <option key={i} value={i+1}>День {i+1}</option>)}
-                </select>
+{progress > 0 && (
+  <>
+    <p style={{ marginTop: 12 }}>
+      ↩️ <Link href={`/challenge?day=${progress}`}>Пересмотреть текущий день</Link>
+    </p>
 
-                        {/*  */}
-                <DayPicker
-                  maxDay={material.day_no}
-                  currentDay={material.day_no}
-                  onChange={n => r.push('/challenge?day=' + n)}
-                />
-                      </>
-            )}
+    {/* единый селектор дней */}
+    <DayPicker
+      maxDay={progress}
+      currentDay={progress}
+      onChange={(n) => router.push(`/challenge?day=${n}`)}
+    />
+  </>
+)}
+
           </section>
         )}
       </main>
