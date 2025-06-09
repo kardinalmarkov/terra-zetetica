@@ -1,113 +1,121 @@
 // pages/challenge.js
-import { supabase } from '../lib/supabase'
 import { parse } from 'cookie'
-import { useState } from 'react'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
+import { useState } from 'react'
+import { supabase } from '../lib/supabase'
 
 export default function Challenge ({ user, citizen, material, watched }) {
-  const [done, setDone] = useState(watched)
+  const r        = useRouter()
+  const [done,setDone] = useState(watched)
 
-  async function markWatched () {
+  /* отметка о просмотре/ответе */
+  async function mark (reply='ok') {
     await fetch('/api/challenge/watch', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ day: material.day_no })
+      body: JSON.stringify({ day: material.day_no, reply })
     })
     setDone(true)
   }
 
-  if (!user) {
-    return <p style={{padding:'2rem'}}>Сначала войдите через Telegram.</p>
-  }
+  /* ───────── разная заглушка ───────── */
+  if (!user)          return <p style={{padding:'2rem'}}>Сначала войдите через Telegram.</p>
+  if (!citizen)       return <p style={{padding:'2rem'}}>Получите гражданство, чтобы участвовать.</p>
 
-  if (!citizen) {
-    return <p style={{padding:'2rem'}}>Получите гражданство, чтобы участвовать.</p>
-  }
-
+  /* ещё не стартовал — кнопка старта */
   if (citizen.challenge_status!=='active') {
     return (
       <main style={{padding:'2rem'}}>
-        <h2>Присоединиться к челленджу</h2>
-        <p>Нажмите, чтобы стартовать 14-дневную программу.</p>
+        <h2>Старт 14-дневного челленджа</h2>
         <form method="post" action="/api/challenge/start">
-          <button style={{padding:'.6rem 1.2rem'}}>Стартовать</button>
+          <button className="btn">🚀 Начать</button>
         </form>
       </main>
     )
   }
-        {material.question && !done && (
-          <form onSubmit={async e=>{
-              e.preventDefault();
-              await markWatched();
-          }}>
-            <p style={{fontWeight:500}}>{material.question}</p>
-            <input name="reply" style={{padding:'.4rem .8rem',border:'1px solid #ccc',borderRadius:6}}/>
-            <button style={{marginLeft:12}}>Отправить</button>
-          </form>
-        )}
 
+  /* ───────── обычный день ───────── */
   return (
     <>
-      <Head><title>День {material.day_no} / Челлендж</title></Head>
+      <Head><title>{`День ${material.day_no} • Челлендж`}</title></Head>
       <main style={{maxWidth:760,margin:'0 auto',padding:'2rem 1rem'}}>
         <h2>День {material.day_no} / 14</h2>
         <h3>{material.title}</h3>
-        {material.media_url && (
-          <div style={{margin:'1rem 0'}}>
-            {/* картинка или iframe youtube */}
-            {/\.(jpg|jpeg|png|gif|webp)$/i.test(material.media_url)
-              ? <img src={material.media_url} style={{maxWidth:'100%'}}/>
-              : <iframe width="100%" height="380" src={material.media_url}
-                        frameBorder="0" allowFullScreen/>}
-          </div>
-        )}
-        <p>{material.description}</p>
 
-        {done
-          ? <p style={{color:'green'}}>✔ Материал отмечен просмотренным</p>
-          : <button onClick={markWatched}
-                    style={{padding:'.6rem 1.2rem'}}>Отметить просмотренным</button>}
+        {/* медиа */}
+        {material.media_url && (
+          /\.(jpg|jpeg|png|webp|gif)$/i.test(material.media_url)
+            ? <img src={material.media_url} style={{maxWidth:'100%',borderRadius:6}}/>
+            : <iframe src={material.media_url} width="100%" height="380"
+                      style={{border:0,borderRadius:6}} allowFullScreen/>
+        )}
+
+        <p style={{marginTop:16}}>{material.description}</p>
+
+        {/* вопрос / кнопка */}
+        {material.question && !done && (
+          <form onSubmit={e=>{e.preventDefault(); mark(e.target.reply.value)}}>
+            <p style={{fontWeight:500}}>{material.question}</p>
+            <input name="reply" required
+                   style={{padding:'.45rem .8rem',border:'1px solid #ccc',borderRadius:6}}/>
+            <button className="btn" style={{marginLeft:12}}>Ответить</button>
+          </form>
+        )}
+
+        {!material.question && !done && (
+          <button className="btn" onClick={()=>mark()}>✔ Отметить просмотр</button>
+        )}
+
+        {done && <p style={{color:'green',marginTop:16}}>✔ Материал отмечен</p>}
+
+        {/* выбор дня назад — выпадашка */}
+        <select style={{marginTop:24}}
+                defaultValue={material.day_no}
+                onChange={e=>r.push('/challenge?day='+e.target.value)}>
+          {Array.from({length:material.day_no}).map((_,i)=>
+            <option key={i} value={i+1}>День {i+1}</option>)}
+        </select>
       </main>
     </>
   )
 }
 
-/* ─── SSR ─── */
-export async function getServerSideProps ({ req }) {
+/* ───────── SSR ───────── */
+export async function getServerSideProps ({ req, query }) {
   const { tg, cid } = parse(req.headers.cookie||'')
-  let user=null, citizen=null, material=null, watched=false
+  const user     = tg ? JSON.parse(Buffer.from(tg,'base64').toString()) : null
+  const citizen  = cid
+    ? (await supabase.from('citizens').select('*').eq('id',cid).single()).data
+    : null
 
-  if (tg) user = JSON.parse(Buffer.from(tg,'base64').toString())
-
-  if (cid) {
-    const { data } = await supabase
-      .from('citizens').select('*').eq('id',cid).single()
-    citizen = data ?? null
+  /* нет активного челленджа — рендерим только заглушку */
+  if (!citizen || citizen.challenge_status!=='active') {
+    return { props:{ user, citizen:null, material:{}, watched:false } }
   }
 
-  if (citizen?.challenge_status==='active') {
-    // какой сегодня день?
-    const { count } = await supabase
-      .from('daily_progress')
-      .select('*', { count:'exact', head:true })
-      .eq('citizen_id', cid)
+  /* какой день отображать */
+  const reqDay = Number(query.day) || null
 
-    const day = Math.min(count+1, 14)
-    const { data:mat } = await supabase
-      .from('daily_materials')
-      .select('*')
-      .eq('day_no', day)
-      .single()
-    material = mat ?? null
+  const { count } = await supabase
+    .from('daily_progress')
+    .select('*', { head:true, count:'exact' })
+    .eq('citizen_id', cid)
 
-    const { data:already } = await supabase
-      .from('daily_progress')
-      .select('id')
-      .eq('citizen_id',cid)
-      .eq('day_no',day)
-      .single()
-    watched = !!already
-  }
+  const today = Math.min(count + 1, 14)
+  const dayNo = reqDay && reqDay>=1 && reqDay<=today ? reqDay : today
 
-  return { props:{ user, citizen, material, watched } }
+  const { data:material } = await supabase
+    .from('daily_materials').select('*').eq('day_no', dayNo).single()
+
+  const { data:already } = await supabase
+    .from('daily_progress')
+    .select('id').eq('citizen_id', cid).eq('day_no', dayNo).maybeSingle()
+
+  return { props:{
+    user,
+    citizen,
+    material,
+    watched: !!already
+  }}
 }

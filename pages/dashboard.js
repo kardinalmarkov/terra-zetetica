@@ -1,24 +1,25 @@
 // pages/dashboard.js
-import { supabase } from '../lib/supabase';
-import { parse }    from 'cookie';
+import { parse } from 'cookie'
+import { supabase } from '../lib/supabase'
 
-const ADMINS = [1199933222];    // ← ваши telegram-id
-const ADMIN_ID = 1          // ваш citizens.id
+const ADMIN_ID = 1         // citizens.id админа
 
-
-
-export async function getServerSideProps({ req }) {
+/* ───────── SSR ───────── */
+export async function getServerSideProps ({ req }) {
   const { cid } = parse(req.headers.cookie||'')
-  if (Number(cid)!==ADMIN_ID) return { props:{ denied:true } }
+  const allowed = Number(cid) === ADMIN_ID
 
-  const { data:last } = await supabase.from('last_answers').select('*')
-  return { props:{ last } }
+  if (!allowed) return { props:{ allowed:false } }
+
+  const { data:citizens } = await supabase.from('citizens').select('*').order('id')
+  const { data:answers  } = await supabase.from('last_answers').select('*')
+
+  return { props:{ allowed:true, citizens, answers } }
 }
 
-
-
-export default function Dashboard({ allowed, citizens=[], answers=[] }){
-  if (!allowed) return <p style={{padding:'2rem'}}>⛔ Access denied</p>;
+/* ───────── страница ───────── */
+export default function Dashboard ({ allowed, citizens=[], answers=[] }) {
+  if (!allowed) return <p style={{padding:'2rem'}}>⛔ Access denied</p>
 
   return (
     <main style={{maxWidth:960,margin:'2rem auto',fontSize:14}}>
@@ -38,12 +39,14 @@ export default function Dashboard({ allowed, citizens=[], answers=[] }){
       <h3 style={{marginTop:32}}>Последние ответы</h3>
       <table border={1} cellPadding={4}><tbody>
         {answers.map(a=>(
-          <tr key={`${a.citizen_id}-${a.day_no}`}>
-            <td>#{a.citizen_id}</td><td>день {a.day_no}</td>
-            <td>{a.answer}</td><td>{new Date(a.watched_at).toLocaleString()}</td>
+          <tr key={a.id}>
+            <td>citizen #{a.citizen_id}</td>
+            <td>день {a.day_no}</td>
+            <td>{a.answer}</td>
+            <td>{new Date(a.watched_at).toLocaleString()}</td>
           </tr>
         ))}
       </tbody></table>
     </main>
-  );
+  )
 }
