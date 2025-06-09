@@ -15,22 +15,6 @@ export async function getServerSideProps({ req }) {
   return { props:{ last } }
 }
 
-export default function Dash({ denied, last=[] }) {
-  if (denied) return <p style={{padding:'2rem'}}>⛔ Access denied</p>
-  return (
-    <table style={{width:'100%',padding:'1rem'}}>
-      <thead><tr><th>ID</th><th>Day</th><th>Answer</th><th>When</th></tr></thead>
-      <tbody>
-        {last.map(r=>(
-          <tr key={r.id}>
-            <td>{r.citizen_id}</td><td>{r.day_no}</td>
-            <td>{r.answer}</td><td>{new Date(r.watched_at).toLocaleString()}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )
-}
 
 
 export default function Dashboard({ allowed, citizens=[], answers=[] }){

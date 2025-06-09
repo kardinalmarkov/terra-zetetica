@@ -3,7 +3,10 @@ import { supabase } from '../../../lib/supabase'
 import { parse }    from 'cookie'
 
 export default async function handler (req, res) {
-  if (req.method!=='POST') return res.json({ ok:false })
+  if (req.method !== 'POST') {
+    res.setHeader('Allow','POST')
+    return res.status(200).json({ ok:false })
+  }
 
   const { tg , cid } = parse(req.headers.cookie||'')
   if (!tg || !cid)     return res.json({ ok:false, err:'auth' })

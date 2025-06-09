@@ -35,6 +35,16 @@ export default function Challenge ({ user, citizen, material, watched }) {
       </main>
     )
   }
+        {material.question && !done && (
+          <form onSubmit={async e=>{
+              e.preventDefault();
+              await markWatched();
+          }}>
+            <p style={{fontWeight:500}}>{material.question}</p>
+            <input name="reply" style={{padding:'.4rem .8rem',border:'1px solid #ccc',borderRadius:6}}/>
+            <button style={{marginLeft:12}}>Отправить</button>
+          </form>
+        )}
 
   return (
     <>

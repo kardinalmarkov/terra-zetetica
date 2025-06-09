@@ -72,7 +72,7 @@ export default function Nav () {
       <button onClick={()=>setMenu(!menu)} className={styles.burger}>☰</button>
 
       {/* -------- mobile panel -------- */}
-      <nav className={`${styles.mobile} ${menu?styles.open:''}`}>
+      <nav className={`${styles.mobile} ${menu ? styles.open : ''}`}>
         <Item href="/">{T.home}</Item>
         <Item href="/about">{T.about}</Item>
         <Item href="/news">{T.news}</Item>
