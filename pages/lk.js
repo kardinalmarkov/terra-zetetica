@@ -1,21 +1,20 @@
 // pages/lk.js
-import Head         from 'next/head'
-import Link         from 'next/link'
-import { parse }    from 'cookie'
+import Head          from 'next/head'
+import Link          from 'next/link'
+import { parse }     from 'cookie'
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
-import ClipLoader   from 'react-spinners/ClipLoader'
-import DayPicker    from '../components/DayPicker'
-import { supabase } from '../lib/supabase'
+import ClipLoader    from 'react-spinners/ClipLoader'
+import { supabase }  from '../lib/supabase'
 
 export default function LK({ user }) {
   const router = useRouter()
-  const [citizen, setCitizen]   = useState()
+  const [citizen, setCitizen] = useState(null)
   const [progress, setProgress] = useState(0)
   const [notesMap, setNotesMap] = useState({})
-  const [tab, setTab]           = useState('profile')
+  const [tab, setTab] = useState('profile')
 
-  // Sync tab with query param
+  // Синхронизация таба с ?tab=
   useEffect(() => {
     if (router.query.tab) setTab(router.query.tab)
   }, [router.query.tab])
@@ -25,13 +24,13 @@ export default function LK({ user }) {
     router.push(`/lk?tab=${key}`, undefined, { shallow: true })
   }
 
-  // Logout
-  async function logout() {
-    await fetch('/api/logout', { method:'POST' })
+  // Выход
+  const logout = async () => {
+    await fetch('/api/logout', { method: 'POST' })
     router.replace('/')
   }
 
-  // No user → show Telegram widget
+  // Если не авторизован — Telegram-виджет
   if (!user) {
     return (
       <main style={{ padding:'2rem', maxWidth:600, margin:'0 auto' }}>
@@ -39,30 +38,32 @@ export default function LK({ user }) {
         <p>Войдите через Telegram:</p>
         <div dangerouslySetInnerHTML={{ __html: `
 <script async src="https://telegram.org/js/telegram-widget.js?15"
-        data-telegram-login="ZeteticID_bot"
-        data-size="large"
-        data-userpic="true"
-        data-lang="ru"
-        data-request-access="write"
-        data-auth-url="/api/auth"></script>` }} />
+  data-telegram-login="ZeteticID_bot"
+  data-size="large"
+  data-userpic="true"
+  data-lang="ru"
+  data-request-access="write"
+  data-auth-url="/api/auth"></script>` }} />
       </main>
     )
   }
 
-  // Load citizen record
+  // Загружаем запись о гражданине
   useEffect(() => {
     supabase
       .from('citizens')
-      .select('*').eq('telegram_id', user.id).maybeSingle()
-      .then(({ data }) => setCitizen(data || null))
+      .select('*')
+      .eq('telegram_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => setCitizen(data))
   }, [user])
 
-  // Load progress and notes
+  // Загружаем прогресс и заметки
   useEffect(() => {
     if (!citizen?.id) return
     supabase
       .from('daily_progress')
-      .select('*', { head:true, count:'exact'})
+      .select('*', { head:true, count:'exact' })
       .eq('citizen_id', citizen.id)
       .then(({ count }) => setProgress(count || 0))
 
@@ -77,20 +78,19 @@ export default function LK({ user }) {
       })
   }, [citizen])
 
-  // Render citizenship status & CTA for non-citizens
+  // Рендер кнопки «🚀 Начать челлендж» для неграждан
   const renderPassport = () => {
     if (citizen?.status === 'valid') {
       return (
         <>
           <p>Z-ID: <b>{citizen.zetetic_id || '—'}</b></p>
-          <p>IPFS Passport: {citizen.ipfs_url
+          <p>IPFS: {citizen.ipfs_url
             ? <a href={citizen.ipfs_url} target="_blank" rel="noreferrer">ссылка</a>
             : '—'}
           </p>
         </>
       )
     }
-    // guest or none → allow joining challenge directly
     return (
       <button onClick={()=>router.push('/challenge')} className="btn btn-primary">
         🚀 Начать челлендж
@@ -129,11 +129,11 @@ export default function LK({ user }) {
 
         {tab==='profile' && (
           <section>
-            <img src={user.photo_url} alt="avatar" width={120} height={120} style={{ borderRadius:8 }}/>
+            <img src={user.photo_url} alt="" width={120} height={120} style={{ borderRadius:8 }}/>
             <p>ID Telegram: <b>{user.id}</b></p>
             {user.username && <p>Username: <b>@{user.username}</b></p>}
             <p><b>Запись в БД:</b> {citizen ? '✔️ есть' : '❌ нет'}</p>
-            <p><b>Статус:</b> {citizen?.status==='valid' ? '✅ Гражданин' : '❓ Статус не получен'}</p>
+            <p><b>Статус:</b> {citizen?.status==='valid' ? '✅ Гражданин' : '❓ Не гражданин'}</p>
           </section>
         )}
 
@@ -148,18 +148,13 @@ export default function LK({ user }) {
               }}/>
             </div>
 
-            {progress>0 ? (
+            {progress > 0 ? (
               <>
                 <Link href={`/challenge?day=${progress}`}>↩️ Пересмотреть текущий день</Link>
-                <DayPicker
-                  currentDay={progress}
-                  maxDay={progress}
-                  onChange={n=>router.push(`/challenge?day=${n}`)}
-                />
               </>
             ) : (
               <p style={{ opacity:0.7, marginTop:12 }}>
-                Для старта нажмите <Link href="/dom">«Присоединиться»</Link>.
+                Для старта нажмите <Link href="/dom">«Присоединиться»</Link>
               </p>
             )}
 
@@ -168,7 +163,7 @@ export default function LK({ user }) {
                 <h4>Заметки по дням</h4>
                 <ul>
                   {Array.from({ length: progress }).map((_, i) => (
-                    <li key={i}>День {i+1}: <i>{notesMap[i+1]||'– нет –'}</i></li>
+                    <li key={i}>День {i+1}: <i>{notesMap[i+1] || '– нет –'}</i></li>
                   ))}
                 </ul>
               </section>
@@ -181,7 +176,7 @@ export default function LK({ user }) {
 }
 
 export async function getServerSideProps({ req }) {
-  const { tg } = parse(req.headers.cookie||'')
+  const { tg } = parse(req.headers.cookie || '')
   const user    = tg ? JSON.parse(Buffer.from(tg,'base64').toString()) : null
-  return { props:{ user } }
+  return { props: { user } }
 }

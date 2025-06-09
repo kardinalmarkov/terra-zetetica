@@ -10,16 +10,22 @@ import ReactMarkdown   from 'react-markdown'
 import remarkGfm       from 'remark-gfm'
 import confetti        from 'canvas-confetti'
 
-export default function Challenge ({ user, material, watched, notes }) {
+export default function Challenge({ user, material, watched, notes }) {
   const router = useRouter()
   const [done, setDone] = useState(watched)
   const [myNote, setNote] = useState(notes || '')
 
+  // сброс заметки при смене дня
   useEffect(() => setNote(notes || ''), [notes])
+
+  // конфетти на последний день
   useEffect(() => {
-    if (material.day_no === 14 && done) confetti({ particleCount:200, spread:80 })
+    if (material.day_no === 14 && done) {
+      confetti({ particleCount:200, spread:80 })
+    }
   }, [material.day_no, done])
 
+  // старт челленджа
   async function startChallenge() {
     const res = await fetch('/api/challenge/start', { method:'POST' })
     const json = await res.json()
@@ -27,9 +33,11 @@ export default function Challenge ({ user, material, watched, notes }) {
     else alert('Ошибка старта: '+json.err)
   }
 
+  // отметка «просмотрено» / ответ
   async function mark(reply='ok') {
     const res = await fetch('/api/challenge/watch', {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ day: material.day_no, reply })
     })
     const json = await res.json()
@@ -37,9 +45,11 @@ export default function Challenge ({ user, material, watched, notes }) {
     else alert('Ошибка: '+json.err)
   }
 
+  // сохранение заметки
   async function saveNote() {
     const res = await fetch('/api/challenge/note', {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ day: material.day_no, note: myNote })
     })
     const json = await res.json()
@@ -47,11 +57,14 @@ export default function Challenge ({ user, material, watched, notes }) {
     else alert('Ошибка сохранения: '+json.err)
   }
 
-  if (!user) return <main style={{padding:'2rem', textAlign:'center'}}><p>Сначала авторизуйтесь через Telegram.</p></main>
+  // guards
+  if (!user) {
+    return <main style={{padding:'2rem', textAlign:'center'}}><p>Сначала авторизуйтесь через Telegram.</p></main>
+  }
   if (!watched && !material.day_no) {
     return (
       <main style={{padding:'2rem', textAlign:'center'}}>
-        <h2>Старт 14‑дневного челленджа</h2>
+        <h2>Старт 14-дневного челленджа</h2>
         <button onClick={startChallenge} className="btn btn-primary">🚀 Начать челлендж</button>
       </main>
     )
@@ -64,11 +77,14 @@ export default function Challenge ({ user, material, watched, notes }) {
         <h2>День {material.day_no} / 14</h2>
         <h3>{material.title}</h3>
 
-        {/* Media */}
-        {material.media_url && /\.(jpe?g|png|gif)$/i.test(material.media_url)
-          ? <img src={material.media_url} style={{ maxWidth:'100%', borderRadius:6 }}/>
-          : <iframe src={material.media_url} width="100%" height="380" style={{ border:0,borderRadius:6 }} allowFullScreen/>
-        }
+        {/* media */}
+        {material.media_url && /\.(jpe?g|png|gif)$/i.test(material.media_url) ? (
+          <img src={material.media_url} style={{ maxWidth:'100%', borderRadius:6 }}/>
+        ) : (
+          <iframe src={material.media_url}
+            width="100%" height="380"
+            allowFullScreen style={{ border:0,borderRadius:6 }}/>
+        )}
 
         <ReactMarkdown remarkPlugins={[remarkGfm]} className="markdown-body">
           {material.description}
@@ -118,28 +134,35 @@ export async function getServerSideProps({ req, query }) {
   const { tg, cid } = parse(req.headers.cookie||'')
   const user = tg ? JSON.parse(Buffer.from(tg,'base64').toString()) : null
 
-  if (!cid) return { props:{ user, material:{}, watched:false, notes:null }}
+  if (!cid) {
+    return { props: { user, material:{}, watched:false, notes:null } }
+  }
 
+  // Определяем текущий день
   const { count } = await supabase
     .from('daily_progress')
     .select('*',{ head:true, count:'exact' })
     .eq('citizen_id', cid)
-
   const today = Math.min(count+1, 14)
   const dayNo = Number(query.day) >=1 && Number(query.day) <= today ? Number(query.day) : today
 
+  // Материал и прогресс
   const { data: material } = await supabase
     .from('daily_materials')
-    .select('*')
-    .eq('day_no', dayNo)
-    .single()
-
-  const { data: progress } = await supabase
+    .select('*').eq('day_no', dayNo).single()
+  const { data: prog } = await supabase
     .from('daily_progress')
     .select('*')
     .eq('citizen_id', cid)
     .eq('day_no', dayNo)
     .maybeSingle()
 
-  return { props:{ user, material, watched: !!progress, notes: progress?.notes || '' }}
+  return {
+    props: {
+      user,
+      material: material || {},
+      watched: !!prog,
+      notes: prog?.notes || ''
+    }
+  }
 }
