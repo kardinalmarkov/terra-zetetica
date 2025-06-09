@@ -175,7 +175,7 @@ export default function LK ({ user }) {
                 borderRadius:6
               }}/>
             </div>
-            {progress===0 && <p style={{opacity:.6}}>Нажмите «Присоединиться» на странице «Дом за шар», чтобы начать.</p>}
+            {progress===0 && <p style={{opacity:.6}}><Link href="/dom">Нажмите «Присоединиться» на странице «Дом за шар»</Link>, чтобы начать.</p>}
             {progress >= 7  && <span style={{marginLeft:8,fontSize:'1.3rem'}}>🏅</span>}
             {progress === 14 && <span style={{marginLeft:4,fontSize:'1.3rem'}}>🎖</span>}
             {progress>0 && (
