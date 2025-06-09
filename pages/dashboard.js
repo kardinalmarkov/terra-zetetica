@@ -17,17 +17,19 @@ export async function getServerSideProps ({ req }) {
   return { props:{ allowed:true, citizens, answers } }
 }
 
-const total = citizens.length
-const done14 = citizens.filter(c=>c.challenge_status==='finished').length
 
 /* ───────── страница ───────── */
 export default function Dashboard ({ allowed, citizens=[], answers=[] }) {
   if (!allowed) return <p style={{padding:'2rem'}}>⛔ Access denied</p>
 
+  const total = citizens.length
+  const done14 = citizens.filter(c=>c.challenge_status==='finished').length
+
   return (
     <main style={{maxWidth:960,margin:'2rem auto',fontSize:14}}>
       <h2>Админ-дашборд</h2>
     <p>Всего граждан: <b>{total}</b>, завершили 14/14: <b>{done14}</b></p>
+
       <h3>Граждане</h3>
       <table border={1} cellPadding={4}><tbody>
         {citizens.map(c=>(

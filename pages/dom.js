@@ -18,7 +18,8 @@ export default function DomChallenge() {
                  borderRadius:6,textDecoration:'none',color:'#000',
                  fontWeight:600}}>Хочу участвовать</a>
                  
-                <button onClick={async () => {
+                <button onClick={async (e) => {
+                  e.preventDefault()
                   const res  = await fetch('/api/challenge/start', { method:'POST' })
                   const json = await res.json()
                   if (json.ok) router.replace('/challenge')

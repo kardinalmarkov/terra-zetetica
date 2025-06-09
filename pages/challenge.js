@@ -14,11 +14,14 @@ import { useState } from 'react'
 import DayPicker from '../components/DayPicker'
 import { supabase } from '../lib/supabase'
 import ReactMarkdown from 'react-markdown'
+import { useEffect } from 'react'
 
 export default function Challenge ({ user, citizen, material, watched, notes }) {
   const router = useRouter()
   const [done,   setDone]  = useState(watched)
   const [myNote, setNote]  = useState(notes || '')
+  // обновляем state при смене дня
+  useEffect(() => setNote(notes || ''), [notes])
 
   /* ───────── mark / watch ───────── */
   async function mark (reply='ok') {
@@ -82,13 +85,9 @@ export default function Challenge ({ user, citizen, material, watched, notes }) 
           ? <img src={material.media_url} style={{maxWidth:'100%',borderRadius:6}}/>
           : <iframe src={material.media_url} width="100%" height="380" allowFullScreen
                     style={{border:0,borderRadius:6}}/> )}
-
-        <p style={{marginTop:16}}>{material.description}</p>
-
-<ReactMarkdown skipHtml={false}>
+<ReactMarkdown skipHtml={false} style={{marginTop:16}}>
   {material.description}
 </ReactMarkdown>
-
 
 {material.question && !done && (
   <form onSubmit={e=>{e.preventDefault(); mark(e.target.reply.value)}}>
