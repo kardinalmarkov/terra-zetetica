@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.0",
+    "canvas-confetti": "^1.9.3",
     "cookie": "^1.0.2",
     "framer-motion": "latest",
     "i18next": "^23.0.0",

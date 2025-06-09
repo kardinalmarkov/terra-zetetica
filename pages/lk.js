@@ -38,6 +38,21 @@ export default function LK ({ user }) {
   const [progress, setProgress] = useState(0)     // 0‒14
   const [tab,      setTab]      = useState('profile')
 
+
+  const [notesByDay, setNotesByDay] = useState({});
+  useEffect(() => {
+    supabase
+      .from('daily_progress')
+      .select('day_no, notes')
+      .eq('citizen_id', citizen.id)
+      .then(({ data }) => {
+        const m = {};
+        data.forEach(r => { if (r.notes) m[r.day_no] = r.notes })
+        setNotesByDay(m);
+      })
+  }, [citizen]);
+
+
   /* ─── Запрос расширенной информации ─── */
   useEffect(() => {
     if (!user) return
@@ -179,20 +194,38 @@ export default function LK ({ user }) {
             {progress===0 && <p style={{opacity:.6}}><Link href="/dom">Нажмите «Присоединиться» на странице «Дом за шар»</Link>, чтобы начать.</p>}
             {progress >= 7  && <span style={{marginLeft:8,fontSize:'1.3rem'}}>🏅</span>}
             {progress === 14 && <span style={{marginLeft:4,fontSize:'1.3rem'}}>🎖</span>}
-{progress > 0 && (
-  <>
-    <p style={{ marginTop: 12 }}>
-      ↩️ <Link href={`/challenge?day=${progress}`}>Пересмотреть текущий день</Link>
-    </p>
+            {progress > 0 && (
+              <>
+                <p style={{ marginTop: 12 }}>
+                  ↩️ <Link href={`/challenge?day=${progress}`}>Пересмотреть текущий день</Link>
+                </p>
 
-    {/* единый селектор дней */}
-    <DayPicker
-      maxDay={progress}
-      currentDay={progress}
-      onChange={(n) => router.push(`/challenge?day=${n}`)}
-    />
-  </>
-)}
+                {/* единый селектор дней */}
+                <DayPicker
+                  maxDay={progress}
+                  currentDay={progress}
+                  onChange={(n) => router.push(`/challenge?day=${n}`)}
+                />
+              </>
+            )}
+
+            {progress > 0 && (
+              <section style={{marginTop:24}}>
+                <h4>Ваши заметки по дням</h4>
+                <ul>
+                  {Array.from({length:progress}).map((_, i) => (
+                    <li key={i}>
+                      День {i+1}:&nbsp;
+                      <i style={{opacity:0.7}}>
+                        { /* получаем из API, например `/api/challenge/note?day=${i+1}` */ }
+                        {notesByDay[i+1] || '– нет заметок –'}
+                      </i>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
 
           </section>
         )}
