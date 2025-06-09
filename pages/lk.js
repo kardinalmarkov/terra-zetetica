@@ -3,6 +3,7 @@
 
 import Head from 'next/head'
 import Link from 'next/link'
+import DayPicker      from '../challenge/DayPicker'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { parse } from 'cookie'
@@ -188,7 +189,14 @@ export default function LK ({ user }) {
                   {Array.from({length:progress}).map((_,i)=>
                     <option key={i} value={i+1}>День {i+1}</option>)}
                 </select>
-              </>
+
+                        {/*  */}
+                <DayPicker
+                  maxDay={material.day_no}
+                  currentDay={material.day_no}
+                  onChange={n => r.push('/challenge?day=' + n)}
+                />
+                      </>
             )}
           </section>
         )}

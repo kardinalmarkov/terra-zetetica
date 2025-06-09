@@ -3,6 +3,7 @@ import { parse } from 'cookie'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
+import DayPicker      from '../challenge/DayPicker'
 import { supabase } from '../lib/supabase'
 
 export default function Challenge ({ user, citizen, material, watched }) {
@@ -11,12 +12,10 @@ export default function Challenge ({ user, citizen, material, watched }) {
 
   /* отметка о просмотре/ответе */
   async function mark (reply='ok') {
-    await fetch('/api/challenge/watch', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ day: material.day_no, reply })
-    })
-    setDone(true)
+    const res = await fetch('/api/challenge/watch', { … })
+    const json = await res.json()
+    if (json.ok) setDone(true)
+    else alert('Ошибка! Попробуйте ещё раз. (' + (json.err ?? 'unknown') + ')')
   }
 
   /* ───────── разная заглушка ───────── */
@@ -69,13 +68,12 @@ export default function Challenge ({ user, citizen, material, watched }) {
 
         {done && <p style={{color:'green',marginTop:16}}>✔ Материал отмечен</p>}
 
-        {/* выбор дня назад — выпадашка */}
-        <select style={{marginTop:24}}
-                defaultValue={material.day_no}
-                onChange={e=>r.push('/challenge?day='+e.target.value)}>
-          {Array.from({length:material.day_no}).map((_,i)=>
-            <option key={i} value={i+1}>День {i+1}</option>)}
-        </select>
+        {/*  */}
+        <DayPicker
+          maxDay={material.day_no}
+          currentDay={material.day_no}
+          onChange={n => r.push('/challenge?day=' + n)}
+        />
       </main>
     </>
   )
