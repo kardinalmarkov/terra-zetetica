@@ -13,6 +13,7 @@
     "cookie": "^1.0.2",
     "framer-motion": "latest",
     "i18next": "^23.0.0",
+    "jsonwebtoken": "^9.0.2",
     "next": "latest",
     "next-i18next": "^15.0.0",
     "react": "latest",
