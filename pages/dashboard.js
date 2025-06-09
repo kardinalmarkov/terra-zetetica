@@ -6,8 +6,6 @@ const ADMINS = [1199933222];    // ← ваши telegram-id
 const ADMIN_ID = 1          // ваш citizens.id
 
 
-// pages/dashboard.js  (добавьте в начало файла)
-const ADMIN_ID = 1          // ваш citizens.id
 
 export async function getServerSideProps({ req }) {
   const { cid } = parse(req.headers.cookie||'')
