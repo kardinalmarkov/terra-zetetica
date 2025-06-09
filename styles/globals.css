@@ -579,3 +579,7 @@ hr {
 .markdown-body blockquote {
   border-left:4px solid #ccc; padding-left:12px; color:#555;
 }
+
+table {border-collapse:collapse}
+th {background:#f7f7f7}
+td, th {padding:6px 10px}

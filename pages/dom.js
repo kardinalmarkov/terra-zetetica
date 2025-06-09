@@ -1,24 +1,17 @@
 // pages/dom.js
 import Head from 'next/head'
-import { useRouter } from 'next/router'
+import useSWR from 'swr'
 
-export default function DomChallenge() {
-  const router = useRouter()
+const fetcher = url => fetch(url).then(r => (r.ok ? r.json() : null))
+
+export default function DomChallenge () {
+  const { data: me } = useSWR('/api/me', fetcher)
+  const href   = me ? '/challenge' : '/lk'
+  const label  = me ? '🚀 Перейти к челленджу' : '🔑 Войти и зарегистрироваться'
+
   return (
-    <main className="wrapper" style={{ maxWidth:900, margin:'0 auto', padding:'2rem 1rem' }}>
-      <Head>
-        <title>🏠 Челлендж: Дом за «доказательство шара» | Terra Zetetica</title>
-      </Head>
-      <h1>🏠 Челлендж «Докажи шар — получи дом»</h1>
-      <p>14 дней материалов о Плоской Земле + подача доказательства шара.<br/>
-         Победа — дом в Европе.</p>
-      <a href="/challenge"
-         style={{display:'inline-block',marginTop:20,
-                 padding:'0.7rem 1.4rem',background:'#ffd400',
-                 borderRadius:6,textDecoration:'none',color:'#000',
-                 fontWeight:600}}>Хочу участвовать</a>
-                 
-
+    <main style={{maxWidth:900,margin:'0 auto',padding:'2rem 1rem'}}>
+      <Head><title>🏠 Дом за «доказательство шара» | Terra Zetetica</title></Head>
 
 
       <h1 style={{ textAlign:'center' }}>🏠 Челлендж: Докажи шар — получи дом в Европе</h1>

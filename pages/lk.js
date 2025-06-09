@@ -41,16 +41,16 @@ export default function LK ({ user }) {
 
   const [notesByDay, setNotesByDay] = useState({});
   useEffect(() => {
-    supabase
-      .from('daily_progress')
+    if (!citizen?.id) return           // <── защита
+    supabase.from('daily_progress')
       .select('day_no, notes')
       .eq('citizen_id', citizen.id)
       .then(({ data }) => {
-        const m = {};
-        data.forEach(r => { if (r.notes) m[r.day_no] = r.notes })
-        setNotesByDay(m);
-      })
-  }, [citizen]);
+         const map = {};
+         data?.forEach(r => { if (r.notes) map[r.day_no] = r.notes })
+         setNotesByDay(map)
+       })
+  }, [citizen?.id])
 
 
   /* ─── Запрос расширенной информации ─── */
