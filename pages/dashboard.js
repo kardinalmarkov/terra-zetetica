@@ -1,39 +1,67 @@
 // pages/dashboard.js
 import { parse } from 'cookie'
-import { supabase } from '../lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import Head from 'next/head'
 
-const ADMIN_ID = Number(process.env.ADMIN_CID || '1')
+// — читаем из env
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY
+const ADMIN_ID     = Number(process.env.ADMIN_CID || '1')
+
+// инициализируем “админский” клиент, который обходит RLS
+const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_KEY, {
+  auth: { persistSession: false }
+})
 
 export async function getServerSideProps({ req }) {
+  // проверяем куку cid
   const { cid } = parse(req.headers.cookie || '')
   if (Number(cid) !== ADMIN_ID) {
     return { props: { allowed: false, citizens: [], answers: [] } }
   }
 
-  const [{ data: citizensData }, { data: answersData }] = await Promise.all([
-    supabase
+  // параллельно запрашиваем всех граждан и последние ответы
+  const [
+    { data: citizensData },
+    { data: answersData }
+  ] = await Promise.all([
+    supabaseAdmin
       .from('citizens')
-      .select('id, full_name, username, status, challenge_status, telegram_id')
+      // выбираем только нужные поля
+      .select(`
+        id,
+        telegram_id,
+        full_name,
+        status,
+        challenge_status
+      `)
       .order('id', { ascending: true }),
 
-    supabase
+    supabaseAdmin
       .from('daily_progress')
-      .select('id, citizen_id, day_no, answer, watched_at')
+      .select(`
+        id,
+        citizen_id,
+        day_no,
+        answer,
+        watched_at
+      `)
       .order('watched_at', { ascending: false })
       .limit(50)
   ])
 
   return {
     props: {
-      allowed: true,
-      citizens: citizensData || [],
-      answers: answersData || []
+      allowed:  true,
+      // если по какой-то причине вернулось null — заменяем на пустой массив
+      citizens: citizensData  ?? [],
+      answers:  answersData   ?? []
     }
   }
 }
 
 export default function Dashboard({ allowed, citizens, answers }) {
+  // если не админ — показываем отказ
   if (!allowed) {
     return (
       <main style={{ padding: '2rem', maxWidth: 600, margin: '0 auto' }}>
@@ -42,9 +70,10 @@ export default function Dashboard({ allowed, citizens, answers }) {
     )
   }
 
-  const total = citizens.length
+  // рассчитываем метрики
+  const total    = citizens.length
   const finished = citizens.filter(c => c.challenge_status === 'finished').length
-  const avg = total === 0
+  const avg      = total === 0
     ? '0.0'
     : ((answers.length / (total * 14)) * 100).toFixed(1)
 
@@ -65,8 +94,12 @@ export default function Dashboard({ allowed, citizens, answers }) {
       <table className="table">
         <thead>
           <tr>
-            <th>ID</th><th>Имя</th><th>@username</th>
-            <th>Статус</th><th>Челлендж</th><th>✉️ Написать</th>
+            <th>ID</th>
+            <th>Имя</th>
+            <th>Telegram ID</th>
+            <th>Статус</th>
+            <th>Челлендж</th>
+            <th>✉️ Написать</th>
           </tr>
         </thead>
         <tbody>
@@ -74,13 +107,22 @@ export default function Dashboard({ allowed, citizens, answers }) {
             <tr key={c.id}>
               <td>{c.id}</td>
               <td>{c.full_name || '—'}</td>
-              <td>{c.username ? '@'+c.username : '—'}</td>
+              <td>{c.telegram_id}</td>
               <td>{c.status}</td>
               <td>{c.challenge_status}</td>
               <td>
-                {c.username
-                  ? <a href={`https://t.me/${c.username.replace('@','')}`} target="_blank" rel="noreferrer">✉️</a>
-                  : '—'}
+                {c.telegram_id
+                  // глубокая ссылка на Telegram: сначала по username (если есть), иначе по ID
+                  ? (
+                    <a
+                      href={`tg://resolve?domain=${c.telegram_id}`}
+                      title="Открыть в Telegram"
+                    >
+                      ✉️
+                    </a>
+                  )
+                  : '—'
+                }
               </td>
             </tr>
           ))}
@@ -91,7 +133,10 @@ export default function Dashboard({ allowed, citizens, answers }) {
       <table className="table">
         <thead>
           <tr>
-            <th>#citizen</th><th>день</th><th>ответ</th><th>когда</th>
+            <th>#citizen</th>
+            <th>день</th>
+            <th>ответ</th>
+            <th>когда</th>
           </tr>
         </thead>
         <tbody>
