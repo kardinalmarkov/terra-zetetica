@@ -1,168 +1,166 @@
 // pages/challenge.js
-import { parse }       from 'cookie'
-import Head            from 'next/head'
-import Link            from 'next/link'
-import { useRouter }   from 'next/router'
+//
+// Страница одного дня челленджа: только отметка прочитанного и сохранение заметки.
+// Убираем все вопросы/ответы — пользователь кликает «✔️ Я осознанно изучил материал»
+// и при желании оставляет свои заметки.
+
+import Head             from 'next/head'
+import { parse }        from 'cookie'
+import { supabase }     from '../lib/supabase'
 import { useState, useEffect } from 'react'
-import DayPicker       from '../components/DayPicker'
-import { supabase }    from '../lib/supabase'
-import ReactMarkdown   from 'react-markdown'
-import remarkGfm       from 'remark-gfm'
-import confetti        from 'canvas-confetti'
+import confetti         from 'canvas-confetti'
+import { useRouter }    from 'next/router'
+import Link             from 'next/link'
 
-export default function Challenge({ user, material, watched, notes }) {
+export default function ChallengePage({ dayNo, material, watched, notes }) {
   const router = useRouter()
-  const [done, setDone] = useState(watched)
-  const [myNote, setNote] = useState(notes || '')
+  const [done, setDone]     = useState(watched)
+  const [myNote, setMyNote] = useState(notes || '')
 
-  // сброс заметки при смене дня
-  useEffect(() => setNote(notes || ''), [notes])
-
-  // конфетти на последний день
+  // при смене дня сбрасываем заметку в state
   useEffect(() => {
-    if (material.day_no === 14 && done) {
-      confetti({ particleCount:200, spread:80 })
+    setDone(watched)
+    setMyNote(notes || '')
+  }, [watched, notes, dayNo])
+
+  // конфетти на финальном дне после отметки
+  useEffect(() => {
+    if (dayNo === 14 && done) {
+      confetti({ particleCount: 200, spread: 80 })
     }
-  }, [material.day_no, done])
+  }, [done, dayNo])
 
-  // старт челленджа
-  async function startChallenge() {
-    const res = await fetch('/api/challenge/start', { method:'POST' })
-    const json = await res.json()
-    if (json.ok) router.replace('/challenge')
-    else alert('Ошибка старта: '+json.err)
-  }
-
-  // отметка «просмотрено» / ответ
-  async function mark(reply='ok') {
-    const res = await fetch('/api/challenge/watch', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ day: material.day_no, reply })
+  // отмечаем день как прочитанный
+  async function markRead() {
+    const res = await fetch('/api/challenge/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dayNo, notes: myNote })
     })
     const json = await res.json()
     if (json.ok) setDone(true)
-    else alert('Ошибка: '+json.err)
-  }
-
-  // сохранение заметки
-  async function saveNote() {
-    const res = await fetch('/api/challenge/note', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ day: material.day_no, note: myNote })
-    })
-    const json = await res.json()
-    if (json.ok) alert('Сохранено!')
-    else alert('Ошибка сохранения: '+json.err)
-  }
-
-  // guards
-  if (!user) {
-    return <main style={{padding:'2rem', textAlign:'center'}}><p>Сначала авторизуйтесь через Telegram.</p></main>
-  }
-  if (!watched && !material.day_no) {
-    return (
-      <main style={{padding:'2rem', textAlign:'center'}}>
-        <h2>Старт 14-дневного челленджа</h2>
-        <button onClick={startChallenge} className="btn btn-primary">🚀 Начать челлендж</button>
-      </main>
-    )
+    else alert('Ошибка сохранения отметки: ' + (json.error || 'unknown'))
   }
 
   return (
     <>
-      <Head><title>День {material.day_no} • Челлендж</title></Head>
-      <main style={{ maxWidth:760, margin:'0 auto', padding:'2rem 1rem' }}>
-        <h2>День {material.day_no} / 14</h2>
-        <h3>{material.title}</h3>
+      <Head>
+        <title>День {dayNo} из 14 • Терра Zetetica</title>
+      </Head>
+      <main style={{ maxWidth: 720, margin: '2rem auto', padding: '0 1rem' }}>
+        <h1>День {dayNo} / 14</h1>
+        <div
+          dangerouslySetInnerHTML={{ __html: material.content_html }}
+          style={{ margin: '1.5rem 0' }}
+        />
 
-        {/* media */}
-        {material.media_url && /\.(jpe?g|png|gif)$/i.test(material.media_url) ? (
-          <img src={material.media_url} style={{ maxWidth:'100%', borderRadius:6 }}/>
+        {/* Кнопка отметки прочитанного */}
+        {!done ? (
+          <button
+            onClick={markRead}
+            style={{
+              background: '#28a745',
+              color: '#fff',
+              border: 'none',
+              padding: '0.75rem 1.5rem',
+              borderRadius: 6,
+              fontSize: 16,
+              cursor: 'pointer',
+            }}
+          >
+            ✔️ Я осознанно изучил материал
+          </button>
         ) : (
-          <iframe src={material.media_url}
-            width="100%" height="380"
-            allowFullScreen style={{ border:0,borderRadius:6 }}/>
+          <p style={{ color: '#28a745', fontWeight: 'bold' }}>
+            ✔️ Материал отмечен
+          </p>
         )}
 
-        <ReactMarkdown remarkPlugins={[remarkGfm]} className="markdown-body">
-          {material.description}
-        </ReactMarkdown>
-
-        {!done && material.question && (
-          <form onSubmit={e => { e.preventDefault(); mark(e.target.reply.value) }} style={{ marginTop:20 }}>
-            <p style={{ fontWeight:600 }}>{material.question}</p>
-            <input name="reply" required style={{ padding:'.5rem', width:'100%', borderRadius:4, border:'1px solid #ccc' }}/>
-            <button type="submit" className="btn" style={{ marginTop:8 }}>Ответить</button>
-          </form>
-        )}
-
-        {!done && !material.question && (
-          <button onClick={()=>mark()} className="btn" style={{ marginTop:20 }}>✔ Отметить просмотр</button>
-        )}
-
-        {done && <p style={{ color:'green', marginTop:16 }}>✔ Уже отмечено</p>}
-
-        {done && material.day_no < 14 && (
-          <Link href={`/challenge?day=${material.day_no+1}`} className="btn">➡️ К дню {material.day_no+1}</Link>
-        )}
-
-        <div style={{ marginTop:32, display:'flex', gap:12 }}>
-          <button onClick={()=>router.back()}>← Назад</button>
-          <Link href="/lk?tab=progress" className="btn btn-secondary">📈 Прогресс</Link>
-        </div>
-
+        {/* Форма заметок */}
         {done && (
-          <form onSubmit={e=>{ e.preventDefault(); saveNote() }} style={{ marginTop:32 }}>
+          <div style={{ marginTop: 24 }}>
             <textarea
-              rows={4}
               value={myNote}
-              onChange={e=>setNote(e.target.value)}
+              onChange={e => setMyNote(e.target.value)}
               placeholder="Ваши заметки…"
-              style={{ width:'100%', padding:8, borderRadius:4, border:'1px solid #ccc' }}
+              rows={5}
+              style={{
+                width: '100%',
+                padding: 8,
+                borderRadius: 4,
+                border: '1px solid #ccc',
+                fontSize: 14,
+              }}
             />
-            <button type="submit" className="btn" style={{ marginTop:8 }}>💾 Сохранить заметку</button>
-          </form>
+            <button
+              onClick={markRead}
+              style={{
+                marginTop: 8,
+                background: '#007bff',
+                color: '#fff',
+                border: 'none',
+                padding: '0.5rem 1rem',
+                borderRadius: 4,
+                cursor: 'pointer',
+              }}
+            >
+              💾 Сохранить заметку
+            </button>
+          </div>
         )}
+
+        {/* Навигация: назад и следующий день */}
+        <div style={{ marginTop: 32, display: 'flex', gap: 12 }}>
+          <button onClick={() => router.back()} style={{ cursor: 'pointer' }}>
+            ← Назад
+          </button>
+          {dayNo < 14 && (
+            <Link href={`/challenge?day=${dayNo + 1}`}>
+              <a>➡️ Перейти к дню {dayNo + 1}</a>
+            </Link>
+          )}
+          {dayNo === 14 && (
+            <Link href="/lk?tab=progress">
+              <a>📈 Мой прогресс</a>
+            </Link>
+          )}
+        </div>
       </main>
     </>
   )
 }
 
 export async function getServerSideProps({ req, query }) {
-  const { tg, cid } = parse(req.headers.cookie||'')
-  const user = tg ? JSON.parse(Buffer.from(tg,'base64').toString()) : null
-
+  // достаём cid из куки
+  const { cid } = parse(req.headers.cookie || '')
   if (!cid) {
-    return { props: { user, material:{}, watched:false, notes:null } }
+    // если нет cid — в личный кабинет (где будет авторизация)
+    return { redirect: { destination: '/lk', permanent: false } }
   }
 
-  // Определяем текущий день
-  const { count } = await supabase
-    .from('daily_progress')
-    .select('*',{ head:true, count:'exact' })
-    .eq('citizen_id', cid)
-  const today = Math.min(count+1, 14)
-  const dayNo = Number(query.day) >=1 && Number(query.day) <= today ? Number(query.day) : today
+  const day = Number(query.day) || 1
 
-  // Материал и прогресс
-  const { data: material } = await supabase
+  // берём содержимое материала (HTML)
+  const { data: mat } = await supabase
     .from('daily_materials')
-    .select('*').eq('day_no', dayNo).single()
+    .select('content_html')
+    .eq('day_no', day)
+    .single()
+
+  // проверяем, отмечен ли этот день у пользователя
   const { data: prog } = await supabase
     .from('daily_progress')
-    .select('*')
+    .select('id, notes')
     .eq('citizen_id', cid)
-    .eq('day_no', dayNo)
+    .eq('day_no', day)
     .maybeSingle()
 
   return {
     props: {
-      user,
-      material: material || {},
-      watched: !!prog,
-      notes: prog?.notes || ''
+      dayNo:   day,
+      material: mat || { content_html: '<p>Материал не найден.</p>' },
+      watched:  Boolean(prog),
+      notes:    prog?.notes || '',
     }
   }
 }
