@@ -113,6 +113,13 @@ export default function Challenge({ user, citizen, material, watched }) {
 
         {done && <p style={{ color: 'green', marginTop: 16 }}>✔ Материал отмечен</p>}
 
+        {done && material.day_no < 14 && (
+          <Link href={`/challenge?day=${material.day_no + 1}`}
+                className="btn" style={{marginTop:16}}>
+             ➡️ Перейти к дню {material.day_no + 1}
+          </Link>
+        )}
+
         <div style={{ marginTop: 20 }}>
           <DayPicker
             maxDay={Math.min(material.day_no, 14)}
@@ -120,6 +127,30 @@ export default function Challenge({ user, citizen, material, watched }) {
             onChange={(n) => router.push('/challenge?day=' + n)}
           />
         </div>
+
+        {/* после DayPicker в pages/challenge.js */}
+        <div style={{marginTop:32,display:'flex',gap:12}}>
+          <button onClick={()=>router.back()}>← Назад</button>
+          <Link href="/lk?tab=progress" className="btn-secondary">
+            📈 К прогрессу
+          </Link>
+        </div>
+        
+        {done && (
+          <form onSubmit={async e=>{
+                e.preventDefault()
+                const note=e.target.note.value
+                await fetch('/api/challenge/note',{method:'POST',
+                      headers:{'Content-Type':'application/json'},
+                      body:JSON.stringify({day:material.day_no,note})})
+                alert('Сохранено!')
+          }}>
+            <textarea name="note" placeholder="Ваши мысли…" rows={4}
+                      defaultValue={watchedNote||''}/>
+            <button className="btn">💾 Сохранить</button>
+          </form>
+        )}
+
       </main>
     </>
   )
