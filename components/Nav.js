@@ -20,8 +20,7 @@ export default function Nav () {
 
   /* читаем tg-cookie только на клиенте */
   useEffect(() => {
-    const raw = getCookie('tg')
-    if (raw) try { setUser(JSON.parse(atob(raw))) } catch {}
+    if (getCookie('cid')) setUser({})  /* факт входа достаточно */
   }, [])
 
   const T = {                                     // короткие подписи
