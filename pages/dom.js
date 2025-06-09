@@ -16,6 +16,16 @@ export default function DomChallenge() {
                  borderRadius:6,textDecoration:'none',color:'#000',
                  fontWeight:600}}>Хочу участвовать</a>
                  
+                 <button onClick={async () => {
+  const res  = await fetch('/api/challenge/start', { method:'POST' })
+  const json = await res.json()
+  if (json.ok) router.replace('/challenge')
+  else alert('Ошибка: ' + (json.err || 'unknown'))
+}}>
+  🚀 Начать челлендж
+</button>
+
+
       <h1 style={{ textAlign:'center' }}>🏠 Челлендж: Докажи шар — получи дом в Европе</h1>
 
       <p>
