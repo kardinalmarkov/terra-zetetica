@@ -9,6 +9,7 @@ import { useRouter } from 'next/router'
 import { parse } from 'cookie'
 import { supabase } from '../lib/supabase'
 import ClipLoader from 'react-spinners/ClipLoader'      // npm i react-spinners
+import TelegramLogin from '../components/TelegramLogin'
 
 /* ───────── Tabs ───────── */
 function Tabs ({ tabs, active, onChange }) {
@@ -97,21 +98,14 @@ export default function LK ({ user }) {
   }
 
   /* ─── 0) Нет куки — Telegram-виджет ─── */
-  if (!user) {
-    return (
-      <main style={{maxWidth:640,margin:'0 auto',padding:'2rem 1rem'}}>
-        <h2>Авторизация</h2>
-        <p>Войдите через Telegram:</p>
-        <div dangerouslySetInnerHTML={{ __html: `
-<script async src="https://telegram.org/js/telegram-widget.js?15"
-        data-telegram-login="ZeteticID_bot"
-        data-size="large"
-        data-userpic="true"
-        data-lang="ru"
-        data-request-access="write"
-        data-auth-url="/api/auth"></script>`}}
-        />
-      </main>
+   if (!user) {
+     return (
+       <main style={{maxWidth:640,margin:'0 auto',padding:'2rem 1rem'}}>
+         <h2>Авторизация</h2>
+         <p>Войдите через Telegram:</p>
+         <TelegramLogin />
+       </main>
+
     )
   }
 
