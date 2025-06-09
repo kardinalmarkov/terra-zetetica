@@ -12,9 +12,8 @@ export default function LK({ user }) {
   const [citizen, setCitizen] = useState(null)
   const [progress, setProgress] = useState(0)
   const [notesMap, setNotesMap] = useState({})
-  const [tab, setTab] = useState('profile')
+  const [tab, setTab] = useState(router.query.tab || 'profile')
 
-  // Синхронизация таба с ?tab=
   useEffect(() => {
     if (router.query.tab) setTab(router.query.tab)
   }, [router.query.tab])
@@ -24,13 +23,11 @@ export default function LK({ user }) {
     router.push(`/lk?tab=${key}`, undefined, { shallow: true })
   }
 
-  // Выход
   const logout = async () => {
     await fetch('/api/logout', { method: 'POST' })
     router.replace('/')
   }
 
-  // Если не авторизован — Telegram-виджет
   if (!user) {
     return (
       <main style={{ padding:'2rem', maxWidth:600, margin:'0 auto' }}>
@@ -48,7 +45,6 @@ export default function LK({ user }) {
     )
   }
 
-  // Загружаем запись о гражданине
   useEffect(() => {
     supabase
       .from('citizens')
@@ -58,12 +54,11 @@ export default function LK({ user }) {
       .then(({ data }) => setCitizen(data))
   }, [user])
 
-  // Загружаем прогресс и заметки
   useEffect(() => {
     if (!citizen?.id) return
     supabase
       .from('daily_progress')
-      .select('*', { head:true, count:'exact' })
+      .select('*', { count:'exact' })
       .eq('citizen_id', citizen.id)
       .then(({ count }) => setProgress(count || 0))
 
@@ -78,44 +73,24 @@ export default function LK({ user }) {
       })
   }, [citizen])
 
-  // Рендер кнопки «🚀 Начать челлендж» для неграждан
-  const renderPassport = () => {
-    if (citizen?.status === 'valid') {
-      return (
-        <>
-          <p>Z-ID: <b>{citizen.zetetic_id || '—'}</b></p>
-          <p>IPFS: {citizen.ipfs_url
-            ? <a href={citizen.ipfs_url} target="_blank" rel="noreferrer">ссылка</a>
-            : '—'}
-          </p>
-        </>
-      )
-    }
-    return (
-      <button onClick={()=>router.push('/challenge')} className="btn btn-primary">
-        🚀 Начать челлендж
-      </button>
-    )
-  }
-
   return (
     <>
       <Head><title>Личный кабинет • Terra Zetetica</title></Head>
-      <main style={{ maxWidth:800, margin:'0 auto', padding:'2rem' }}>
+      <main style={{ maxWidth:800, margin:'2rem auto', padding:'0 1rem' }}>
         <header style={{ display:'flex', justifyContent:'space-between', marginBottom:20 }}>
           <strong>Здравствуйте, {user.first_name}!</strong>
           <button onClick={logout} className="btn-secondary">Выйти</button>
         </header>
 
         <nav style={{ display:'flex', gap:12, marginBottom:18 }}>
-          {[
+          {[ 
             { key:'profile',  label:'🙏 Профиль' },
             { key:'passport', label:'📜 Паспорт / 🏠 Челлендж' },
             { key:'progress', label:'📈 Прогресс' }
           ].map(t => (
             <button
               key={t.key}
-              onClick={()=>switchTab(t.key)}
+              onClick={() => switchTab(t.key)}
               style={{
                 padding:'0.5rem 0.9rem',
                 borderRadius:6,
@@ -137,7 +112,23 @@ export default function LK({ user }) {
           </section>
         )}
 
-        {tab==='passport' && <section>{renderPassport()}</section>}
+        {tab==='passport' && (
+          <section>
+            {citizen?.status==='valid'
+              ? <>
+                  <p>Z-ID: <b>{citizen.zetetic_id || '—'}</b></p>
+                  <p>IPFS: {citizen.ipfs_url
+                    ? <a href={citizen.ipfs_url} target="_blank" rel="noreferrer">ссылка</a>
+                    : '—'}
+                  </p>
+                </>
+              : <button
+                  onClick={()=>fetch('/api/challenge/start',{method:'POST'}).then(()=>switchTab('progress'))}
+                  className="btn primary"
+                >🚀 Начать челлендж</button>
+            }
+          </section>
+        )}
 
         {tab==='progress' && (
           <section>
@@ -148,25 +139,27 @@ export default function LK({ user }) {
               }}/>
             </div>
 
-            {progress > 0 ? (
-              <>
-                <Link href={`/challenge?day=${progress}`}>↩️ Пересмотреть текущий день</Link>
-              </>
-            ) : (
-              <p style={{ opacity:0.7, marginTop:12 }}>
-                Для старта нажмите <Link href="/dom">«Присоединиться»</Link>
-              </p>
-            )}
+            {progress > 0
+              ? <Link href={`/challenge?day=${progress}`}><a>↩️ Пересмотреть текущий день</a></Link>
+              : <p style={{ opacity:0.7, marginTop:12 }}>
+                  Для старта нажмите «Начать челлендж»
+                </p>
+            }
 
             {progress>0 && (
-              <section style={{ marginTop:24 }}>
+              <div style={{ marginTop:24 }}>
                 <h4>Заметки по дням</h4>
                 <ul>
                   {Array.from({ length: progress }).map((_, i) => (
-                    <li key={i}>День {i+1}: <i>{notesMap[i+1] || '– нет –'}</i></li>
+                    <li key={i}>
+                      <Link href={`/challenge?day=${i+1}`}>
+                        <a>День {i+1}:</a>
+                      </Link>{' '}
+                      <i>{notesMap[i+1] || '– нет –'}</i>
+                    </li>
                   ))}
                 </ul>
-              </section>
+              </div>
             )}
           </section>
         )}
