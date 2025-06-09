@@ -10,7 +10,7 @@ import { createClient }   from '@supabase/supabase-js'
 
 // ⬇️ НЕ забудьте задать эти переменные в Vercel → Settings → Environment
 const SUPABASE_URL   = process.env.NEXT_PUBLIC_SUPABASE_URL
-const SERVICE_KEY    = process.env.SUPABASE_SERVICE_ROLE_KEY      // полно-правный ключ
+const SERVICE_KEY    = process.env.SUPABASE_SERVICE_KEY      // полно-правный ключ
 const ADMIN_ID       = Number(process.env.ADMIN_CID || 1)         // id администратора
 
 // админ-клиент (persistSession:false — токен в куки не кладётся)
