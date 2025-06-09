@@ -178,6 +178,14 @@ export default function LK ({ user }) {
             {progress===0 && <p style={{opacity:.6}}>Нажмите «Присоединиться» на странице «Дом за шар», чтобы начать.</p>}
             {progress >= 7  && <span style={{marginLeft:8,fontSize:'1.3rem'}}>🏅</span>}
             {progress === 14 && <span style={{marginLeft:4,fontSize:'1.3rem'}}>🎖</span>}
+            {progress>0 && (
+              <p style={{marginTop:12}}>
+                ↩️&nbsp;
+                <Link href={`/challenge?day=${progress}`}>
+                  {locale==='ru'?'Пересмотреть текущий день':'Review today'}
+                </Link>
+              </p>
+            )}
 
           </section>
         )}

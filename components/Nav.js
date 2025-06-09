@@ -4,7 +4,13 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import styles from './Nav.module.css';
 import LangSwitch from './LangSwitch';
-import { parse } from 'cookie';
+// import { parse } from 'cookie';
+// простейший парсер куки вместо npm-библиотеки
+function parseCookie (name) {
+  return document.cookie
+    .split('; ')
+    .find(row => row.startsWith(name + '='))?.split('=')[1];
+}
 
 export default function Nav () {
   const { locale, asPath } = useRouter();
@@ -14,8 +20,9 @@ export default function Nav () {
   /* ───── читаем cookie tg только на клиенте ───── */
   useEffect(() => {
     if (typeof document === 'undefined') return;
-    const c = parse(document.cookie || '');
-    if (c.tg) {
+    const raw = parseCookie('tg');
+    if (raw)  setUser(JSON.parse(atob(raw)));
+
       try { setUser(JSON.parse(atob(c.tg))); } catch {/* ignore */}
     }
   }, []);
