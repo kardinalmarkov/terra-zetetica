@@ -13,6 +13,7 @@ import { useRouter } from 'next/router'
 import { useState } from 'react'
 import DayPicker from '../components/DayPicker'
 import { supabase } from '../lib/supabase'
+import ReactMarkdown from 'react-markdown'
 
 export default function Challenge ({ user, citizen, material, watched, notes }) {
   const router = useRouter()
@@ -84,6 +85,18 @@ export default function Challenge ({ user, citizen, material, watched, notes }) 
 
         <p style={{marginTop:16}}>{material.description}</p>
 
+<ReactMarkdown skipHtml={false}>
+  {material.description}
+</ReactMarkdown>
+
+
+{material.question && !done && (
+  <form onSubmit={e=>{e.preventDefault(); mark(e.target.reply.value)}}>
+    <p style={{fontWeight:500}}>{material.question}</p>
+    <input name="reply" required/>
+    <button>Ответить</button>
+  </form>
+)}
         {/* вопрос / просмотр */}
         {!done && material.question && (
           <form onSubmit={e=>{e.preventDefault(); mark(e.target.reply.value)}}>
