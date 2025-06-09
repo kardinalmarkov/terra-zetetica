@@ -1,27 +1,28 @@
 // pages/api/challenge/start.js
+import { parse }    from 'cookie';
+import { supabase } from '../../../lib/supabase';
+
 export default async function handler (req, res) {
   const { tg } = parse(req.headers.cookie || '');
   if (!tg) return res.status(401).send('Not auth');
 
-  const { id } = JSON.parse(Buffer.from(tg, 'base64').toString());
+  const { id } = JSON.parse(Buffer.from(tg,'base64').toString());
 
-  // POST  ⟶ обычный запуск, GET с ?debug=fast ⟶ моментально 14/14
-  const debugFast = req.method === 'GET' && req.query.debug === 'fast';
+  const fast = req.method === 'GET' && req.query.debug === 'fast';
 
   await supabase
     .from('citizens')
-    .update({ challenge_status: 'active' })
+    .update({ challenge_status:'active' })
     .eq('telegram_id', id);
 
-  if (debugFast) {
-    // заполняем сразу 14 дней
-    const bulk = Array.from({ length: 14 }, (_, i) => ({
+  if (fast) {
+    const rows = Array.from({length:14},(_,i)=>({
       citizen_id : id,
-      day_no     : i + 1,
-      answer     : 'debug auto',
+      day_no     : i+1,
+      answer     : 'debug-auto'
     }));
-    await supabase.from('daily_progress').upsert(bulk);
+    await supabase.from('daily_progress').upsert(rows);
   }
 
-  res.json({ ok: true, fast: debugFast });
+  res.json({ ok:true, fast });
 }
