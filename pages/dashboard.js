@@ -1,14 +1,13 @@
 // pages/dashboard.js
-import { parse }    from 'cookie'
+import { parse } from 'cookie'
 import { supabase } from '../lib/supabase'
+import Head from 'next/head'
 
 const ADMIN_ID = Number(process.env.ADMIN_CID || '1')
 
 export async function getServerSideProps({ req }) {
   const { cid } = parse(req.headers.cookie || '')
-  const isAdmin = Number(cid) === ADMIN_ID
-
-  if (!isAdmin) {
+  if (Number(cid) !== ADMIN_ID) {
     return { props: { allowed: false, citizens: [], answers: [] } }
   }
 
@@ -17,6 +16,7 @@ export async function getServerSideProps({ req }) {
       .from('citizens')
       .select('id, full_name, username, status, challenge_status, telegram_id')
       .order('id', { ascending: true }),
+
     supabase
       .from('daily_progress')
       .select('id, citizen_id, day_no, answer, watched_at')
@@ -24,27 +24,36 @@ export async function getServerSideProps({ req }) {
       .limit(50)
   ])
 
-  const citizens = citizensData || []
-  const answers  = answersData  || []
-
-  return { props: { allowed: true, citizens, answers } }
+  return {
+    props: {
+      allowed: true,
+      citizens: citizensData || [],
+      answers: answersData || []
+    }
+  }
 }
 
 export default function Dashboard({ allowed, citizens, answers }) {
   if (!allowed) {
     return (
-      <main style={{ padding:'2rem', maxWidth:600, margin:'0 auto' }}>
+      <main style={{ padding: '2rem', maxWidth: 600, margin: '0 auto' }}>
         ⛔ Доступ запрещён
       </main>
     )
   }
 
   const total = citizens.length
-  const finished = citizens.filter(c => c.challenge_status==='finished').length
-  const avg = total===0 ? '0.0' : ((answers.length/(total*14))*100).toFixed(1)
+  const finished = citizens.filter(c => c.challenge_status === 'finished').length
+  const avg = total === 0
+    ? '0.0'
+    : ((answers.length / (total * 14)) * 100).toFixed(1)
 
   return (
-    <main style={{ maxWidth:960, margin:'2rem auto', fontSize:14 }}>
+    <main style={{ maxWidth: 960, margin: '2rem auto', fontSize: 14 }}>
+      <Head>
+        <title>Админ-дашборд | Terra Zetetica</title>
+      </Head>
+
       <h2>Админ-дашборд</h2>
       <p>
         Всего граждан: <b>{total}</b>,&nbsp;
@@ -54,10 +63,12 @@ export default function Dashboard({ allowed, citizens, answers }) {
 
       <h3>Граждане</h3>
       <table className="table">
-        <thead><tr>
-          <th>ID</th><th>Имя</th><th>@username</th>
-          <th>Статус</th><th>Челлендж</th><th>✉️ Написать</th>
-        </tr></thead>
+        <thead>
+          <tr>
+            <th>ID</th><th>Имя</th><th>@username</th>
+            <th>Статус</th><th>Челлендж</th><th>✉️ Написать</th>
+          </tr>
+        </thead>
         <tbody>
           {citizens.map(c => (
             <tr key={c.id}>
@@ -78,9 +89,11 @@ export default function Dashboard({ allowed, citizens, answers }) {
 
       <h3>Последние ответы</h3>
       <table className="table">
-        <thead><tr>
-          <th>#citizen</th><th>день</th><th>ответ</th><th>когда</th>
-        </tr></thead>
+        <thead>
+          <tr>
+            <th>#citizen</th><th>день</th><th>ответ</th><th>когда</th>
+          </tr>
+        </thead>
         <tbody>
           {answers.map(a => (
             <tr key={a.id}>
