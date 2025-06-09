@@ -1,30 +1,27 @@
 // pages/lk.js
-// Личный кабинет + прогресс челленджа
-
-import Head from 'next/head'
-import Link from 'next/link'
-import DayPicker from '../components/DayPicker'
-import { useEffect, useState } from 'react'
+import Head        from 'next/head'
+import Link        from 'next/link'
+import { parse }   from 'cookie'
 import { useRouter } from 'next/router'
-import { parse } from 'cookie'
+import { useState, useEffect } from 'react'
+import ClipLoader  from 'react-spinners/ClipLoader'
+import DayPicker   from '../components/DayPicker'
 import { supabase } from '../lib/supabase'
-import ClipLoader from 'react-spinners/ClipLoader'      // npm i react-spinners
-import TelegramLogin from '../components/TelegramLogin'
 
-/* ───────── Tabs ───────── */
-function Tabs ({ tabs, active, onChange }) {
+function Tabs({ tabs, active, onChange }) {
   return (
-    <nav style={{display:'flex',gap:12,marginBottom:18}}>
+    <nav style={{display:'flex', gap:12, marginBottom:18}}>
       {tabs.map(t => (
-        <button key={t.key}
-                onClick={() => onChange(t.key)}
-                style={{
-                  padding:'.45rem .9rem',
-                  borderRadius:6,
-                  border: active===t.key ? '2px solid #6c63ff' : '1px solid #ccc',
-                  background: active===t.key ? '#f7f7ff' : '#fff',
-                  cursor:'pointer'
-                }}>
+        <button
+          key={t.key}
+          onClick={()=>onChange(t.key)}
+          style={{
+            padding:'.5rem .9rem',
+            borderRadius:6,
+            border: active===t.key ? '2px solid #6c63ff' : '1px solid #ccc',
+            background: active===t.key ? '#f0f0ff' : '#fff',
+            cursor:'pointer'
+          }}>
           {t.label}
         </button>
       ))}
@@ -32,205 +29,181 @@ function Tabs ({ tabs, active, onChange }) {
   )
 }
 
-export default function LK ({ user }) {
-  const router        = useRouter()
-  const { locale }    = router
-  const [citizen,  setCitizen]  = useState()      // undefined → loading
-  const [progress, setProgress] = useState(0)     // 0‒14
-  const [tab,      setTab]      = useState('profile')
+export default function LK({ user }) {
+  const router = useRouter()
+  const [citizen, setCitizen]   = useState()
+  const [progress, setProgress] = useState(0)
+  const [notesMap, setNotesMap] = useState({})
+  const [tab, setTab]           = useState('profile')
 
-
-  const [notesByDay, setNotesByDay] = useState({});
-  useEffect(() => {
-    if (!citizen?.id) return           // <── защита
-    supabase.from('daily_progress')
-      .select('day_no, notes')
-      .eq('citizen_id', citizen.id)
-      .then(({ data }) => {
-         const map = {};
-         data?.forEach(r => { if (r.notes) map[r.day_no] = r.notes })
-         setNotesByDay(map)
-       })
-  }, [citizen?.id])
-
-
-  /* ─── Запрос расширенной информации ─── */
-  useEffect(() => {
-    if (!user) return
-
-    // 1) Гражданин
-    supabase
-      .from('citizens')
-      .select('*')
-      .eq('telegram_id', user.id)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (error) console.error(error)
-        setCitizen(data ?? null)
-      })
-  }, [user])
-
-  /* ─── Запрашиваем прогресс, когда узнали citizen.id ─── */
-  useEffect(() => {
-    if (!citizen?.id) return
-
-    supabase
-      .from('daily_progress')
-      .select('*', { head:true, count:'exact' })
-      .eq('citizen_id', citizen.id)
-      .then(({ count, error }) => {
-        if (error) console.error(error)
-        setProgress(count ?? 0)
-      })
-  }, [citizen])
-
-  /* ─── Выход ─── */
-  async function logout () {
+  // выход
+  async function logout() {
     await fetch('/api/logout', { method:'POST' })
     router.replace('/')
   }
 
-  /* ─── Красивый статус ─── */
-  function renderStatus () {
-    if (!citizen) return '✖ Гражданство не получено'
-    if (citizen.status === 'valid') return '✅ Гражданин Terra Zetetica'
-    return '❓ Гражданство в обработке'
-  }
-
-  /* ─── 0) Нет куки — Telegram-виджет ─── */
-   if (!user) {
-     return (
-       <main style={{maxWidth:640,margin:'0 auto',padding:'2rem 1rem'}}>
-         <h2>Авторизация</h2>
-         <p>Войдите через Telegram:</p>
-         <TelegramLogin />
-       </main>
-
-    )
-  }
-
-  /* ─── 1) Ждём Supabase ─── */
-  if (citizen === undefined) {
+  // 0) если нет tg-cookie — Telegram-виджет
+  if (!user) {
     return (
-      <main style={{padding:'2.5rem',textAlign:'center'}}>
-        <ClipLoader color="#6c63ff" size={40}/>
+      <main style={{padding:'2rem', maxWidth:600,margin:'0 auto'}}>
+        <h2>Авторизация</h2>
+        <p>Войдите через Telegram:</p>
+        <div dangerouslySetInnerHTML={{__html:`
+<script async src="https://telegram.org/js/telegram-widget.js?15"
+        data-telegram-login="ZeteticID_bot"
+        data-size="large"
+        data-userpic="true"
+        data-lang="ru"
+        data-request-access="write"
+        data-auth-url="/api/auth"></script>`}}/>
       </main>
     )
   }
 
-  /* ─── 2) Нормальный кабинет ─── */
+  // 1) получаем запись citizen
+  useEffect(()=>{
+    supabase
+      .from('citizens')
+      .select('*').eq('telegram_id', user.id).maybeSingle()
+      .then(({ data }) => setCitizen(data ?? null))
+  },[user])
+
+  // 2) прогресс
+  useEffect(()=>{
+    if (!citizen?.id) return
+    supabase
+      .from('daily_progress')
+      .select('*',{ head:true, count:'exact' })
+      .eq('citizen_id', citizen.id)
+      .then(({ count }) => setProgress(count||0))
+  },[citizen])
+
+  // 3) заметки по дням
+  useEffect(()=>{
+    if (!citizen?.id) return
+    supabase
+      .from('daily_progress')
+      .select('day_no,notes')
+      .eq('citizen_id', citizen.id)
+      .then(({ data })=>{
+        const m = {}
+        data.forEach(r=> { if (r.notes) m[r.day_no] = r.notes })
+        setNotesMap(m)
+      })
+  },[citizen])
+
+  // статус гражданства
+  function renderStatus() {
+    if (!citizen)               return '✖ Гражданство не получено'
+    if (citizen.status==='valid') return '✅ Гражданин Terra Zetetica'
+    return '❓ В обработке'
+  }
+
+  // 1) ждём Supabase
+  if (citizen === undefined) {
+    return <main style={{padding:'2rem', textAlign:'center'}}><ClipLoader size={40} color="#6c63ff"/></main>
+  }
+
+  // 2) основной UI
   return (
     <>
       <Head><title>Личный кабинет • Terra Zetetica</title></Head>
+      <main style={{maxWidth:800, margin:'0 auto', padding:'2rem'}}>
 
-      <main style={{maxWidth:820,margin:'0 auto',padding:'2rem 1rem'}}>
-        <header style={{display:'flex',justifyContent:'space-between',marginBottom:20}}>
-          <strong>Здравствуйте, {user.first_name} {user.last_name||''}! 🙌</strong>
-          <button onClick={logout} style={{padding:'.35rem .9rem'}}>Выйти</button>
+        <header style={{display:'flex', justifyContent:'space-between', marginBottom:20}}>
+          <strong>Здравствуйте, {user.first_name}!</strong>
+          <button onClick={logout} className="btn-secondary">Выйти</button>
         </header>
 
-        <Tabs active={tab} onChange={setTab} tabs={[
-          { key:'profile',  label:'🙏 Профиль' },
-          { key:'passport', label:'📜 Паспорт / 🏠 Челлендж' },
-          { key:'progress', label:'📈 Прогресс' }
-        ]}/>
+        <Tabs
+          active={tab}
+          onChange={setTab}
+          tabs={[
+            {key:'profile',  label:'🙏 Профиль'},
+            {key:'passport', label:'📜 Паспорт / 🏠 Челлендж'},
+            {key:'progress', label:'📈 Прогресс'},
+          ]}
+        />
 
-        {/* ─── Профиль ─── */}
         {tab==='profile' && (
           <section>
-            <img src={user.photo_url} alt="avatar"
-                 width={120} height={120}
-                 style={{borderRadius:8,objectFit:'cover'}} />
+            <img src={user.photo_url} alt="avatar" width={120} height={120} style={{borderRadius:8}}/>
             <p>ID Telegram: <b>{user.id}</b></p>
             {user.username && <p>Username: <b>@{user.username}</b></p>}
-            <p>{citizen ? 'Запись найдена в БД ✔️' : 'В БД записи нет ❌'}</p>
+            <p><b>Запись в БД:</b> {citizen ? '✔️ есть' : '❌ нет'}</p>
             <p><b>Статус:</b> {renderStatus()}</p>
-            <p style={{marginTop:16}}>
-              <Link href="/contacts?from=help" className="btn-secondary">
-                🤝 {locale==='ru' ? 'Предложить помощь проекту' : 'Offer help'}
-              </Link>
-            </p>
-
           </section>
         )}
 
-        {/* ─── Паспорт / Челлендж ─── */}
         {tab==='passport' && (
           <section>
-            {citizen ? (
-              <>
-                <p>Z-ID: <b>{citizen.zetetic_id || '—'}</b></p>
-                <p>IPFS-паспорт:&nbsp;
-                  {citizen.ipfs_url
+            {citizen
+              ? <>
+                  <p>Z-ID: <b>{citizen.zetetic_id||'—'}</b></p>
+                  <p>IPFS Passport: {citizen.ipfs_url
                     ? <a href={citizen.ipfs_url} target="_blank">ссылка</a>
                     : '—'}
-                </p>
-                <p>Статус челленджа: <b>{citizen.challenge_status}</b></p>
-              </>
-            ) : (
-              <p>Сначала получите гражданство, чтобы участвовать в челлендже.</p>
-            )}
+                  </p>
+                  <p>Challenge: <b>{citizen.challenge_status||'—'}</b></p>
+                </>
+              : <p>Сначала зарегистрируйтесь, чтобы участвовать.</p>
+            }
           </section>
         )}
 
-        {/* ─── Прогресс ─── */}
         {tab==='progress' && (
           <section>
             <p>Дней пройдено: <b>{progress}</b> / 14</p>
-            <div style={{height:12,background:'#eee',borderRadius:6,maxWidth:400}}>
+            <div style={{background:'#eee',height:12, borderRadius:6, maxWidth:400}}>
               <div style={{
-                height:'100%',
                 width:`${(progress/14)*100}%`,
-                background:'var(--brand, #6c63ff)',
+                height:'100%',
+                background:'#6c63ff',
                 borderRadius:6
               }}/>
             </div>
-            {progress===0 && <p style={{opacity:.6}}><Link href="/dom">Нажмите «Присоединиться» на странице «Дом за шар»</Link>, чтобы начать.</p>}
-            {progress >= 7  && <span style={{marginLeft:8,fontSize:'1.3rem'}}>🏅</span>}
-            {progress === 14 && <span style={{marginLeft:4,fontSize:'1.3rem'}}>🎖</span>}
-            {progress > 0 && (
-              <>
-                <p style={{ marginTop: 12 }}>
-                  ↩️ <Link href={`/challenge?day=${progress}`}>Пересмотреть текущий день</Link>
-                </p>
 
-                {/* единый селектор дней */}
+            {progress===0 && (
+              <p style={{opacity:0.7, marginTop:12}}>
+                Нажмите <Link href="/dom">«Присоединиться»</Link>, чтобы стартовать.
+              </p>
+            )}
+
+            {progress>0 && (
+              <>
+                <p style={{marginTop:12}}>
+                  ↩️ <Link href={`/challenge?day=${progress}`}>Пересмотреть день {progress}</Link>
+                </p>
                 <DayPicker
-                  maxDay={progress}
                   currentDay={progress}
-                  onChange={(n) => router.push(`/challenge?day=${n}`)}
+                  maxDay={progress}
+                  onChange={n=>router.push(`/challenge?day=${n}`)}
                 />
               </>
             )}
 
-            {progress > 0 && (
+            {progress>0 && (
               <section style={{marginTop:24}}>
-                <h4>Ваши заметки по дням</h4>
+                <h4>Заметки по дням</h4>
                 <ul>
-                  {Array.from({length:progress}).map((_, i) => (
+                  {Array.from({length:progress}).map((_,i)=>(
                     <li key={i}>
-                      День {i+1}:&nbsp;
-                      <i style={{opacity:0.7}}>
-                        { /* получаем из API, например `/api/challenge/note?day=${i+1}` */ }
-                        {notesByDay[i+1] || '– нет заметок –'}
-                      </i>
+                      День {i+1}: <i>{notesMap[i+1]||'– нет –'}</i>
                     </li>
                   ))}
                 </ul>
               </section>
             )}
-
-
           </section>
         )}
+
       </main>
     </>
   )
 }
 
-/* ─── SSR: читаем cookie (без редиректа) ─── */
-export async function getServerSideProps ({ req }) {
-  const { tg } = parse(req.headers.cookie || '')
+export async function getServerSideProps({ req }) {
+  const { tg } = parse(req.headers.cookie||'')
   const user = tg ? JSON.parse(Buffer.from(tg,'base64').toString()) : null
   return { props:{ user } }
 }

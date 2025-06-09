@@ -1,52 +1,68 @@
 // pages/dashboard.js
-import { parse } from 'cookie'
+import { parse }    from 'cookie'
 import { supabase } from '../lib/supabase'
 
 const ADMIN_ID = 1
 
-export async function getServerSideProps ({ req }) {
+export async function getServerSideProps({ req }) {
   const { cid } = parse(req.headers.cookie||'')
-  if (Number(cid) !== ADMIN_ID) return { props:{ allowed:false } }
+  if (Number(cid)!==ADMIN_ID) return { props:{ allowed:false } }
 
-  const { data: citizens } = await supabase.from('citizens').select('*').order('id')
-  const { data: answers  } = await supabase.from('last_answers').select('*')
+  const { data: citizens } = await supabase
+    .from('citizens')
+    .select('*')
+    .order('id', { ascending:true })
+
+  const { data: answers } = await supabase
+    .from('last_answers')
+    .select('*')
+
   return { props:{ allowed:true, citizens, answers } }
 }
 
-export default function Dashboard ({ allowed, citizens=[], answers=[] }) {
-  if (!allowed) return <p style={{padding:'2rem'}}>⛔ Access denied</p>
+export default function Dashboard({ allowed, citizens=[], answers=[] }) {
+  if (!allowed) {
+    return <main style={{padding:'2rem'}}>⛔ Access denied</main>
+  }
 
   const total  = citizens.length
-  const done14 = citizens.filter(c => c.challenge_status === 'finished').length
-  const avg    = citizens.length
-                  ? (answers.length / (citizens.length*14) * 100).toFixed(1)
-                  : 0
+  const done14 = citizens.filter(c=>c.challenge_status==='finished').length
+  const avg    = total
+    ? ((answers.length / (total*14)) * 100).toFixed(1)
+    : 0
 
   return (
-    <main style={{maxWidth:960,margin:'2rem auto',fontSize:14}}>
+    <main style={{maxWidth:960, margin:'2rem auto', fontSize:14}}>
       <h2>Админ-дашборд</h2>
-      <p>Всего граждан: <b>{total}</b>,
-         завершили 14/14: <b>{done14}</b>,
-         средний прогресс: <b>{avg}%</b></p>
+      <p>
+        Всего граждан: <b>{total}</b>,  
+        завершили 14/14: <b>{done14}</b>,  
+        средний прогресс: <b>{avg}%</b>
+      </p>
 
       <h3>Граждане</h3>
-      <table border={1} cellPadding={4} style={{width:'100%'}}>
-        <thead><tr>
-          <th>ID</th><th>Имя</th><th>@username</th>
-          <th>статус</th><th>челлендж</th><th/>
-        </tr></thead>
+      <table border={1} cellPadding={6} style={{width:'100%', borderCollapse:'collapse'}}>
+        <thead>
+          <tr>
+            <th>ID</th><th>Имя</th><th>@username</th><th>статус</th><th>челлендж</th><th>✉️</th>
+          </tr>
+        </thead>
         <tbody>
           {citizens.map(c=>(
             <tr key={c.id}>
               <td>{c.id}</td>
               <td>{c.full_name||'—'}</td>
-              <td>{c.username && '@'+c.username}</td>
+              <td>{c.username? '@'+c.username : '—'}</td>
               <td>{c.status}</td>
               <td>{c.challenge_status}</td>
               <td>
-                {c.username &&
-                  <a href={`https://t.me/${c.username.replace('@','')}`}
-                     target="_blank" rel="noopener noreferrer">✉️</a>}
+                {c.username
+                  ? <a href={`https://t.me/${c.username.replace('@','')}`}
+                       target="_blank"
+                       rel="noopener noreferrer">
+                      ✉️
+                    </a>
+                  : '—'}
               </td>
             </tr>
           ))}
@@ -54,10 +70,10 @@ export default function Dashboard ({ allowed, citizens=[], answers=[] }) {
       </table>
 
       <h3 style={{marginTop:32}}>Последние ответы</h3>
-      <table border={1} cellPadding={4} style={{width:'100%'}}>
-        <thead><tr>
-          <th>citizen</th><th>день</th><th>ответ</th><th>когда</th>
-        </tr></thead>
+      <table border={1} cellPadding={6} style={{width:'100%', borderCollapse:'collapse'}}>
+        <thead>
+          <tr><th>citizen</th><th>день</th><th>ответ</th><th>когда</th></tr>
+        </thead>
         <tbody>
           {answers.map(a=>(
             <tr key={a.id}>
