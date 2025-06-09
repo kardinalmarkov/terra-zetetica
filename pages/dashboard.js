@@ -30,6 +30,25 @@ export default function Dashboard ({ allowed, citizens=[], answers=[] }) {
       <h2>Админ-дашборд</h2>
     <p>Всего граждан: <b>{total}</b>, завершили 14/14: <b>{done14}</b></p>
 
+
+// фрагмент таблицы citizens в pages/dashboard.js
+<tbody>
+ {citizens.map(c => (
+   <tr key={c.id}>
+     <td>{c.id}</td>
+     <td>{c.username || '—'}</td>
+     <td>{c.status}</td>
+     <td>{c.challenge_status}</td>
+     <td>
+       {c.username &&
+         <a href={`https://t.me/${c.username.replace('@','')}`}
+            target="_blank" rel="noopener noreferrer">✉️</a>}
+     </td>
+   </tr>
+ ))}
+</tbody>
+
+
       <h3>Граждане</h3>
       <table border={1} cellPadding={4}><tbody>
         {citizens.map(c=>(

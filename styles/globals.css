@@ -572,3 +572,10 @@ hr {
   border: none;
   border-bottom: 1px solid #e5e7eb;
 }
+
+/* globals.css */
+.markdown-body img   { max-width:100%; border-radius:6px; margin:12px 0; }
+.markdown-body h3    { margin-top:24px; }
+.markdown-body blockquote {
+  border-left:4px solid #ccc; padding-left:12px; color:#555;
+}

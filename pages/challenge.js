@@ -16,6 +16,8 @@ import { supabase } from '../lib/supabase'
 import ReactMarkdown from 'react-markdown'
 import { useEffect } from 'react'
 import remarkGfm from 'remark-gfm'     // для поддержки таблиц, списков, task-листов
+import confetti from 'canvas-confetti'
+
 
 
 export default function Challenge ({ user, citizen, material, watched, notes }) {
@@ -26,6 +28,13 @@ export default function Challenge ({ user, citizen, material, watched, notes }) 
   useEffect(() => {
     setNote(notes || '')
   }, [notes])
+
+
+  useEffect(() => {
+    if (material.day_no === 14 && done) {
+      confetti({ particleCount: 200, spread: 80 })
+    }
+  }, [material.day_no, done])
 
   // обновляем state при смене дня
   // useEffect(() => setNote(notes || ''), [notes])
