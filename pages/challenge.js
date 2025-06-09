@@ -68,7 +68,7 @@ export default function ChallengePage({ dayNo, material, watched, notes }) {
               cursor: 'pointer',
             }}
           >
-            ✔️ Я осознанно изучил материал
+            ✔️ Я осознанно изучил материал этого дня
           </button>
         ) : (
           <p style={{ color: '#28a745', fontWeight: 'bold' }}>
