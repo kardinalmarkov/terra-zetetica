@@ -3,7 +3,7 @@ import { parse } from 'cookie'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
-import DayPicker      from '../challenge/DayPicker'
+import DayPicker      from '../pages/challenge/DayPicker'
 import { supabase } from '../lib/supabase'
 
 export default function Challenge ({ user, citizen, material, watched }) {

@@ -3,7 +3,7 @@
 
 import Head from 'next/head'
 import Link from 'next/link'
-import DayPicker      from '../challenge/DayPicker'
+import DayPicker      from '../pages/challenge/DayPicker'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { parse } from 'cookie'
