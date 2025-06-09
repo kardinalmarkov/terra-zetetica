@@ -3,28 +3,37 @@ import { supabase } from '../lib/supabase';
 import { parse }    from 'cookie';
 
 const ADMINS = [1199933222];    // ← ваши telegram-id
+const ADMIN_ID = 1          // ваш citizens.id
+
+
+// pages/dashboard.js  (добавьте в начало файла)
+const ADMIN_ID = 1          // ваш citizens.id
 
 export async function getServerSideProps({ req }) {
-  const { tg } = parse(req.headers.cookie || '');
-  let uid = null;
-  if (tg) { try{ uid = JSON.parse(Buffer.from(tg,'base64').toString()).id }catch{} }
+  const { cid } = parse(req.headers.cookie||'')
+  if (Number(cid)!==ADMIN_ID) return { props:{ denied:true } }
 
-  if (!ADMINS.includes(uid)){
-    return { props:{ allowed:false } };
-  }
-
-  const { data:citizens=[] } = await supabase
-        .from('citizens')
-        .select('id,full_name,username,status,challenge_status');
-
-  const { data:answers=[] }  = await supabase
-        .from('daily_progress')
-        .select('citizen_id,day_no,answer,watched_at')
-        .order('watched_at',{ascending:false})
-        .limit(40);
-
-  return { props:{ allowed:true, citizens, answers } };
+  const { data:last } = await supabase.from('last_answers').select('*')
+  return { props:{ last } }
 }
+
+export default function Dash({ denied, last=[] }) {
+  if (denied) return <p style={{padding:'2rem'}}>⛔ Access denied</p>
+  return (
+    <table style={{width:'100%',padding:'1rem'}}>
+      <thead><tr><th>ID</th><th>Day</th><th>Answer</th><th>When</th></tr></thead>
+      <tbody>
+        {last.map(r=>(
+          <tr key={r.id}>
+            <td>{r.citizen_id}</td><td>{r.day_no}</td>
+            <td>{r.answer}</td><td>{new Date(r.watched_at).toLocaleString()}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
 
 export default function Dashboard({ allowed, citizens=[], answers=[] }){
   if (!allowed) return <p style={{padding:'2rem'}}>⛔ Access denied</p>;

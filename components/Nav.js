@@ -16,7 +16,7 @@ const getCookie = name =>
 export default function Nav () {
   const { locale }   = useRouter()
   const [menu,setMenu] = useState(false)
-  const [user,setUser] = useState(null)            // { username, photo_url }
+  const [user,setUser] = useState(undefined)            // { username, photo_url }
 
   /* читаем tg-cookie только на клиенте */
   useEffect(() => {
@@ -55,16 +55,13 @@ export default function Nav () {
         <Item href="/contacts">{T.contacts}</Item>
         <Item href="/apply" className={styles.cta}>{T.apply} ↗</Item>
 
-        {/* avatar / login */}
-        {user
-          ? <Link href="/lk" className={styles.avatarWrap}>
-              {user.photo_url
-                ? <img src={user.photo_url} alt="me" className={styles.avatar}/>
-                : <span className={styles.noAvatar}>👤</span>}
-            </Link>
-          : <Item href="/lk" className={styles.login}>{T.login}</Item>}
-        <LangSwitch/>
-      </nav>
+      {/* avatar / login */}
+      {user===undefined ? null
+       : user
+           ? <Link href="/lk" className={styles.avatarWrap}>
+               <span className={styles.noAvatar}>👤</span>
+             </Link>
+           : <Item href="/lk" className={styles.login}>{T.login}</Item>}
 
       {/* burger + mobile panel */}
       <button onClick={()=>setMenu(!menu)} className={styles.burger}>☰</button>

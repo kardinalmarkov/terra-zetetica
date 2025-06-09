@@ -186,7 +186,13 @@ export default function LK ({ user }) {
                 </Link>
               </p>
             )}
-
+            {progress>0 && (
+              <select onChange={e=>router.push('/challenge?day='+e.target.value)}
+                      defaultValue={progress} style={{marginTop:12}}>
+                {Array.from({length:progress}).map((_,i)=>
+                  <option value={i+1} key={i}>День {i+1}</option>)}
+              </select>
+            )}
           </section>
         )}
       </main>
