@@ -585,3 +585,10 @@ th {background:#f7f7f7}
 td, th {padding:6px 10px}
 
 .btn-link{ background:none;border:none;padding:0;color:#0b5cd9;cursor:pointer }
+
+/* styles/globals.css */
+
+.progress-wrapper {
+  /* Safari на iOS тогда не «заблокирует» touch-events */
+  overflow: visible !important;
+}
