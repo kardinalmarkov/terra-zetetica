@@ -67,3 +67,12 @@ export default function DayMaterial({ material }) {
     </article>
   )
 }
+
+{material.takeaway_md && (
+  <section style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #ddd' }}>
+    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+      {material.takeaway_md}
+    </ReactMarkdown>
+  </section>
+)}
+
