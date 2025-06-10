@@ -183,6 +183,19 @@ export default function LK({ user }) {
               }}/>
             </div>
 
+            {progress===14 && (
+              <form onSubmit={async e=>{
+                e.preventDefault()
+                const txt = e.target.fb.value
+                if (!txt) return
+                const r = await fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:txt})})
+                if (await r.json()).ok alert('Спасибо! Отправлено.')
+              }}>
+                <h4>💬 Обратная связь</h4>
+                <textarea name="fb" rows={4} style={{width:'100%',marginBottom:8}}/>
+                <button className="btn primary">Отправить</button>
+              </form>
+            )}
 
 
             {progress > 0 ? (
