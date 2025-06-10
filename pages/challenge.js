@@ -90,7 +90,8 @@ export async function getServerSideProps({ req, query }) {
   // теперь выбираем все новые колонки
   const { data: mat } = await supabase
     .from('daily_materials')
-    .select('day_no, title, subtitle, theme, summary, content_md, media_json, resources')
+    .select('day_no, title, subtitle, theme, summary, content_md, media_json, resources, takeaway_md')
+
     .eq('day_no', day)
     .single()
 
