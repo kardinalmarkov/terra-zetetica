@@ -145,7 +145,8 @@ export default function LK({ user }) {
               {/* Для активных граждан — статус участия */}
               {citizen.challenge_status === 'active' && (
                 <p style={{ marginTop:16, color:'#007bff' }}>
-                  🏠 Вы участвуете в акции <b>«Дом за доказательство шара»</b>.<br/>
+                  🏠 Вы участвуете в акции&nbsp;
+                  <Link href="/dom"><a style={{textDecoration:'underline'}}>«Дом за доказательство шара»</a></Link>.<br/>
                   Прогресс — {progress}/14&nbsp;дней
                 </p>
               )}
@@ -182,22 +183,35 @@ export default function LK({ user }) {
               }}/>
             </div>
 
-            {progress > 0
-              ? <Link href={`/challenge?day=${progress}`}><a>↩️ Пересмотреть текущий день</a></Link>
-              : <p style={{ opacity:0.7, marginTop:12 }}>
-                  Для старта нажмите «Начать челлендж»
-                </p>
-            }
+
+
+            {progress > 0 ? (
+              <button
+                onClick={()=>router.push(`/challenge?day=${progress}`)}
+                className="btn-link"
+              >
+                ↩️ Пересмотреть текущий день
+              </button>
+            ) : (
+              <p style={{ opacity:0.7, marginTop:12 }}>
+                Для старта нажмите «Начать челлендж»
+              </p>
+            )}
 
             {progress>0 && (
+
               <div style={{ marginTop:24 }}>
                 <h4>Заметки по дням</h4>
                 <ul>
                   {Array.from({ length: progress }).map((_, i) => (
                     <li key={i}>
-                      <Link href={`/challenge?day=${i+1}`}>
-                        <a>День {i+1}:</a>
-                      </Link>{' '}
+                      <button
+                        onClick={()=>router.push(`/challenge?day=${i+1}`)}
+                        className="btn-link"
+                      >
+                        День {i+1}
+                      </button>{' '}
+
                       <i>{notesMap[i+1] || '– нет –'}</i>
                     </li>
                   ))}
