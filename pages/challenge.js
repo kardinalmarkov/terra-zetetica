@@ -7,6 +7,7 @@
 import Head             from 'next/head'
 import { parse }        from 'cookie'
 import { supabase }     from '../lib/supabase'
+import DayMaterial     from '../components/DayMaterial'
 import { useState, useEffect } from 'react'
 import confetti         from 'canvas-confetti'
 import { useRouter }    from 'next/router'
@@ -49,10 +50,8 @@ export default function ChallengePage({ dayNo, material, watched, notes }) {
       </Head>
       <main style={{ maxWidth: 720, margin: '2rem auto', padding: '0 1rem' }}>
         <h1>День {dayNo} / 14</h1>
-        <div
-          dangerouslySetInnerHTML={{ __html: material.content_html }}
-          style={{ margin: '1.5rem 0' }}
-        />
+
+        <DayMaterial material={material} />
 
         {/* Кнопка отметки прочитанного */}
         {!done ? (
