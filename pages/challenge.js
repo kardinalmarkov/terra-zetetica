@@ -36,15 +36,7 @@ export default function ChallengePage({ dayNo, material = {}, watched, notes }) 
   return (
     <>
       <Head><title>День {dayNo}/14 • Terra Zetetica</title></Head>
-      <div className="progress-wrapper" style={{display:'flex', gap:4, justifyContent:'center', marginBottom:16}}>
-        {Array.from({length:14}).map((_,i)=>(
-          <div key={i}
-            style={{
-              width:12, height:12, borderRadius:'50%',
-              background:i<dayNo?'#28a745':'#ccc'
-            }}/>
-        ))}
-      </div>
+
 
       <main style={{maxWidth:800,margin:'2rem auto',padding:'0 1rem'}}>
          <div style={{ display:'flex', gap:4, marginBottom:16, justifyContent:'center' }}>
