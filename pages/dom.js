@@ -1,11 +1,9 @@
 // pages/dom.js
 import Head from 'next/head'
-import useSWR from 'swr'
-
-const fetcher = url => fetch(url).then(r => r.ok ? r.json() : null)
+import useMe from '../utils/useMe'
 
 export default function Dom() {
-  const { data: me } = useSWR('/api/me', fetcher)
+  const { data: me } = useMe()
 
   return (
     <main style={{ maxWidth:860, margin:'0 auto', padding:'2rem 1rem' }}>

@@ -186,12 +186,14 @@ export default function LK({ user }) {
 
 
             {progress > 0 ? (
+
               <button
-                onClick={()=>router.push(`/challenge?day=${progress}`)}
                 className="btn-link"
+                onClick={()=>router.push(`/challenge?day=${progress}`)}
               >
                 ↩️ Пересмотреть текущий день
               </button>
+
             ) : (
               <p style={{ opacity:0.7, marginTop:12 }}>
                 Для старта нажмите «Начать челлендж»
