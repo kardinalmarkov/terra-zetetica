@@ -26,7 +26,7 @@ export default function Dom() {
         display:'flex', flexWrap:'wrap', gap:12,
         justifyContent:'center', margin:'2rem 0'
       }}>
-        <a href="/challenge" className="btn btn-primary" style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>
+        <a href="/challenge?day=1" className="btn btn-primary" style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>
           🚀 Начать челлендж
         </a>
         <a href="/lk" className="btn btn-secondary" style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>

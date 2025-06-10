@@ -17,7 +17,8 @@ export default function ChallengePage({ dayNo, material = {}, watched, notes }) 
   useEffect(() => { if (dayNo===14 && done) confetti({particleCount:200,spread:80}) }, [done, dayNo])
 
   async function markRead() {
-    const res = await fetch('/api/challenge/start', {
+    const res = await fetch('/api/challenge/mark', {
+
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ dayNo, notes: myNote })
