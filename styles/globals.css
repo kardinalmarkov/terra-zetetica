@@ -592,3 +592,21 @@ td, th {padding:6px 10px}
   /* Safari на iOS тогда не «заблокирует» touch-events */
   overflow: visible !important;
 }
+
+/* общий контейнер для кружочков */
+.progress-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 16px;
+  /* уже было: overflow: visible; */
+}
+
+/* но на очень узких экранах добавим отступы по бокам */
+@media (max-width: 480px) {
+  .progress-wrapper {
+    padding: 0 1rem;       /* отступы слева/справа */
+    justify-content: space-between;
+  }
+}
+
