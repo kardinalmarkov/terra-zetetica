@@ -49,7 +49,30 @@ export default function DayMaterial({ material }) {
           )}
         </figure>
       ))}
-      
+{material.resources?.length > 0 && (
+  <section>
+    <h3>📎 Ресурсы</h3>
+    <ul>
+      {material.resources.map((r,i) => (
+        <li key={i}>
+          <a href={r.url} target="_blank" rel="noreferrer">
+            {r.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+{material.takeaway_md && (
+  <section style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #ddd' }}>
+    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+      {material.takeaway_md}
+    </ReactMarkdown>
+  </section>
+)}
+
+
       {material.resources?.length > 0 && (
         <section>
           <h3>📎 Ресурсы</h3>
@@ -64,12 +87,15 @@ export default function DayMaterial({ material }) {
           </ul>
         </section>
       )}
+    </article>
+  )
+}
 
-      {material.takeaway_md && (
-        <section style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #ddd' }}>
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {material.takeaway_md}
-          </ReactMarkdown>
-        </section>
-      )}
+{material.takeaway_md && (
+  <section style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #ddd' }}>
+    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+      {material.takeaway_md}
+    </ReactMarkdown>
+  </section>
+)}
 
