@@ -8,7 +8,7 @@ import confetti      from 'canvas-confetti'
 import { useRouter } from 'next/router'
 import Link          from 'next/link'
 
-export default function ChallengePage({ dayNo, material, watched, notes }) {
+export default function ChallengePage({ dayNo, material = {}, watched, notes }) {
   const router = useRouter()
   const [done, setDone]     = useState(watched)
   const [myNote, setMyNote] = useState(notes || '')

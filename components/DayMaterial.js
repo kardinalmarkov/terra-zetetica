@@ -3,7 +3,7 @@ import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm      from 'remark-gfm'
 
-export default function DayMaterial({ material }) {
+export default function DayMaterial({ material = {} }) {
   return (
     <article style={{ maxWidth:800, margin:'0 auto', padding:'1rem' }}>
       <h1>{material.title}</h1>
@@ -49,31 +49,8 @@ export default function DayMaterial({ material }) {
           )}
         </figure>
       ))}
-{material.resources?.length > 0 && (
-  <section>
-    <h3>📎 Ресурсы</h3>
-    <ul>
-      {material.resources.map((r,i) => (
-        <li key={i}>
-          <a href={r.url} target="_blank" rel="noreferrer">
-            {r.label}
-          </a>
-        </li>
-      ))}
-    </ul>
-  </section>
-)}
-
-{material.takeaway_md && (
-  <section style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #ddd' }}>
-    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-      {material.takeaway_md}
-    </ReactMarkdown>
-  </section>
-)}
-
-
-      {material.resources?.length > 0 && (
+      
+      {!!material.resources?.length && (
         <section>
           <h3>📎 Ресурсы</h3>
           <ul>
@@ -87,15 +64,12 @@ export default function DayMaterial({ material }) {
           </ul>
         </section>
       )}
-    </article>
-  )
-}
 
-{material.takeaway_md && (
-  <section style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #ddd' }}>
-    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-      {material.takeaway_md}
-    </ReactMarkdown>
-  </section>
-)}
+      {!!material.takeaway_md && (
+        <section style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #ddd' }}>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {material.takeaway_md}
+          </ReactMarkdown>
+        </section>
+      )}
 
