@@ -112,23 +112,45 @@ export default function LK({ user }) {
           </section>
         )}
 
-        {tab==='passport' && (
-          <section>
-            {citizen?.status==='valid'
-              ? <>
-                  <p>Z-ID: <b>{citizen.zetetic_id || '—'}</b></p>
-                  <p>IPFS: {citizen.ipfs_url
-                    ? <a href={citizen.ipfs_url} target="_blank" rel="noreferrer">ссылка</a>
-                    : '—'}
-                  </p>
-                </>
-              : <button
-                  onClick={()=>fetch('/api/challenge/start',{method:'POST'}).then(()=>switchTab('progress'))}
-                  className="btn primary"
-                >🚀 Начать челлендж</button>
-            }
-          </section>
+{tab === 'passport' && (
+  <section>
+    {citizen?.status === 'valid' ? (
+      <>
+        <p>Z-ID: <b>{citizen.zetetic_id || '—'}</b></p>
+        <p>
+          IPFS:&nbsp;
+          {citizen.ipfs_url ? (
+            <a href={citizen.ipfs_url} target="_blank" rel="noreferrer">
+              ссылка
+            </a>
+          ) : (
+            '—'
+          )}
+        </p>
+
+        {/* отметка об участии */}
+        {citizen.challenge_status === 'active' && (
+          <p style={{ marginTop: 8, color: '#007bff' }}>
+            🏠 Вы участвуете в акции <b>«Дом за доказательство шара»</b>.<br />
+            Прогресс — {progress}/14&nbsp;дней
+          </p>
         )}
+      </>
+    ) : (
+      <button
+        onClick={() =>
+          fetch('/api/challenge/start', { method: 'POST' }).then(() =>
+            switchTab('progress')
+          )
+        }
+        className="btn primary"
+      >
+        🚀 Присоединиться к челленджу
+      </button>
+    )}
+  </section>
+)}
+
 
         {tab==='progress' && (
           <section>
