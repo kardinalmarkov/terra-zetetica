@@ -24,6 +24,7 @@ export default function Nav() {
     faq:          locale === 'ru' ? 'Вопросы'            : 'FAQ',
     roadmap:      locale === 'ru' ? 'Дорожная карта'     : 'Roadmap',
     materials:    locale === 'ru' ? 'Материалы'          : 'Materials',
+    dom:          locale === 'ru' ? 'Дом'                : 'Dom',
     search:       locale === 'ru' ? 'Поиск'              : 'Search',
     contacts:     locale === 'ru' ? 'Контакты'           : 'Contacts',
     login:        locale === 'ru' ? 'Вход'               : 'Login',
@@ -51,6 +52,7 @@ export default function Nav() {
         <Link href="/faq">{t.faq}</Link>
         <Link href="/roadmap">{t.roadmap}</Link>
         <Link href="/materials">📚 {t.materials}</Link>
+        <Link href="/dom">🏰 {t.dom}</Link>
         <a
           href="https://zsearch.terra-zetetica.org"
           target="_blank"
@@ -79,6 +81,7 @@ export default function Nav() {
         <Link href="/faq" onClick={closeMenu}>{t.faq}</Link>
         <Link href="/roadmap" onClick={closeMenu}>{t.roadmap}</Link>
         <Link href="/materials" onClick={closeMenu}>📚 {t.materials}</Link>
+        <Link href="/dom" onClick={closeMenu}>🏰 {t.dom}</Link>
         <a
           href="https://zsearch.terra-zetetica.org"
           onClick={closeMenu}
