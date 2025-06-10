@@ -6,6 +6,7 @@ import DayMaterial   from '../components/DayMaterial'
 import { useState, useEffect } from 'react'
 import confetti      from 'canvas-confetti'
 import { useRouter } from 'next/router'
+import { mutate }   from 'swr'
 import Link          from 'next/link'
 
 export default function ChallengePage({ dayNo, material = {}, watched, notes }) {
@@ -24,7 +25,11 @@ export default function ChallengePage({ dayNo, material = {}, watched, notes }) 
       body: JSON.stringify({ dayNo, notes: myNote })
     })
     const { ok, error } = await res.json()
-    if (ok) setDone(true)
+    if (ok) {
+      setDone(true)
+      mutate('/api/me')
+      mutate('/api/challenge/progress')
+    }
     else alert('Ошибка: '+error)
   }
 

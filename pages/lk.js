@@ -112,44 +112,65 @@ export default function LK({ user }) {
           </section>
         )}
 
-{tab === 'passport' && (
-  <section>
-    {citizen?.status === 'valid' ? (
-      <>
-        <p>Z-ID: <b>{citizen.zetetic_id || '—'}</b></p>
-        <p>
-          IPFS:&nbsp;
-          {citizen.ipfs_url ? (
-            <a href={citizen.ipfs_url} target="_blank" rel="noreferrer">
-              ссылка
-            </a>
-          ) : (
-            '—'
-          )}
-        </p>
+      {tab === 'passport' && (
+        <section>
+          {/* Если пользователь в БД */}
+          {citizen ? (
+            <>
+              <p>
+                <strong>Z-ID:</strong>&nbsp;
+                {citizen.zetetic_id || '—'}
+              </p>
+              <p>
+                <strong>IPFS:</strong>&nbsp;
+                {citizen.ipfs_url
+                  ? <a href={citizen.ipfs_url} target="_blank" rel="noreferrer">ссылка</a>
+                  : '—'
+                }
+              </p>
 
-        {/* отметка об участии */}
-        {citizen.challenge_status === 'active' && (
-          <p style={{ marginTop: 8, color: '#007bff' }}>
-            🏠 Вы участвуете в акции <b>«Дом за доказательство шара»</b>.<br />
-            Прогресс — {progress}/14&nbsp;дней
-          </p>
-        )}
-      </>
-    ) : (
-      <button
-        onClick={() =>
-          fetch('/api/challenge/start', { method: 'POST' }).then(() =>
-            switchTab('progress')
-          )
-        }
-        className="btn primary"
-      >
-        🚀 Присоединиться к челленджу
-      </button>
-    )}
-  </section>
-)}
+              {/* Для неактивных граждан — кнопка старта */}
+              {citizen.challenge_status === 'inactive' && (
+                <button
+                  onClick={() =>
+                    fetch('/api/challenge/start', { method:'POST' })
+                      .then(()=>router.push('/challenge?day=1'))
+                  }
+                  className="btn primary"
+                >
+                  🚀 Начать челлендж
+                </button>
+              )}
+
+              {/* Для активных граждан — статус участия */}
+              {citizen.challenge_status === 'active' && (
+                <p style={{ marginTop:16, color:'#007bff' }}>
+                  🏠 Вы участвуете в акции <b>«Дом за доказательство шара»</b>.<br/>
+                  Прогресс — {progress}/14&nbsp;дней
+                </p>
+              )}
+
+              {/* Для завершивших — поздравление */}
+              {citizen.challenge_status === 'finished' && (
+                <p style={{ marginTop:16, color:'green' }}>
+                  🎉 Вы успешно прошли челлендж и можете подать доказательство «шара»!
+                </p>
+              )}
+            </>
+          ) : (
+            /* Если пользователь авторизован, но ещё нет записи в БД */
+            <button
+              onClick={() =>
+                fetch('/api/challenge/start', { method:'POST' })
+                  .then(()=>router.push('/challenge?day=1'))
+              }
+              className="btn primary"
+            >
+              🚀 Присоединиться к челленджу
+            </button>
+          )}
+        </section>
+      )}
 
 
         {tab==='progress' && (

@@ -29,9 +29,10 @@ export default function Dom() {
         <a href="/challenge?day=1" className="btn btn-primary" style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>
           🚀 Начать челлендж
         </a>
-        <a href="/lk" className="btn btn-secondary" style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>
-          📊 Личный кабинет
-        </a>
+
+       {!me && (
+         <a href="/lk" className="btn btn-secondary">📊 Личный кабинет</a>
+       )}
       </div>
 
       <h2>🛠 Как это работает</h2>
