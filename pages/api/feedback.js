@@ -11,6 +11,8 @@ export default async function handler(req, res) {
   const { error } = await supabase
     .from('feedback')
     .insert({ citizen_id: cid, text })
+    
+  if(txt.length>1000) return res.status(400).json({error:'long'})
 
   if (error) return res.status(500).end(error.message)
   res.json({ ok:true })

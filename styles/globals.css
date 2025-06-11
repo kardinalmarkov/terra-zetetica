@@ -614,3 +614,8 @@ td, th {padding:6px 10px}
 /* Чтобы Safari на iOS не «глушил» тапы по кнопкам в .progress-wrapper */
 .progress-wrapper{overflow:visible!important}
 
+/* globals.css */
+ul.notes-list{padding-left:1.1rem}            /* новый класс */
+@media(max-width:640px){
+  ul.notes-list{padding-left:1.3rem}
+}

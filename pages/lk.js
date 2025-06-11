@@ -232,7 +232,7 @@ export default function LK({ user }) {
 
               <div style={{ marginTop:24 }}>
                 <h4>Заметки по дням</h4>
-                <ul>
+                <ul className="notes-list">
                   {Array.from({ length: progress }).map((_, i) => (
                     <li key={i}>
                       <button

@@ -8,6 +8,17 @@ export async function getServerSideProps ({ params, req }) {
   const { tg, cid } = parse(req.headers.cookie || '')
   if (!tg) return { redirect:{ destination:'/lk', permanent:false } }
 
+  const { data: mat } = await sb
+    .from('daily_materials')
+    .select('*')
+    .eq('day_no',day)
+    .maybeSingle()
+
+  // запрещаем раньше времени
+  if(mat.unlock_at && new Date(mat.unlock_at)>Date.now())
+    return { redirect:{destination:'/lk?tab=progress',permanent:false} }
+
+
   const { data:material } = await supabase
         .from('daily_materials')
         .select('*')
