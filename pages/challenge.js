@@ -14,6 +14,15 @@ export default function ChallengePage({ dayNo, material = {}, watched, notes }) 
   const [done, setDone]     = useState(watched)
   const [myNote, setMyNote] = useState(notes || '')
 
+  const [left,setLeft]=useState(null)
+  useEffect(()=>{
+    const t = setInterval(()=>{
+      const next = new Date(material.unlock_at)   // «unlock_at» храните в daily_materials
+      setLeft( Math.max(0, next - Date.now()) )
+    },1000)
+    return ()=>clearInterval(t)
+  },[material])
+
   useEffect(() => { setDone(watched); setMyNote(notes || '') }, [watched, notes, dayNo])
   useEffect(() => { if (dayNo===14 && done) confetti({particleCount:200,spread:80}) }, [done, dayNo])
 
@@ -49,6 +58,8 @@ export default function ChallengePage({ dayNo, material = {}, watched, notes }) 
              />
            ))}
          </div>
+         
+        {left>0 && <p>Новый день через: {Math.ceil(left/3600000)} ч</p>}
 
         <h1>День {dayNo} / 14</h1>
 

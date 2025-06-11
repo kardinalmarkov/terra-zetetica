@@ -135,6 +135,18 @@ export default function Dashboard({ allowed, citizens=[], answers=[], feedback=[
         .tbl th,.tbl td{padding:6px 8px;border:1px solid #ddd}
         .tbl th{background:#f8f8f8;text-align:left}
       `}</style>
+      
+      <input id="flt" placeholder="фильтр…" style="margin:14px 0;padding:4px">
+      <script>
+      document.getElementById('flt').oninput=e=>{
+        const v=e.target.value.toLowerCase()
+        document.querySelectorAll('tbody tr').forEach(tr=>{
+          tr.style.display = tr.innerText.toLowerCase().includes(v) ? '' : 'none'
+        })
+      }
+      </script>
+
+
     </main>
   )
 }
