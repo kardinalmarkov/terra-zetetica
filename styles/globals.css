@@ -586,12 +586,7 @@ td, th {padding:6px 10px}
 
 .btn-link{ background:none;border:none;padding:0;color:#0b5cd9;cursor:pointer }
 
-/* styles/globals.css */
 
-.progress-wrapper {
-  /* Safari на iOS тогда не «заблокирует» touch-events */
-  overflow: visible !important;
-}
 
 /* общий контейнер для кружочков */
 .progress-wrapper {
@@ -602,6 +597,17 @@ td, th {padding:6px 10px}
   /* уже было: overflow: visible; */
 }
 
+
+/* Чтобы Safari на iOS не «глушил» тапы по кнопкам в .progress-wrapper */
+.progress-wrapper {
+  overflow: visible !important;
+}
+
+/* Восстановим отступы у списков на мобильных */
+.wrapper ul {
+  padding-left: 1.25rem;
+}
+
 /* но на очень узких экранах добавим отступы по бокам */
 @media (max-width: 480px) {
   .progress-wrapper {
@@ -609,4 +615,5 @@ td, th {padding:6px 10px}
     justify-content: space-between;
   }
 }
+
 
