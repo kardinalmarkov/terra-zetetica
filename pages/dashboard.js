@@ -1,103 +1,98 @@
 // pages/dashboard.js
-//
-// Админ-дашборд (виден только cid === ADMIN_ID).
-// ▸ SERVICE_KEY обходит RLS, поэтому можно чтение без ограничений.
+import Head          from 'next/head'
+import { parse }     from 'cookie'
+import { useState }  from 'react'
+import { createClient } from '@supabase/supabase-js'
 
-import Head               from 'next/head'
-import { parse }          from 'cookie'
-import { createClient }   from '@supabase/supabase-js'
+const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SB_KEY = process.env.SUPABASE_SERVICE_KEY   // service-role
+const ADMIN  = Number(process.env.ADMIN_CID || 1)
 
-const SUPABASE_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL
-const SERVICE_KEY   = process.env.SUPABASE_SERVICE_KEY      // service-role key
-const ADMIN_ID      = Number(process.env.ADMIN_CID || 1)    // id администратора
-
-const sb = createClient(SUPABASE_URL, SERVICE_KEY, {
-  auth: { persistSession:false }
-})
+const sb = createClient(SB_URL, SB_KEY, { auth:{ persistSession:false } })
 
 export async function getServerSideProps({ req }) {
-  /* ─ 0. доступ только админу ─────────────────────────────────────────── */
   const { cid } = parse(req.headers.cookie||'')
-  if (Number(cid) !== ADMIN_ID) return { props:{ allowed:false } }
+  if (+cid !== ADMIN) return { props:{ allowed:false } }
 
-  /* ─ 1. грузим данные параллельно ─────────────────────────────────────── */
-  const [
-    { data: citizens = [], error: cErr },
-    { data: answers  = [], error: aErr },
-    { data: feedback = [], error: fErr }
-  ] = await Promise.all([
-    sb.from('citizens')
-      .select('*')
-      .order('id'),
-
-    sb.from('daily_progress')
-      .select('*')
-      .order('watched_at', { ascending:false })
-      .limit(50),
-
-    sb.from('feedback')
-      .select('*')
-      .order('created_at', { ascending:false })
-      .limit(50)
+  const [citRes, ansRes, fbRes] = await Promise.all([
+    sb.from('citizens').select('*').order('timestamp', { ascending:false }),
+    sb.from('daily_progress').select('*').order('watched_at', { ascending:false }).limit(50),
+    sb.from('feedback').select('*').order('created_at', { ascending:false }).limit(50)
   ])
 
-  if (cErr||aErr||fErr) console.error('SB error:', cErr||aErr||fErr)
-
-  return { props:{ allowed:true, citizens, answers, feedback } }
+  return {
+    props:{
+      allowed : true,
+      citizens: citRes.data ?? [],
+      answers : ansRes.data ?? [],
+      feedback: fbRes.data ?? []
+    }
+  }
 }
 
-/* ──────────────────────────────────────────────────────────────────────── */
-export default function Dashboard({ allowed, citizens=[], answers=[], feedback=[] }) {
+export default function Dashboard({ allowed, citizens, answers, feedback }) {
   if (!allowed) return <main style={{padding:'2rem'}}>⛔ Доступ запрещён</main>
+
+  /* state для фильтра */
+  const [flt, setFlt] = useState('')
+
+  const shown = citizens.filter(c =>
+    (c.username||'').toLowerCase().includes(flt) ||
+    String(c.telegram_id).includes(flt)           ||
+    (c.full_name||'').toLowerCase().includes(flt)
+  )
 
   const total    = citizens.length
   const finished = citizens.filter(c=>c.challenge_status==='finished').length
-  const avgProg  = total ? ((answers.length/(total*14))*100).toFixed(1) : 0
+  const avg      = ((answers.length / (total*14||1))*100).toFixed(1)
 
   return (
-    <main style={{maxWidth:1100,margin:'2rem auto',fontSize:14}}>
-      <Head><title>Админ-дашборд • Terra Zetetica</title></Head>
+    <main style={{maxWidth:1150,margin:'2rem auto',fontSize:14}}>
+      <Head><title>Админ‐дашборд • Terra Zetetica</title></Head>
 
       <h1>Админ-дашборд</h1>
-      <p>
-        Всего граждан: <b>{total}</b>,&nbsp;
-        14/14: <b>{finished}</b>,&nbsp;
-        средний прогресс: <b>{avgProg}%</b>
-      </p>
+      <p>Всего: <b>{total}</b> • 14/14: <b>{finished}</b> • ср. прогресс: <b>{avg}%</b></p>
+
+      {/* ─ поиск ─ */}
+      <input
+        value={flt}
+        onChange={e=>setFlt(e.target.value.toLowerCase())}
+        placeholder="фильтр @username / id …"
+        style={{margin:'12px 0',padding:'6px 8px',width:260}}
+      />
 
       {/* ─ граждане ─ */}
-      <h2>Граждане</h2>
       <table className="tbl">
         <thead>
           <tr>
-            <th>ID</th><th>Аватар</th><th>Имя</th>
-            <th>@username / TG ID</th><th>Статус</th><th>Челлендж</th><th>✉</th>
+            <th>ID</th><th>Reg</th><th>Ава</th><th>Имя</th>
+            <th>@user / TG ID</th><th>Статус</th><th>Чел.</th><th>✉</th>
           </tr>
         </thead>
         <tbody>
-          {citizens.map(c=>(
+          {shown.map(c=>(
             <tr key={c.id}>
               <td>{c.id}</td>
+              <td>{new Date(c.timestamp).toLocaleDateString()}</td>
               <td>{
                 c.photo_url
                   ? <img src={c.photo_url} width={32} height={32} style={{borderRadius:4}}/>
                   : '—'
               }</td>
               <td>{c.full_name||'—'}</td>
-              <td>{
-                c.username ? '@'+c.username : c.telegram_id
-              }</td>
+              <td>{c.username ? '@'+c.username : c.telegram_id}</td>
               <td>{c.status}</td>
               <td>{c.challenge_status}</td>
               <td>{
-                c.telegram_id
-                  ? <a href={`tg://user?id=${c.telegram_id}`} title="Открыть чат">✉️</a>
-                  : '—'
+                c.telegram_id && <a href={`tg://user?id=${c.telegram_id}`}>✉️</a>
               }</td>
             </tr>
           ))}
         </tbody>
       </table>
+
+
+
 
       {/* ─ ответы ─ */}
       <h2 style={{marginTop:40}}>Последние ответы</h2>
@@ -130,23 +125,14 @@ export default function Dashboard({ allowed, citizens=[], answers=[], feedback=[
         </tbody>
       </table>
 
+
+      {/* ─ feedback и ответы я не менял ─ */}
+
       <style jsx>{`
         .tbl{width:100%;border-collapse:collapse}
         .tbl th,.tbl td{padding:6px 8px;border:1px solid #ddd}
-        .tbl th{background:#f8f8f8;text-align:left}
+        .tbl th{background:#fafafa;text-align:left}
       `}</style>
-      
-      <input id="flt" placeholder="фильтр…" style="margin:14px 0;padding:4px">
-      <script>
-      document.getElementById('flt').oninput=e=>{
-        const v=e.target.value.toLowerCase()
-        document.querySelectorAll('tbody tr').forEach(tr=>{
-          tr.style.display = tr.innerText.toLowerCase().includes(v) ? '' : 'none'
-        })
-      }
-      </script>
-
-
     </main>
   )
 }

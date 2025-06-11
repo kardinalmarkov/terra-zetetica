@@ -1,8 +1,7 @@
 // pages/api/me.js
 import { parse } from 'cookie'
 import { supabase } from '../../lib/supabase.js'
-import { mutate } from 'swr'
-await mutate('/api/me')      // сразу после успешного /api/auth
+
 
 
 export default async function handler(req, res) {

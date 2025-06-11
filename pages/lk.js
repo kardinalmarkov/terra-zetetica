@@ -207,7 +207,7 @@ export default function LK({ user }) {
                 style={{marginTop:32,maxWidth:500}}
               >
                 <h4>💬 Обратная связь</h4>
-                <textarea name="fb" rows={4} style={{width:'100%',marginBottom:8}}/>
+                <textarea name="fb" rows={4} maxLength={1000} style={{width:'100%',marginBottom:8}}/>
                 <button className="btn primary">Отправить</button>
               </form>
             )}
