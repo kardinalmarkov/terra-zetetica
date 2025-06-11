@@ -116,6 +116,23 @@ export default function Dashboard({ allowed, citizens = [], answers = [] })
         </tbody>
       </table>
 
+      {/* ───── Обратная связь ───── */}
+
+      <h2 style={{marginTop:40}}>Feedback</h2>
+      <table className="table">
+        <thead><tr><th>ID</th><th>citizen</th><th>text</th><th>at</th></tr></thead>
+        <tbody>
+          {feedback.map(f=>(
+            <tr key={f.id}>
+              <td>{f.id}</td>
+              <td>#{f.citizen_id}</td>
+              <td>{f.text}</td>
+              <td>{new Date(f.created_at).toLocaleString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
       <style jsx>{`
         .table { width:100%; border-collapse:collapse }
         .table th, .table td { padding:6px 8px; border:1px solid #ddd }
