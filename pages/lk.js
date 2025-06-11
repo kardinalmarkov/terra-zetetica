@@ -108,7 +108,8 @@ export default function LK({ user }) {
             <p>ID Telegram: <b>{user.id}</b></p>
             {user.username && <p>Username: <b>@{user.username}</b></p>}
             <p><b>Запись в БД:</b> {citizen ? '✔️ есть' : '❌ нет'}</p>
-            <p><b>Статус:</b> {citizen?.status==='valid' ? '✅ Гражданин' : '❓ Не гражданин'}</p>
+
+            <p><b>Статус:</b> {citizen?.status==='valid' ? '✅ Гражданин' : citizen?.status === 'guest'? '👤 Гость' : '❓'}</p>
           </section>
         )}
 

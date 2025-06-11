@@ -598,11 +598,6 @@ td, th {padding:6px 10px}
 }
 
 
-/* Чтобы Safari на iOS не «глушил» тапы по кнопкам в .progress-wrapper */
-.progress-wrapper {
-  overflow: visible !important;
-}
-
 /* Восстановим отступы у списков на мобильных */
 .wrapper ul {
   padding-left: 1.25rem;
@@ -616,4 +611,6 @@ td, th {padding:6px 10px}
   }
 }
 
+/* Чтобы Safari на iOS не «глушил» тапы по кнопкам в .progress-wrapper */
+.progress-wrapper{overflow:visible!important}
 

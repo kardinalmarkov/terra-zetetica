@@ -8,18 +8,26 @@ export default async function handler(req,res){
   if(!tg.id || !tg.hash) return res.status(400).send('bad tg')
 
   // 1) пробуем upsert
+  const guest = {
+    telegram_id : tg.id,
+    username    : tg.username   || null,
+    photo_url   : tg.photo_url  || null,
+    full_name   : tg.first_name || '—',
+    status      : 'guest',              // <- значение ТОЛЬКО для insert
+    challenge_status:'inactive'
+  }
+
   let { data: citizen, error } = await supabase
     .from('citizens')
-    .upsert({
-      telegram_id: tg.id,
-      username   : tg.username   || null,
-      photo_url  : tg.photo_url  || null,
-      full_name  : tg.first_name || '—',
-      status     : 'guest',
-      challenge_status:'inactive'
-    }, { onConflict:'telegram_id' })
+    .upsert( guest,
+    {
+      onConflict      :'telegram_id',
+      ignoreDuplicates:false,
+      updateColumns   : ['username','photo_url','full_name'] // ← что можно обновлять
+    })
     .select()
     .single()
+
 
   /* если sequence опять позади → ловим 23505 и читаем существующую строку */
   if(error && error.code==='23505'){
