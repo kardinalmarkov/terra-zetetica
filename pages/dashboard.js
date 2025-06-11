@@ -1,126 +1,123 @@
 // pages/dashboard.js
 //
-// Админ-дашборд (видит только cid == ADMIN_CID)
-// ▸ читает ВСЕ строки citizens / daily_progress через service-role-key
-// ▸ RLS можете оставлять включённым – service key её обходит
+// Админ-дашборд (виден только cid === ADMIN_ID).
+// ▸ SERVICE_KEY обходит RLS, поэтому можно чтение без ограничений.
 
-import { parse }          from 'cookie'
 import Head               from 'next/head'
+import { parse }          from 'cookie'
 import { createClient }   from '@supabase/supabase-js'
 
-// ⬇️ НЕ забудьте задать эти переменные в Vercel → Settings → Environment
-const SUPABASE_URL   = process.env.NEXT_PUBLIC_SUPABASE_URL
-const SERVICE_KEY    = process.env.SUPABASE_SERVICE_KEY      // полно-правный ключ
-const ADMIN_ID       = Number(process.env.ADMIN_CID || 1)         // id администратора
+const SUPABASE_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SERVICE_KEY   = process.env.SUPABASE_SERVICE_KEY      // service-role key
+const ADMIN_ID      = Number(process.env.ADMIN_CID || 1)    // id администратора
 
-// админ-клиент (persistSession:false — токен в куки не кладётся)
-const sb = createClient(SUPABASE_URL, SERVICE_KEY, { auth:{ persistSession:false } })
+const sb = createClient(SUPABASE_URL, SERVICE_KEY, {
+  auth: { persistSession:false }
+})
 
-export async function getServerSideProps({ req })
-{
-  // ─── доступ только админу ──────────────────────────────────────────────
-  const { cid } = parse(req.headers.cookie || '')
-  if (Number(cid) !== ADMIN_ID) {
-    return { props:{ allowed:false } }
-  }
+export async function getServerSideProps({ req }) {
+  /* ─ 0. доступ только админу ─────────────────────────────────────────── */
+  const { cid } = parse(req.headers.cookie||'')
+  if (Number(cid) !== ADMIN_ID) return { props:{ allowed:false } }
 
-  // ─── читаем ВСЁ без фильтров (SERVICE_KEY обходит RLS) ─────────────────
-  const [{ data: citizens = [], error: cErr },
-         { data: answers  = [], error: aErr }] = await Promise.all([
-           sb.from('citizens')
-             .select('*')
-             .order('id', { ascending:true }),
+  /* ─ 1. грузим данные параллельно ─────────────────────────────────────── */
+  const [
+    { data: citizens = [], error: cErr },
+    { data: answers  = [], error: aErr },
+    { data: feedback = [], error: fErr }
+  ] = await Promise.all([
+    sb.from('citizens')
+      .select('*')
+      .order('id'),
 
-           sb.from('daily_progress')
-             .select('*')
-             .order('watched_at', { ascending:false })
-             .limit(50)
-         ])
+    sb.from('daily_progress')
+      .select('*')
+      .order('watched_at', { ascending:false })
+      .limit(50),
 
-  if (cErr || aErr) console.error('SB error:', cErr || aErr)
+    sb.from('feedback')
+      .select('*')
+      .order('created_at', { ascending:false })
+      .limit(50)
+  ])
 
-  return { props:{
-    allowed  : true,
-    citizens ,
-    answers  ,
-  }}
+  if (cErr||aErr||fErr) console.error('SB error:', cErr||aErr||fErr)
+
+  return { props:{ allowed:true, citizens, answers, feedback } }
 }
 
-// ──────────────────────────────────────────────────────────────────────────
-export default function Dashboard({ allowed, citizens = [], answers = [] })
-{
-  if (!allowed) {
-    return <main style={{padding:'2rem',maxWidth:600,margin:'0 auto'}}>⛔ Доступ запрещён</main>
-  }
+/* ──────────────────────────────────────────────────────────────────────── */
+export default function Dashboard({ allowed, citizens=[], answers=[], feedback=[] }) {
+  if (!allowed) return <main style={{padding:'2rem'}}>⛔ Доступ запрещён</main>
 
-  // метрики
-  const total     = citizens.length
-  const finished  = citizens.filter(c => c.challenge_status === 'finished').length
-  const avgProg   = total === 0 ? 0 : (answers.length / (total*14) * 100).toFixed(1)
+  const total    = citizens.length
+  const finished = citizens.filter(c=>c.challenge_status==='finished').length
+  const avgProg  = total ? ((answers.length/(total*14))*100).toFixed(1) : 0
 
   return (
-    <main style={{maxWidth:1040,margin:'2rem auto',fontSize:14}}>
-      <Head><title>Админ-дашборд | Terra Zetetica</title></Head>
+    <main style={{maxWidth:1100,margin:'2rem auto',fontSize:14}}>
+      <Head><title>Админ-дашборд • Terra Zetetica</title></Head>
 
       <h1>Админ-дашборд</h1>
       <p>
-        Всего граждан:&nbsp;<b>{total}</b>,&nbsp;
-        завершили 14/14:&nbsp;<b>{finished}</b>,&nbsp;
-        средний прогресс:&nbsp;<b>{avgProg}%</b>
+        Всего граждан: <b>{total}</b>,&nbsp;
+        14/14: <b>{finished}</b>,&nbsp;
+        средний прогресс: <b>{avgProg}%</b>
       </p>
 
-      {/* ───── таблица граждан ───── */}
+      {/* ─ граждане ─ */}
       <h2>Граждане</h2>
-      <table className="table">
+      <table className="tbl">
         <thead>
           <tr>
-            <th>ID</th><th>Имя</th><th>@username / TG ID</th>
-            <th>Статус</th><th>Челлендж</th><th>✉️ Написать</th>
+            <th>ID</th><th>Аватар</th><th>Имя</th>
+            <th>@username / TG ID</th><th>Статус</th><th>Челлендж</th><th>✉</th>
           </tr>
         </thead>
         <tbody>
-          {citizens.map(c => (
+          {citizens.map(c=>(
             <tr key={c.id}>
               <td>{c.id}</td>
-              <td>{c.full_name || '—'}</td>
-              <td>{c.telegram_id || '—'}</td>
+              <td>{
+                c.photo_url
+                  ? <img src={c.photo_url} width={32} height={32} style={{borderRadius:4}}/>
+                  : '—'
+              }</td>
+              <td>{c.full_name||'—'}</td>
+              <td>{
+                c.username ? '@'+c.username : c.telegram_id
+              }</td>
               <td>{c.status}</td>
               <td>{c.challenge_status}</td>
-              <td>
-                {c.telegram_id
-                  ? <a
-                      href={`tg://user?id=${c.telegram_id}`}
-                      title="Открыть чат в Telegram">✉️</a>
-                  : '—'}
-              </td>
+              <td>{
+                c.telegram_id
+                  ? <a href={`tg://user?id=${c.telegram_id}`} title="Открыть чат">✉️</a>
+                  : '—'
+              }</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {/* ───── последние ответы ───── */}
+      {/* ─ ответы ─ */}
       <h2 style={{marginTop:40}}>Последние ответы</h2>
-      <table className="table">
-        <thead>
-          <tr><th>#citizen</th><th>день</th><th>ответ</th><th>когда</th></tr>
-        </thead>
+      <table className="tbl">
+        <thead><tr><th>#cid</th><th>день</th><th>когда</th></tr></thead>
         <tbody>
-          {answers.map(a => (
+          {answers.map(a=>(
             <tr key={a.id}>
               <td>#{a.citizen_id}</td>
               <td>{a.day_no}</td>
-              <td>{a.answer}</td>
               <td>{new Date(a.watched_at).toLocaleString()}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {/* ───── Обратная связь ───── */}
-
+      {/* ─ feedback ─ */}
       <h2 style={{marginTop:40}}>Feedback</h2>
-      <table className="table">
-        <thead><tr><th>ID</th><th>citizen</th><th>text</th><th>at</th></tr></thead>
+      <table className="tbl">
+        <thead><tr><th>ID</th><th>#cid</th><th>Текст</th><th>Когда</th></tr></thead>
         <tbody>
           {feedback.map(f=>(
             <tr key={f.id}>
@@ -134,9 +131,9 @@ export default function Dashboard({ allowed, citizens = [], answers = [] })
       </table>
 
       <style jsx>{`
-        .table { width:100%; border-collapse:collapse }
-        .table th, .table td { padding:6px 8px; border:1px solid #ddd }
-        .table th { background:#f6f6f6; text-align:left }
+        .tbl{width:100%;border-collapse:collapse}
+        .tbl th,.tbl td{padding:6px 8px;border:1px solid #ddd}
+        .tbl th{background:#f8f8f8;text-align:left}
       `}</style>
     </main>
   )
