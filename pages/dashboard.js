@@ -1,155 +1,114 @@
-// pages/dashboard.js
-import Head          from 'next/head'
-import { parse }     from 'cookie'
-import { useState }  from 'react'
+// pages/dashboard.js  (полная версия)
+import Head from 'next/head'
+import { parse } from 'cookie'
+import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
-const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-const SB_KEY = process.env.SUPABASE_SERVICE_KEY   // service-role
-const ADMIN  = Number(process.env.ADMIN_CID || 1)
+const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPA_KEY = process.env.SUPABASE_SERVICE_KEY      // service-role
+const ADMIN_CID = Number(process.env.ADMIN_CID || 1)
 
-const sb = createClient(SB_URL, SB_KEY, { auth:{ persistSession:false } })
+const sb = createClient(SUPA_URL, SUPA_KEY, { auth: { persistSession: false } })
 
 export async function getServerSideProps({ req }) {
-  const { cid } = parse(req.headers.cookie||'')
-  if (+cid !== ADMIN) return { props:{ allowed:false } }
+  const { cid } = parse(req.headers.cookie || '')
+  if (+cid !== ADMIN_CID) return { props: { allowed: false } }
 
-  const [citRes, ansRes, fbRes] = await Promise.all([
-    sb.from('citizens').select('*').order('timestamp', { ascending:false }),
-    sb.from('daily_progress').select('*').order('watched_at', { ascending:false }).limit(50),
-    sb.from('feedback').select('*').order('created_at', { ascending:false }).limit(50)
+  const [cit, ans, fb] = await Promise.all([
+    sb.from('citizens').select('*').order('timestamp', { ascending: false }),
+    sb.from('daily_progress').select('citizen_id,day_no,watched_at').order('watched_at', { ascending: false }).limit(50),
+    sb.from('feedback').select('*').order('created_at', { ascending: false }).limit(50)
   ])
 
-  return {
-    props:{
-      allowed : true,
-      citizens: citRes.data ?? [],
-      answers : ansRes.data ?? [],
-      feedback: fbRes.data ?? []
-    }
-  }
+  return { props: { allowed: true, citizens: cit.data, answers: ans.data, feedback: fb.data } }
 }
 
-export default function Dashboard({ allowed, citizens, answers, feedback }) {
-  if (!allowed) return <main style={{padding:'2rem'}}>⛔ Доступ запрещён</main>
+export default function Dashboard({ allowed, citizens = [], answers = [], feedback = [] }) {
+  if (!allowed) return <main className="wrapper">⛔ Access denied</main>
 
-  /* state для фильтра */
+  /* ─ фильтр + пагинация ─ */
+  const [flt, setFlt] = useState('')
+  const [page, setPage] = useState(0)
+  const pageSize = 10
 
-  const [flt, setFlt]   = useState('')
-  const [pg,  setPg ]   = useState(0)   // номер страницы
-  const pageSize        = 10
-  const filtered = citizens.filter(…)
-  const shown    = filtered.slice(pg*pageSize,(pg+1)*pageSize)
+  const filtered = citizens.filter(c =>
+    (`${c.username ?? ''}${c.telegram_id}${c.full_name ?? ''}${c.id}`)
+      .toLowerCase().includes(flt)
+  )
+  const shown = filtered.slice(page * pageSize, (page + 1) * pageSize)
 
-  const total    = citizens.length
-  const finished = citizens.filter(c=>c.challenge_status==='finished').length
-  const avg      = ((answers.length / (total*14||1))*100).toFixed(1)
+  const finished = citizens.filter(c => c.challenge_status === 'finished').length
+  const avg = (answers.length / (citizens.length * 14 || 1) * 100).toFixed(1)
 
   return (
-    <main style={{maxWidth:1150,margin:'2rem auto',fontSize:14}}>
-      <Head><title>Админ‐дашборд • Terra Zetetica</title></Head>
+    <main style={{ maxWidth: 1150, margin: '2rem auto', fontSize: 14 }}>
+      <Head><title>Dashboard • Terra Zetetica</title></Head>
 
       <h1>Админ-дашборд</h1>
-      <p>Всего: <b>{total}</b> • 14/14: <b>{finished}</b> • ср. прогресс: <b>{avg}%</b></p>
+      <p>Всего: <b>{citizens.length}</b> • 14/14: <b>{finished}</b> • ср. прогресс: <b>{avg}%</b></p>
 
-      {/* ─ поиск ─ */}
       <input
         value={flt}
-        onChange={e=>setFlt(e.target.value.toLowerCase())}
-        placeholder="фильтр @username / id …"
-        style={{margin:'12px 0',padding:'6px 8px',width:260}}
+        onChange={e => { setFlt(e.target.value.toLowerCase()); setPage(0) }}
+        placeholder="фильтр @username / id…"
+        style={{ margin: '12px 0', padding: 6, width: 260 }}
       />
 
-      {/* ─ граждане ─ */}
+      {/* — граждане — */}
       <table className="tbl">
-        <thead>
-          <tr>
-            <th>ID</th><th>Reg</th><th>Ава</th><th>Имя</th>
-            <th>@user / TG ID</th><th>Статус</th><th>Чел.</th><th>✉</th>
-          </tr>
-        </thead>
+        <thead><tr>
+          <th>ID</th><th>Reg</th><th>Ава</th><th>Имя</th>
+          <th>@user / TG ID</th><th>Статус</th><th>Чел.</th><th>✉</th>
+        </tr></thead>
         <tbody>
-          {shown.map(c=>(
+          {shown.map(c => (
             <tr key={c.id}>
               <td>{c.id}</td>
               <td>{new Date(c.timestamp).toLocaleDateString()}</td>
               <td>{
                 c.photo_url
-                  ? <img src={c.photo_url} width={32} height={32} style={{borderRadius:4}}/>
+                  ? <img src={c.photo_url} width={28} height={28} style={{ borderRadius: 4 }} />
                   : '—'
               }</td>
-              <td>{c.full_name||'—'}</td>
-              <td>{c.username ? '@'+c.username : c.telegram_id}</td>
+              <td>{c.full_name || '—'}</td>
+              <td>{c.username ? '@' + c.username : c.telegram_id}</td>
               <td>{c.status}</td>
               <td>{c.challenge_status}</td>
-              <td>{
-                c.telegram_id && <a href={`tg://user?id=${c.telegram_id}`}>✉️</a>
-              }</td>
+              <td>{c.telegram_id && <a href={`tg://user?id=${c.telegram_id}`}>✉️</a>}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <div style={{margin:'8px 0'}}>
-        {Array.from({length:Math.ceil(filtered.length/pageSize)}).map((_,i)=>(
+      {/* пагинация */}
+      <div style={{ margin: '8px 0' }}>
+        {Array.from({ length: Math.ceil(filtered.length / pageSize) }).map((_, i) => (
           <button key={i}
-            onClick={()=>setPg(i)}
-            style={{marginRight:4,background:i===pg?'#007bff':'#eee',color:i===pg?'#fff':'#000'}}>
-            {i+1}
+            onClick={() => setPage(i)}
+            style={{ marginRight: 4, background: i === page ? '#007bff' : '#eee', color: i === page ? '#fff' : '#000' }}>
+            {i + 1}
           </button>
         ))}
       </div>
 
-
-
-
-      {/* ─ ответы ─ */}
-      <h2 style={{marginTop:40}}>Последние ответы</h2>
-      <table className="tbl">
-        <thead><tr><th>#cid</th><th>день</th><th>когда</th></tr></thead>
-        <tbody>
-          {answers.map(a=>(
-            <tr key={a.id}>
-              <td>#{a.citizen_id}</td>
-              <td>{a.day_no}</td>
-              <td>{new Date(a.watched_at).toLocaleString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* ─ feedback ─ */}
-      <h2 style={{marginTop:40}}>Feedback</h2>
+      {/* — feedback — */}
+      <h2 style={{ marginTop: 36 }}>Feedback</h2>
       <table className="tbl">
         <thead><tr><th>ID</th><th>#cid</th><th>Текст</th><th>Когда</th></tr></thead>
         <tbody>
-          {feedback.map(f=>(
+          {feedback.map(f => (
             <tr key={f.id}>
-              <td>{f.id}</td>
-              <td>#{f.citizen_id}</td>
-              <td>{f.text}</td>
+              <td>{f.id}</td><td>#{f.citizen_id}</td><td>{f.text}</td>
               <td>{new Date(f.created_at).toLocaleString()}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <div style={{margin:'8px 0'}}>
-        {Array.from({length:Math.ceil(filtered.length/pageSize)}).map((_,i)=>(
-          <button key={i}
-            onClick={()=>setPg(i)}
-            style={{marginRight:4,background:i===pg?'#007bff':'#eee',color:i===pg?'#fff':'#000'}}>
-            {i+1}
-          </button>
-        ))}
-      </div>
-
-      {/* ─ feedback и ответы я не менял ─ */}
-
       <style jsx>{`
-        .tbl{width:100%;border-collapse:collapse}
-        .tbl th,.tbl td{padding:6px 8px;border:1px solid #ddd}
-        .tbl th{background:#fafafa;text-align:left}
+        .tbl{width:100%;border-collapse:collapse;margin-top:8px}
+        .tbl th,.tbl td{border:1px solid #ddd;padding:6px 8px}
+        .tbl th{background:#fafafa}
       `}</style>
     </main>
   )
