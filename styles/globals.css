@@ -619,3 +619,6 @@ ul.notes-list{padding-left:1.1rem}            /* новый класс */
 @media(max-width:640px){
   ul.notes-list{padding-left:1.3rem}
 }
+
+/* styles/globals.css ─ слегка «отодвинули» список */
+.notes-list{padding-left:18px}

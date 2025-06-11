@@ -19,8 +19,6 @@ export default async function handler(req,res){
       { onConflict:'citizen_id,day_no' })
   if(error) return res.status(500).json({ ok:false, error:error.message })
 
-  // для триггера progress_pct
-  await supabase.rpc('upd_progress_pct')  // если нужен форс-пересчёт
 
   res.json({ ok:true })
 }
