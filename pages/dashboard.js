@@ -34,13 +34,12 @@ export default function Dashboard({ allowed, citizens, answers, feedback }) {
   if (!allowed) return <main style={{padding:'2rem'}}>⛔ Доступ запрещён</main>
 
   /* state для фильтра */
-  const [flt, setFlt] = useState('')
 
-  const shown = citizens.filter(c =>
-    (c.username||'').toLowerCase().includes(flt) ||
-    String(c.telegram_id).includes(flt)           ||
-    (c.full_name||'').toLowerCase().includes(flt)
-  )
+  const [flt, setFlt]   = useState('')
+  const [pg,  setPg ]   = useState(0)   // номер страницы
+  const pageSize        = 10
+  const filtered = citizens.filter(…)
+  const shown    = filtered.slice(pg*pageSize,(pg+1)*pageSize)
 
   const total    = citizens.length
   const finished = citizens.filter(c=>c.challenge_status==='finished').length
@@ -91,6 +90,16 @@ export default function Dashboard({ allowed, citizens, answers, feedback }) {
         </tbody>
       </table>
 
+      <div style={{margin:'8px 0'}}>
+        {Array.from({length:Math.ceil(filtered.length/pageSize)}).map((_,i)=>(
+          <button key={i}
+            onClick={()=>setPg(i)}
+            style={{marginRight:4,background:i===pg?'#007bff':'#eee',color:i===pg?'#fff':'#000'}}>
+            {i+1}
+          </button>
+        ))}
+      </div>
+
 
 
 
@@ -125,6 +134,15 @@ export default function Dashboard({ allowed, citizens, answers, feedback }) {
         </tbody>
       </table>
 
+      <div style={{margin:'8px 0'}}>
+        {Array.from({length:Math.ceil(filtered.length/pageSize)}).map((_,i)=>(
+          <button key={i}
+            onClick={()=>setPg(i)}
+            style={{marginRight:4,background:i===pg?'#007bff':'#eee',color:i===pg?'#fff':'#000'}}>
+            {i+1}
+          </button>
+        ))}
+      </div>
 
       {/* ─ feedback и ответы я не менял ─ */}
 

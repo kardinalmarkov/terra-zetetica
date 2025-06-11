@@ -1,143 +1,148 @@
 // pages/challenge.js
-import Head          from 'next/head'
-import { parse }     from 'cookie'
-import { supabase }  from '../lib/supabase'
-import DayMaterial   from '../components/DayMaterial'
+// ──────────────────────────────────────────────────────────────────────────────
+// Страница «День N» 14-дневного челленджа.
+//
+// • Верхний progress-bar: 14 кружков (зелёные = уже открыт).
+// • Таймер «до открытия следующего дня»
+//   работает, если в daily_materials есть столбец unlock_at TIMESTAMPTZ.
+// • Кнопка «✔️ Я осознанно…» → POST /api/challenge/mark
+//   (см. pages/api/challenge/mark.js – там upsert в daily_progress).
+// • Заметка сохраняется тем же запросом (notes)
+//
+// NB: если у вас ещё нет колонки unlock_at - заведите `DATE + INTERVAL`.  
+//     Тогда таймер просто не показывается (left === null).
+// ──────────────────────────────────────────────────────────────────────────────
+import Head           from 'next/head'
+import { parse }      from 'cookie'
+import { supabase }   from '../lib/supabase'
+import DayMaterial    from '../components/DayMaterial'
+import confetti       from 'canvas-confetti'
+import Link           from 'next/link'
+import { useRouter }  from 'next/router'
+import { mutate }     from 'swr'
 import { useState, useEffect } from 'react'
-import confetti      from 'canvas-confetti'
-import { useRouter } from 'next/router'
-import { mutate }   from 'swr'
-import Link          from 'next/link'
 
-export default function ChallengePage({ dayNo, material = {}, watched, notes }) {
-  const router = useRouter()
-  const [done, setDone]     = useState(watched)
-  const [myNote, setMyNote] = useState(notes || '')
+// UI-кружочки progress-bar
+const Dots = ({ curr }) => (
+  <div style={{display:'flex',gap:4,marginBottom:16,justifyContent:'center'}}>
+    {Array.from({length:14}).map((_,i)=>(
+      <div key={i} style={{
+        width:12,height:12,borderRadius:'50%',
+        background:i<curr ? '#28a745':'#ccc'
+      }}/>
+    ))}
+  </div>
+)
 
+export default function ChallengePage({ dayNo, material={}, watched, notes }) {
+  const r = useRouter()
+
+  // состояние «прочитано» + заметка
+  const [done,setDone]      = useState(watched)
+  const [myNote,setMyNote]  = useState(notes||'')
+
+  // таймер до следующего unlock_at
   const [left,setLeft]=useState(null)
   useEffect(()=>{
-    const t = setInterval(()=>{
-      const next = new Date(material.unlock_at)   // «unlock_at» храните в daily_materials
-      setLeft( Math.max(0, next - Date.now()) )
-    },1000)
-    return ()=>clearInterval(t)
-  },[material])
+    if(!material.unlock_at) return
+    const id=setInterval(()=>{
+      setLeft(Math.max(0,new Date(material.unlock_at)-Date.now()))
+    },1_000)
+    return ()=>clearInterval(id)
+  },[material.unlock_at])
 
-  useEffect(() => { setDone(watched); setMyNote(notes || '') }, [watched, notes, dayNo])
-  useEffect(() => { if (dayNo===14 && done) confetti({particleCount:200,spread:80}) }, [done, dayNo])
+  // конфетти в финальный день
+  useEffect(()=>{ if(dayNo===14 && done) confetti({particleCount:180,spread:70}) },[done,dayNo])
 
-  async function markRead() {
-    const res = await fetch('/api/challenge/mark', {
-
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
+  // запрос «отметить/сохранить»
+  const save = async () =>{
+    const res  = await fetch('/api/challenge/mark',{
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ dayNo, notes: myNote })
     })
-    const { ok, error } = await res.json()
-    if (ok) {
-      setDone(true)
-      mutate('/api/me')
-      mutate('/api/challenge/progress')
-    }
-    else alert('Ошибка: '+error)
+    const j = await res.json()
+    if(!j.ok) return alert('Ошибка: '+(j.error||'unknown'))
+    setDone(true)
+    mutate('/api/me')               // синхронно обновим прогресс в ЛК
   }
 
+  /* ---------- рендер ---------- */
   return (
     <>
-      <Head><title>День {dayNo}/14 • Terra Zetetica</title></Head>
+      <Head><title>День {dayNo} / 14 • Terra Zetetica</title></Head>
 
+      <main style={{maxWidth:820,margin:'2rem auto',padding:'0 1rem'}}>
+        <Dots curr={dayNo}/>
 
-      <main style={{maxWidth:800,margin:'2rem auto',padding:'0 1rem'}}>
-         <div style={{ display:'flex', gap:4, marginBottom:16, justifyContent:'center' }}>
-           {Array.from({length:14}).map((_,i)=>(
-             <div key={i}
-               style={{
-                 width:12, height:12, borderRadius:'50%',
-                 background: i < dayNo ? '#28a745' : '#ccc'
-               }}
-             />
-           ))}
-         </div>
-         
-        {left>0 && <p>Новый день через: {Math.ceil(left/3600000)} ч</p>}
+        {left>0 && (
+          <p style={{textAlign:'center',color:'#555',marginTop:-12}}>
+            Новый день через&nbsp;{Math.ceil(left/36e5)} ч
+          </p>
+        )}
 
-        <h1>День {dayNo} / 14</h1>
+        <h1 style={{margin:'1rem 0'}}>День {dayNo} / 14</h1>
 
-        {/* рендерим из новых полей */}
-        <DayMaterial material={material} />
+        <DayMaterial material={material}/>
 
+        {/* -------------------------------------------------- кнопка/метка */}
         {!done
-          ? <button onClick={markRead}
-                    style={{background:'#28a745',color:'#fff',padding:'0.75rem 1.5rem',
-                            border:'none',borderRadius:6,cursor:'pointer',fontSize:16}}>
+          ? <button onClick={save} className="btn success">
               ✔️ Я осознанно изучил материал
             </button>
-          : <p style={{color:'#28a745',fontWeight:'bold'}}>✔️ Материал отмечен</p>
-        }
+          : <p style={{color:'#28a745',fontWeight:600}}>✔ Материал отмечен</p>}
 
+        {/* -------------------------------------------------- заметка */}
         {done && (
           <div style={{marginTop:24}}>
             <textarea
-              value={myNote}
-              onChange={e=>setMyNote(e.target.value)}
               rows={5}
-              style={{width:'100%',padding:8,borderRadius:4,border:'1px solid #ccc'}}
+              value={myNote}
+              onChange={e=>setMyNote(e.target.value.slice(0,1000))} // 1k лимит
+              style={{width:'100%',border:'1px solid #bbb',borderRadius:6,padding:8}}
               placeholder="Ваши заметки…"
             />
-            <button onClick={markRead}
-                    style={{marginTop:8,background:'#007bff',color:'#fff',
-                            border:'none',padding:'0.5rem 1rem',borderRadius:4,cursor:'pointer'}}>
+            <button onClick={save} className="btn primary" style={{marginTop:8}}>
               💾 Сохранить заметку
             </button>
           </div>
         )}
 
+        {/* -------------------------------------------------- навигация */}
         <div style={{marginTop:32,display:'flex',gap:12}}>
-          <button onClick={()=>router.back()} style={{cursor:'pointer'}}>← Назад</button>
-
-          {dayNo<14 && (
-            <Link href={`/challenge?day=${dayNo+1}`}>
-              <a>➡️ Перейти к дню {dayNo+1}</a>
-            </Link>
-          )}
-          {dayNo===14 && (
-            <Link href="/lk?tab=progress"><a>📈 Мой прогресс</a></Link>
-          )}
+          <button onClick={()=>r.back()} className="btn">← Назад</button>
+          {dayNo<14
+            ? <Link href={`/challenge?day=${dayNo+1}`}><a className="btn">➡ День {dayNo+1}</a></Link>
+            : <Link href="/lk?tab=progress"><a className="btn">📈 Прогресс</a></Link>}
         </div>
       </main>
     </>
   )
 }
 
+/* ───────────────────────── SSR ───────────────────────── */
 export async function getServerSideProps({ req, query }) {
   const { cid } = parse(req.headers.cookie||'')
-  if (!cid) {
-    return { redirect:{ destination:'/lk', permanent:false } }
-  }
+  if(!cid) return {redirect:{destination:'/lk',permanent:false}}
 
-  const day = Number(query.day) || 1
+  const day = Math.min(Math.max(+query.day||1,1),14)
 
-  // теперь выбираем все новые колонки
+  // материалы
   const { data: mat } = await supabase
     .from('daily_materials')
-    .select('day_no, title, subtitle, theme, summary, content_md, media_json, resources, takeaway_md')
+    .select('*')           // берём все новые колонки
+    .eq('day_no',day).single()
 
-    .eq('day_no', day)
-    .single()
-
+  // прогресс (есть ли строка)
   const { data: prog } = await supabase
     .from('daily_progress')
-    .select('id, notes')
-    .eq('citizen_id', cid)
-    .eq('day_no', day)
-    .maybeSingle()
+    .select('notes').match({citizen_id:cid,day_no:day}).maybeSingle()
 
   return {
-    props: {
-      dayNo:    day,
-      material: mat || {},
-      watched:  Boolean(prog),
-      notes:    prog?.notes || '',
+    props:{
+      dayNo : day,
+      material: mat||{},
+      watched: !!prog,
+      notes  : prog?.notes||''
     }
   }
 }
