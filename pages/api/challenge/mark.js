@@ -1,24 +1,33 @@
 // pages/api/challenge/mark.js
-import { parse } from 'cookie'
-import { supabase } from '../../../lib/supabase'
+import { supabase } from '@/lib/supabase';
 
-export default async function handler (req, res) {
-  if (req.method!=='POST') return res.status(405).end()
-  const { cid } = parse(req.headers.cookie||'')
-  const { day, note='' } = req.body
-  if (!cid || !day) return res.status(400).json({ error:'bad args' })
-  if (note.length > 1000)           return res.status(400).json({ error:'long' })
+export default async function handler(req, res) {
+  const { cid, tg } = req.cookies;
+  if (!cid || !tg) return res.status(401).json({ ok:false, error:'not-auth' });
 
-  /* 1. upsert заметку (в progress.notes) */
-  const { error:e1 } = await supabase
-    .from('daily_progress')
-    .upsert({ citizen_id:cid, day_no:day, notes:note }, { onConflict:'citizen_id,day_no' })
-  if (e1) return res.status(500).json({ error:e1.message })
+  const { day, note = '', saveOnly = false } = req.body;
 
-  /* 2. переводим челлендж в active (но НЕ трогаем status!) */
-  await supabase.from('citizens')
-    .update({ challenge_status:'active' })
-    .eq('id',cid).in('challenge_status',['inactive',null])
+  // ищем существующую запись
+  const { data: row } = await supabase
+        .from('daily_progress')
+        .select('id, watched_at')
+        .match({ citizen_id: cid, day_no: day })
+        .maybeSingle();
 
-  res.json({ ok:true, note })
+  if (!row) {
+    // первый раз закрываем день
+    await supabase.from('daily_progress').insert({
+      citizen_id: cid,
+      day_no    : day,
+      watched_at: new Date(),             // фиксируем «момент прохождения»
+      notes     : note.trim()
+    });
+  } else {
+    // уже был – меняем ТОЛЬКО заметку
+    await supabase.from('daily_progress')
+      .update({ notes: note.trim() })
+      .eq('id', row.id);
+  }
+
+  res.json({ ok:true });
 }
