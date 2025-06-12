@@ -162,20 +162,14 @@ export default function ChallengePage ({ dayNo, material, watched }) {
       />
 
       <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
-        <button className="btn primary" onClick={()=>submit({saveOnly:true})}>
+        {/* кнопка «сохранить» + галочка-подтверждение */}
+        <button className="btn primary" onClick={()=>submit({ saveOnly:true })}>
           💾 Сохранить&nbsp;заметку
         </button>
-        {savedOK && <span style={{color:'#28a745',fontWeight:600'}}> ✔️</span>}
-
-        {!isDone ? (
-          <button className="btn primary" onClick={()=>submit()}>
-            ✔️ Я осознанно изучил&nbsp;материал
-          </button>
-        ) : (
-          <span style={{ alignSelf:'center', color:'#28a745', fontWeight:600 }}>
-            ✅ Материал&nbsp;изучен
-          </span>
+        {savedOK && (
+          <span style={{ color:'#28a745', fontWeight:600 }}>✔️</span>
         )}
+
       </div>
 
       {/* навигация */}
