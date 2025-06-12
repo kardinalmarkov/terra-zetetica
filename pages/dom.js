@@ -1,10 +1,12 @@
 // pages/dom.js
 import Head from 'next/head'
-import useMe from '../utils/useMe'
-import { useRouter } from 'next/router'
+import useSWR from 'swr'
+
+const fetcher = url => fetch(url).then(r => r.ok ? r.json() : null)
 
 export default function Dom() {
-  const { data: me, error } = useMe()
+  const { data: me } = useSWR('/api/me', fetcher)
+
   return (
     <main style={{ maxWidth:860, margin:'0 auto', padding:'2rem 1rem' }}>
       <Head><title>🏠 Докажи шар — получи дом • Terra Zetetica</title></Head>
@@ -24,24 +26,17 @@ export default function Dom() {
         display:'flex', flexWrap:'wrap', gap:12,
         justifyContent:'center', margin:'2rem 0'
       }}>
+        <a href="/challenge?day=1" className="btn btn-primary" style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>
+          🚀 Начать челлендж
+        </a>
+        <a href="/lk" className="btn btn-secondary" style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>
 
-      {/* одна кнопка для авторизованных */}
-      <button
-        onClick={()=>location.href='/challenge?day=1'}
-        className="btn primary"
-      >
-        🚀 Начать челлендж
-      </button>
+          📊 Личный кабинет
+        </a>
 
-      {/* если пользователь ещё не авторизовался */}
-      {error?.code === 401 && (
-        <a href="/lk" className="btn secondary">📊 Личный кабинет</a>
-      )}
-
-      {!me && (
-        <a href="/lk" className="btn secondary">📊 Личный кабинет</a>
-      )}
-
+       {!me && (
+         <a href="/lk" className="btn btn-secondary">📊 Личный кабинет</a>
+       )}
       </div>
 
       <h2>🛠 Как это работает</h2>
