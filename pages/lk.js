@@ -1,267 +1,193 @@
-// pages/lk.js
+// pages/lk.js            v 2.9   — 15 Jun 2025
 import Head          from 'next/head'
 import Link          from 'next/link'
 import { parse }     from 'cookie'
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
-import ClipLoader    from 'react-spinners/ClipLoader'
 import { supabase }  from '../lib/supabase'
 
-export default function LK({ user, notes = '{}' }) {
-  const router = useRouter()
-  const [citizen, setCitizen] = useState(null)
-  const [progress, setProgress] = useState(0)
-  const [notesMap, setNotesMap] = useState(JSON.parse(notes || '{}'))
-  const [tab, setTab] = useState(router.query.tab || 'profile')
+export default function LK ({ user, citizen, progress, notesJSON }) {
+  const router            = useRouter()
+  const [tab, setTab]     = useState(router.query.tab || 'profile')
+  const [notesMap,setMap] = useState(JSON.parse(notesJSON||'{}'))
 
-  useEffect(() => {
-    if (router.query.tab) setTab(router.query.tab)
-  }, [router.query.tab])
-
-  const switchTab = key => {
+  /* ——— переход между вкладками ——— */
+  const switchTab = key=>{
     setTab(key)
-    router.push(`/lk?tab=${key}`, undefined, { shallow: true })
+    router.push(`/lk?tab=${key}`,undefined,{shallow:true})
   }
 
-  const logout = async () => {
-    await fetch('/api/logout', { method: 'POST' })
-    router.replace('/')
-  }
+  /* ——— выход ——— */
+  const logout = ()=>fetch('/api/logout',{method:'POST'}).then(()=>router.replace('/'))
 
-  if (!user) {
-    return (
-      <main style={{ padding:'2rem', maxWidth:600, margin:'0 auto' }}>
-        <h2>Авторизация</h2>
-        <p>Войдите через Telegram:</p>
-        <div dangerouslySetInnerHTML={{ __html: `
+  /* ——— нет Telegram-авторизации ——— */
+  if (!user) return (
+    <main style={{padding:'2rem',maxWidth:600,margin:'0 auto'}}>
+      <h2>Авторизация</h2>
+      <p>Войдите через Telegram:</p>
+      <div dangerouslySetInnerHTML={{__html:`
 <script async src="https://telegram.org/js/telegram-widget.js?15"
-  data-telegram-login="ZeteticID_bot"
-  data-size="large"
-  data-userpic="true"
-  data-lang="ru"
-  data-request-access="write"
-  data-auth-url="/api/auth"></script>` }} />
-      </main>
-    )
-  }
+ data-telegram-login="ZeteticID_bot" data-size="large" data-userpic="true"
+ data-lang="ru" data-request-access="write" data-auth-url="/api/auth"></script>`}}/>
+    </main>
+  )
 
-  useEffect(() => {
-    supabase
-      .from('citizens')
-      .select('*')
-      .eq('telegram_id', user.id)
-      .maybeSingle()
-      .then(({ data }) => setCitizen(data))
-  }, [user])
-
-  useEffect(() => {
+  /* ——— динамическая подгрузка заметок (при открытии другой вкладки браузером) ——— */
+  useEffect(()=>{
     if (!citizen?.id) return
-    supabase
-      .from('daily_progress')
-      .select('*', { count:'exact' })
-      .eq('citizen_id', citizen.id)
-      .then(({ count }) => setProgress(count || 0))
-
-    supabase
-      .from('daily_progress')
-      .select('day_no, notes')
-      .eq('citizen_id', citizen.id)
-
-      .then(({ data })=>{
-        const m = { ...notesMap };          // не теряем ранее показанное
-        data?.forEach(r => { if (r.notes) m[r.day_no] = r.notes });
-        setNotesMap(m);
+    supabase                                     // ⚡ повторяем только при refocus/vis-change
+      .from('daily_progress')                    //    чтобы не держать веб-сокет постоянно
+      .select('day_no,notes')
+      .eq('citizen_id',citizen.id)
+      .then(({data})=>{
+        const m={...notesMap}
+        data?.forEach(r=>{ if(r.notes) m[r.day_no]=r.notes })
+        setMap(m)
       })
-  }, [citizen])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[router.asPath])                              // ⚡ а не [citizen] -> избавились от лишних вызовов
 
+  /* ——— UI ——— */
   return (
     <>
       <Head><title>Личный кабинет • Terra Zetetica</title></Head>
-      <main style={{ maxWidth:800, margin:'2rem auto', padding:'0 1rem' }}>
-        <header style={{ display:'flex', justifyContent:'space-between', marginBottom:20 }}>
+
+      <main style={{maxWidth:860,margin:'2rem auto',padding:'0 1rem'}}>
+        {/* шапка */}
+        <header style={{display:'flex',justifyContent:'space-between',marginBottom:20}}>
           <strong>Здравствуйте, {user.first_name}!</strong>
           <button onClick={logout} className="btn-secondary">Выйти</button>
         </header>
 
-        <nav style={{ display:'flex', gap:12, marginBottom:18 }}>
-          {[ 
-            { key:'profile',  label:'🙏 Профиль' },
-            { key:'passport', label:'📜 Паспорт / 🏠 Челлендж' },
-            { key:'progress', label:'📈 Прогресс' }
-          ].map(t => (
-            <button
-              key={t.key}
-              onClick={() => switchTab(t.key)}
+        {/* вкладки */}
+        <nav style={{display:'flex',gap:12,marginBottom:18}}>
+          {[
+            ['profile' ,'🙏 Профиль'],
+            ['passport','📜 Паспорт / 🏠 Челлендж'],
+            ['progress','📈 Прогресс']
+          ].map(([k,l])=>(
+            <button key={k} onClick={()=>switchTab(k)}
               style={{
                 padding:'0.5rem 0.9rem',
                 borderRadius:6,
-                border: tab===t.key ? '2px solid #6c63ff' : '1px solid #ccc',
-                background: tab===t.key ? '#f0f0ff' : '#fff',
-                cursor:'pointer'
-              }}
-            >{t.label}</button>
+                border: tab===k?'2px solid #6c63ff':'1px solid #ccc',
+                background: tab===k?'#f0f0ff':'#fff'
+              }}>{l}</button>
           ))}
         </nav>
 
+        {/* ——— 1. ПРОФИЛЬ ——— */}
         {tab==='profile' && (
-          <section>
-            <img src={user.photo_url} alt="" width={120} height={120} style={{ borderRadius:8 }}/>
+          <>
+            <img src={user.photo_url} width={120} height={120} style={{borderRadius:8}}/>
             <p>ID Telegram: <b>{user.id}</b></p>
-            {user.username && <p>Username: <b>@{user.username}</b></p>}
-            <p><b>Запись в БД:</b> {citizen ? '✔️ есть' : '❌ нет'}</p>
-
-            <p><b>Статус:</b> {citizen?.status==='valid' ? '✅ Гражданин' : citizen?.status === 'guest'? '👤 Гость' : '❓'}</p>
-          </section>
+            {!!user.username && <p>Username: <b>@{user.username}</b></p>}
+            <p><b>Запись в БД:</b> {citizen ? '✔️' : '❌'}</p>
+            {citizen && (
+              <p><b>Статус:</b> {citizen.status==='valid'
+                  ? '✅ Гражданин'
+                  : citizen.status==='guest' ? '👤 Гость' : '❓'}</p>
+            )}
+          </>
         )}
 
-      {tab === 'passport' && (
-        <section>
-          {/* Если пользователь в БД */}
-          {citizen ? (
-            <>
-              <p>
-                <strong>Z-ID:</strong>&nbsp;
-                {citizen.zetetic_id || '—'}
-              </p>
-              <p>
-                <strong>IPFS:</strong>&nbsp;
-                {citizen.ipfs_url
-                  ? <a href={citizen.ipfs_url} target="_blank" rel="noreferrer">ссылка</a>
-                  : '—'
-                }
-              </p>
+        {/* ——— 2. ПАСПОРТ/ЧЕЛЛЕНДЖ ——— */}
+        {tab==='passport' && (
+          <>
+            {citizen ? (
+              <>
+                <p><strong>Z-ID:</strong> {citizen.zetetic_id||'—'}</p>
 
-              {/* Для неактивных граждан — кнопка старта */}
-              {citizen.challenge_status === 'inactive' && (
-                <button
-                  onClick={() =>
-                    fetch('/api/challenge/start', { method:'POST' })
-                      .then(()=>router.push('/challenge?day=1'))
-                  }
-                  className="btn primary"
-                >
-                  🚀 Начать челлендж
-                </button>
-              )}
+                {citizen.challenge_status==='inactive' && (
+                  <button className="btn primary"
+                          onClick={()=>fetch('/api/challenge/start',{method:'POST'})
+                                       .then(()=>router.push('/challenge?day=1'))}>
+                    🚀 Начать челлендж
+                  </button>
+                )}
 
-              {/* Для активных граждан — статус участия */}
-              {citizen.challenge_status === 'active' && (
-                <p style={{ marginTop:16, color:'#007bff' }}>
-                  🏠 Вы участвуете в акции&nbsp;
-                  <Link href="/dom"><a style={{textDecoration:'underline'}}>«Дом за доказательство шара»</a></Link>.<br/>
-                  Прогресс — {progress}/14&nbsp;дней
-                </p>
-              )}
+                {citizen.challenge_status==='active'   && <p>⏳ Пройдено {progress}/14</p>}
+                {citizen.challenge_status==='finished' && <p style={{color:'green'}}>🎉 Челлендж пройден!</p>}
+              </>
+            ):(
+              <button className="btn primary"
+                      onClick={()=>fetch('/api/challenge/start',{method:'POST'})
+                                   .then(()=>router.push('/challenge?day=1'))}>
+                🚀 Присоединиться к челленджу
+              </button>
+            )}
+          </>
+        )}
 
-              {/* Для завершивших — поздравление */}
-              {citizen.challenge_status === 'finished' && (
-                <p style={{ marginTop:16, color:'green' }}>
-                  🎉 Вы успешно прошли челлендж и можете подать доказательство «шара»!
-                </p>
-              )}
-            </>
-          ) : (
-            /* Если пользователь авторизован, но ещё нет записи в БД */
-            <button
-              onClick={() =>
-                fetch('/api/challenge/start', { method:'POST' })
-                  .then(()=>router.push('/challenge?day=1'))
-              }
-              className="btn primary"
-            >
-              🚀 Присоединиться к челленджу
-            </button>
-          )}
-        </section>
-      )}
-
-
+        {/* ——— 3. ПРОГРЕСС ——— */}
         {tab==='progress' && (
-          <section>
-            <p><h2 style={{margin:'1rem 0'}}>🏠 Челлендж «Докажи шар»</h2>
-<br/>
-            Дней пройдено: <b>{progress}</b> / 14</p>
-            <div style={{ background:'#eee', height:12, borderRadius:6, maxWidth:400 }}>
+          <>
+            <h2 style={{margin:'1rem 0'}}>🏠 Челлендж «Докажи шар»</h2>
+            <p>Дней пройдено: <b>{progress}</b> / 14</p>
+            <div style={{background:'#eee',height:12,borderRadius:6,maxWidth:400}}>
               <div style={{
-                width:`${(progress/14)*100}%`, height:'100%', background:'#6c63ff', borderRadius:6
+                width:`${progress/14*100}%`,
+                height:'100%',background:'#6c63ff',borderRadius:6
               }}/>
             </div>
 
-
-
-            {progress === 14 && (
-              <form
-                onSubmit={async e=>{
-                  e.preventDefault()
-                  const txt = e.target.fb.value.trim()
-                  if (!txt) return
-                  const r  = await fetch('/api/feedback',{
-                    method :'POST',
-                    headers:{'Content-Type':'application/json'},
-                    body   : JSON.stringify({ text:txt })
-                  })
-                  const j = await r.json()
-                  if (j.ok) {
-                    alert('Спасибо! Отправлено.')             // ✅
-                    e.target.reset()
-                  } else {
-                    alert('Упс! '+(j.err||'Сервер не ответил'))
-                  }
-                }}
-                style={{marginTop:32,maxWidth:500}}
-              >
-                <h4>💬 Обратная связь</h4>
-                <textarea name="fb" rows={4} maxLength={1000} style={{width:'100%',marginBottom:8}}/>
-                <button className="btn primary">Отправить</button>
-              </form>
-            )}
-
-           <button className="btn-link"
-                   onClick={()=>router.push(`/challenge?day=${Math.max(progress,1)}`)}>
-             ↩️ Перейти к текущему дню
-           </button>
+            <button className="btn-link" style={{marginTop:12}}
+                    onClick={()=>router.push(`/challenge?day=${Math.max(progress,1)}`)}>
+              ↩️ К текущему дню
+            </button>
 
             {progress>0 && (
-
-              <div style={{ marginTop:24 }}>
-                <h4>Заметки по дням</h4>
+              <>
+                <h4 style={{marginTop:24}}>Заметки по дням</h4>
                 <ul className="notes-list">
-                  {Array.from({ length: progress }).map((_, i) => (
+                  {Array.from({length:progress}).map((_,i)=>(
                     <li key={i}>
-                      <button
-                        onClick={()=>router.push(`/challenge?day=${i+1}`)}
-                        className="btn-link"
-                      >
+                      <button className="btn-link"
+                              onClick={()=>router.push(`/challenge?day=${i+1}`)}>
                         День {i+1}
                       </button>{' '}
-
-                      <i>{notesMap[i+1] || '– нет –'}</i>
+                      <i>{notesMap[i+1]||'— нет —'}</i>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </>
             )}
-          </section>
+          </>
         )}
       </main>
     </>
   )
 }
 
-export async function getServerSideProps({ req }) {
-  const { tg, cid } = parse(req.headers.cookie || '')
-  const user   = tg  ? JSON.parse(Buffer.from(tg,'base64').toString()) : null
+/* ────────────── SSR ────────────── */
+export async function getServerSideProps({ req }){
+  const { tg, cid } = parse(req.headers.cookie||'')
+  const user = tg ? JSON.parse(Buffer.from(tg,'base64').toString()) : null
 
-  if (!cid) return { props:{ user, citizen:null, progress:0, notes:{} } }
+  /* без авторизации показываем только Telegram-логин */
+  if (!cid) return { props:{ user, citizen:null, progress:0, notesJSON:'{}' } }
 
-  const [{ data: citizen }, { data: prgs }] = await Promise.all([
-    supabase.from('citizens'      ).select('*').eq('id',cid).single(),
+  /* читаем гражданина и прогресс */
+  const [{ data: citizen, error:ce }, { data: prgs, error:pe }] = await Promise.all([
+    supabase.from('citizens').select('*').eq('id',cid).maybeSingle(),
     supabase.from('daily_progress').select('day_no,notes').eq('citizen_id',cid)
   ])
 
-  const notes = {}
-  prgs.forEach(r=>{ if(r.notes) notes[r.day_no]=r.notes })
+  if (ce || pe){
+    console.error('LK-SSR:',ce||pe)                  // ⚡ логируем для Vercel-logs
+    return { props:{ user, citizen:null, progress:0, notesJSON:'{}' } }
+  }
 
-  return { props:{ user, citizen, progress:prgs.length, notes:JSON.stringify(notes) } }
+  const rows = Array.isArray(prgs) ? prgs : []
+  const notes={}
+  rows.forEach(r=>{ if(r.notes) notes[r.day_no]=r.notes })
+
+  return {
+    props:{
+      user,
+      citizen: citizen||null,
+      progress: rows.length,
+      notesJSON: JSON.stringify(notes)
+    }
+  }
 }
-
