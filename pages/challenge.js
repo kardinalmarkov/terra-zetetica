@@ -59,7 +59,7 @@ export default function ChallengePage ({ dayNo, material, watched }) {
   const { mutate } = useMe();
 
   const [isDone, setDone] = useState(watched);
-  const [note,   setNote] = useState(material.notes);
+  const [note,   setNote] = useState(material.notes || '');
   const [left,   setLeft] = useState(null);      // msec
 
   /* динамически подгружаем confetti только в браузере */
@@ -67,6 +67,13 @@ export default function ChallengePage ({ dayNo, material, watched }) {
     const { default: confetti } = await import('canvas-confetti');
     confetti({ particleCount:200, spread:80 });
   }
+
+  /* ───── С-инхронизация state ⇄ props при смене дня ───── */
+  useEffect(()=>{
+    /* когда пришёл другой день – берём “свежие” данные */
+    setNote(material.notes || '');
+    setDone(watched);
+  },[dayNo, material.notes, watched]);
 
   useEffect(()=>{
     if (isDone && dayNo === 14) fireConfetti();
@@ -93,6 +100,7 @@ export default function ChallengePage ({ dayNo, material, watched }) {
 
     if (r.ok){
       if (!saveOnly) setDone(true);
+      else alert('💾 Сохранено');
       mutate();                    // invalidate /api/me
     } else alert('Ошибка: '+(r.error||'unknown'));
   }
@@ -122,7 +130,7 @@ export default function ChallengePage ({ dayNo, material, watched }) {
       </div>
 
       {/* таймер (показываем только >0) */}
-      {left>0 && (
+      {left && left>0 && (
         <p style={{ color:'#555', margin:'8px 0 18px' }}>
           ⏰ Следующий день откроется через <b>{fmt(left)}</b>
         </p>
