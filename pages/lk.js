@@ -67,7 +67,7 @@ export default function LK({ user, notes = '{}' }) {
       .select('day_no, notes')
       .eq('citizen_id', citizen.id)
       .then(({ data }) => {
-        const m = {}
+        const m = {...notesMap}
         data.forEach(r => { if (r.notes) m[r.day_no] = r.notes })
         setNotesMap(m)
       })
@@ -177,7 +177,8 @@ export default function LK({ user, notes = '{}' }) {
 
         {tab==='progress' && (
           <section>
-            <p>🏠 Челлендж «Дом за доказательство шара»<br/>
+            <p><h2 style={{margin:'1rem 0'}}>🏠 Челлендж «Докажи шар»</h2>
+<br/>
             Дней пройдено: <b>{progress}</b> / 14</p>
             <div style={{ background:'#eee', height:12, borderRadius:6, maxWidth:400 }}>
               <div style={{
