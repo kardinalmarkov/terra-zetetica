@@ -1,12 +1,10 @@
-// pages/challenge.js
-// v3.0 • 18 Jun 2025
+// pages/challenge.js            v3.1 • 18 Jun 2025
 //
-// ──────────────────────────────────────────────────────────────
-//  • day N открывается, когда прошло ≥ (N-1)×24 часов c момента
-//    challenge_started_at (ставится в /api/challenge/start)
-//  • предыдущий день должен быть отмечен «изучен» (иначе редирект)
-//  • фикс build-ошибки (✔️ и «unterminated string»)
-// ──────────────────────────────────────────────────────────────
+// • Если challenge_started_at нет – берём время первого (!) прохождения
+//   1-го дня (watched_at)                                           ★
+// • Если и его нет – разблокировка строится только по правилу
+//   «предыдущий день должен быть закрыт»                            ★
+// • В остальном логика прежняя – 14 кружков, заметки, навигация.
 
 import { useState, useEffect } from 'react'
 import { useRouter }          from 'next/router'
@@ -24,53 +22,66 @@ export async function getServerSideProps ({ query, req }) {
   const day = Math.min(Math.max(+query.day || 1, 1), 14)
   const { supabase } = await import('../lib/supabase')
 
-  /* читаем материал и строку прогресса пользователя  */
-  const [{ data: mat }, { data: prg }] = await Promise.all([
+  /* материал дня + заметка + факт просмотра */
+  const [
+    { data: mat },
+    { data: prg },                              // заметка / watched_at текущего дня
+    { data: all }                              // весь прогресс пользователя
+  ] = await Promise.all([
     supabase.from('daily_materials')
             .select('*').eq('day_no', day).maybeSingle(),
     supabase.from('daily_progress')
             .select('notes, watched_at')
             .match({ citizen_id: cid, day_no: day })
-            .maybeSingle()
+            .maybeSingle(),
+    supabase.from('daily_progress')
+            .select('day_no, watched_at')
+            .eq('citizen_id', cid)
   ])
 
   if (!mat)
     return { redirect:{ destination:'/lk?tab=progress', permanent:false } }
 
-  /* когда пользователь стартовал челлендж */
+  /* ---------- вычисляем максимальный «разрешённый» день ---------- */
+
+  /* ① старт челленджа (может быть null) */
   const { data: citizen } = await supabase
     .from('citizens')
     .select('challenge_started_at')
     .eq('id', cid)
     .single()
 
-  const started = citizen?.challenge_started_at
-        ? new Date(citizen.challenge_started_at)
-        : new Date()            // fallback — не должен случаться
+  /* ② если challenge_started_at нет – ищем watched_at у 1-го дня ★ */
+  const startedAt =
+        citizen?.challenge_started_at ??
+        all.find(r=>r.day_no===1)?.watched_at ?? null      // может быть null
 
-  const hoursGone = (Date.now() - started.getTime()) / 3.6e6
-  const allowedDay = Math.floor(hoursGone / 24) + 1          // 1-based
+  /* ③ разрешение «по времени» — только если знаем дату старта */
+  let allowedByTime = 1
+  if (startedAt){
+    const hours = (Date.now() - new Date(startedAt).getTime()) / 3.6e6
+    allowedByTime = Math.floor(hours / 24) + 1
+  }
+
+  /* ④ разрешение «по завершённым дням» («+1 к последнему закрытому») */
+  const lastDone   = all.reduce((m,r)=> r.watched_at ? Math.max(m,r.day_no) : m, 0)
+  const allowedByDone = lastDone + 1
+
+  /* ⑤ окончательно разрешённый день — минимум из двух правил ★ */
+  const allowedDay = Math.max(allowedByTime, allowedByDone)
 
   if (day > allowedDay)
     return { redirect:{ destination:'/lk?tab=progress', permanent:false } }
 
-  /* плюс проверяем, что предыдущий день реально закрыт */
-  if (day > 1 && !prg?.watched_at) {
-    const { data: prev } = await supabase
-      .from('daily_progress')
-      .select('watched_at')
-      .match({ citizen_id: cid, day_no: day - 1 })
-      .maybeSingle()
-
-    if (!prev)
-      return { redirect:{ destination:'/lk?tab=progress', permanent:false } }
-  }
+  /* пред. день должен быть отмечен – правило осталось */
+  if (day > 1 && !all.find(r=>r.day_no===day-1 && r.watched_at))
+    return { redirect:{ destination:'/lk?tab=progress', permanent:false } }
 
   return {
     props:{
       dayNo   : day,
       material: { ...mat, notes: prg?.notes ?? '' },
-      watched : Boolean(prg)
+      watched : Boolean(prg?.watched_at)
     }
   }
 }
@@ -84,22 +95,22 @@ export default function ChallengePage ({ dayNo, material, watched }) {
   const [note,setNote  ] = useState(material.notes)
   const [saved,setSaved ] = useState(false)
 
-  /* при смене дня синхронизируем state */
+  /* синхронизация при смене дня */
   useEffect(()=>{
     setDone(watched)
     setNote(material.notes)
     setSaved(false)
-  },[router.asPath])           //eslint-disable-line react-hooks/exhaustive-deps
+  },[router.asPath])                         // eslint-disable-line
 
-  /* confetti – только в браузере и только после 14 дня */
+  /* конфетти на 14-й день */
   useEffect(()=>{
-    if (isDone && dayNo===14){
-      import('canvas-confetti').then(({default:confetti})=>
-        confetti({particleCount:180,spread:70}))
-    }
+    if (isDone && dayNo===14)
+      import('canvas-confetti')
+        .then(m=>m.default({particleCount:180,spread:70}))
   },[isDone,dayNo])
 
-  async function submit({saveOnly=false}={}) {
+  /* сохранить заметку / отметить изучение */
+  async function submit ({ saveOnly=false }={}) {
     const r = await fetch('/api/challenge/mark',{
       method :'POST',
       headers:{'Content-Type':'application/json'},
@@ -109,7 +120,7 @@ export default function ChallengePage ({ dayNo, material, watched }) {
     if (r.ok){
       if (!saveOnly) setDone(true)
       setSaved(true); setTimeout(()=>setSaved(false),2000)
-      mutate()                         // обновим /api/me
+      mutate()                               // обновим /api/me
     } else alert('Ошибка: '+(r.error||'unknown'))
   }
 
