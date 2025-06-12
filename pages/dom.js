@@ -1,5 +1,6 @@
 // pages/dom.js
 import Head from 'next/head'
+import Link from 'next/link'     // ← раньше импорта не было!
 import useMe from '../utils/useMe'
 
 export default function Dom() {
