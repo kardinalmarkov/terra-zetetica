@@ -11,7 +11,7 @@ export default function LK({ user }) {
   const router = useRouter()
   const [citizen, setCitizen] = useState(null)
   const [progress, setProgress] = useState(0)
-  const [notesMap, setNotesMap] = useState({})
+  const [notesMap, setNotesMap] = useState(JSON.parse(props.notes||'{}'))
   const [tab, setTab] = useState(router.query.tab || 'profile')
 
   useEffect(() => {
@@ -269,6 +269,6 @@ export async function getServerSideProps({ req }) {
   const notes = {}
   prgs.forEach(r=>{ if(r.notes) notes[r.day_no]=r.notes })
 
-  return { props:{ user, citizen, progress:prgs.length, notes } }
+  return { props:{ user, citizen, progress:prgs.length, notes:JSON.stringify(notes) } }
 }
 

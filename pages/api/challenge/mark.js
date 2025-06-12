@@ -20,5 +20,5 @@ export default async function handler (req, res) {
     .update({ challenge_status:'active' })
     .eq('id',cid).in('challenge_status',['inactive',null])
 
-  res.json({ ok:true })
+  res.json({ ok:true, note })
 }

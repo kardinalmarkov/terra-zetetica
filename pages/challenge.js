@@ -20,12 +20,24 @@ export async function getServerSideProps ({ query, req }) {
   // если пользователь не залогинен – отправляем авторизоваться
   if (!tg) return { redirect:{ destination:'/lk', permanent:false } }
 
-  // материал дня
-  const { data: material } = await supabase
-    .from('daily_materials')
-    .select('*')
-    .eq('day_no', dayNo)
-    .single()
+
+
+  /* материал + факт «уже смотрел» + сохранённую заметку */
+  const [{ data: material }, { data: prg }] = await Promise.all([
+    supabase
+      .from('daily_materials')
+      .select('*')
+      .eq('day_no', dayNo)
+      .single(),
+    supabase
+      .from('daily_progress')
+      .select('notes')
+      .match({ citizen_id: parse(req.headers.cookie||'').cid, day_no: dayNo })
+      .maybeSingle()
+  ])
+
+  material.watched = !!prg
+  material.note    = prg?.notes || ''
 
   /* если day открывается позже – пушим в ЛК */
   if (material.unlock_at && new Date(material.unlock_at) > Date.now())
@@ -40,7 +52,7 @@ export default function ChallengePage ({ dayNo, material }) {
   const { data:{ citizen } = {} } = useMe()
 
   const [done, setDone]     = useState(false)
-  const [note , setNote]    = useState('')
+  const [note , setNote]    = useState(material.note || '')
   const [left , setLeft]    = useState(null)          // ms до открытия d+1
 
   /* обратный счёт до следующего дня */
@@ -84,6 +96,11 @@ export default function ChallengePage ({ dayNo, material }) {
           <li key={i} className={i<dayNo-1 ? 'done' : i===dayNo-1&&done ? 'done':'todo'}/>
         ))}
       </ul>
+
+      {/* ← назад */}
+      <p style={{marginTop:24}}>
+        <button className="btn-link" onClick={()=>r.push('/lk?tab=progress')}>← К прогрессу</button>
+      </p>
 
       {/* таймер до завтра */}
       {left!==null && !done && (
