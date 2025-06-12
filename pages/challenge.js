@@ -1,12 +1,13 @@
-// pages/challenge.js
-//
-// Страница «День N» ─ пользовательский шаг 14-дневного челленджа.
-//  ✅  ▸   видно таймер до N+1, но ТОЛЬКО пока текущий день не помечен как «изучен»
-//  ✅  ▸   после отметки — кнопка исчезает, выводим “Материал изучен”
-//  ✅  ▸   навигация: «← Назад» (к списку прогресса) + «→ день N+1»
-//  ✅  ▸   поле заметки всегда видно (гость тоже может писать, maxLength=1000)
-//  ✅  ▸   прогресс-бар из 14 точек
-//  ✅  ▸   салют confetti на 14-м дне
+// pages/challenge.js  —  v2.4 (12 Jun 2025)
+/*
+  ▸ фикс «watched»  – раньше день считался непройденным,
+    если заметка была пустая → появлялась лишняя кнопка + таймер 0 ч 0 мин
+  ▸ добавлена отдельная кнопка «💾 Сохранить заметку»
+  ▸ таймер теперь рисуем только если left > 0
+  ▸ навигация: «← Назад» и иконка «📈 Прогресс»
+  ▸ progress-dots красятся по факту записи в daily_progress,
+    а не по наличию заметки
+*/
 
 import { useState, useEffect } from 'react'
 import { useRouter }           from 'next/router'
@@ -16,134 +17,145 @@ import DayMaterial             from '../components/DayMaterial'
 import useMe                   from '../utils/useMe'
 
 /* ─────────────  SSR  ───────────── */
-export async function getServerSideProps({ query, req }) {
+export async function getServerSideProps ({ query, req }) {
   const { tg, cid } = (await import('cookie')).parse(req.headers.cookie ?? '')
   if (!tg || !cid) return { redirect:{ destination:'/lk', permanent:false } }
 
-  const dayNo = Math.min(Math.max(+query.day || 1, 1), 14)
+  const day = Math.min(Math.max(+query.day || 1, 1), 14)
   const { supabase } = await import('../lib/supabase')
 
-  /** берём материал дня и существующую заметку пользователя одновременно */
+  // материал + факт наличия строки progress (заметка может быть пустая)
   const [{ data: mat }, { data: prg }] = await Promise.all([
-    supabase.from('daily_materials').select('*').eq('day_no', dayNo).single(),
-    supabase.from('daily_progress').select('notes')
-            .match({ citizen_id: cid, day_no: dayNo }).maybeSingle()
+    supabase.from('daily_materials').select('*').eq('day_no', day).single(),
+    supabase.from('daily_progress' ).select('notes').match({ citizen_id:cid, day_no:day }).maybeSingle()
   ])
 
-  const material = { ...mat, note: prg?.notes || '' }
-
-  // если день ещё «заперт» (unlock_at в будущем) — в Прогресс
-  if (material.unlock_at && new Date(material.unlock_at) > Date.now()) {
+  // если день ещё заперт → в ЛК
+  if (mat.unlock_at && new Date(mat.unlock_at) > Date.now())
     return { redirect:{ destination:'/lk?tab=progress', permanent:false } }
+
+  return {
+    props:{
+      dayNo   : day,
+      material: {
+        ...mat,
+        notes : prg?.notes ?? '',   // строка заметки (может быть '')
+      },
+      watched : Boolean(prg)        // ← ключевая правка
+    }
   }
-  return { props:{ dayNo, material } }
 }
 
 /* ─────────────  CSR  ───────────── */
-export default function ChallengePage({ dayNo, material }) {
-  const router              = useRouter()
-  const { mutate }          = useMe()           // пригодится позже, чтобы /api/me «обновился»
-  const [watched, setWatch] = useState(Boolean(material.note))
-  const [note,    setNote ] = useState(material.note)
-  const [left,    setLeft ] = useState(null)    // мс до открытия следующего дня
+export default function ChallengePage ({ dayNo, material, watched: watchedSSR }) {
 
-  /* таймер запускаем только пока день не отмечен как изученный */
-  useEffect(() => {
-    if (watched || dayNo === 14 || !material.unlock_at) return
-    const id = setInterval(
-      () => setLeft(Math.max(0, new Date(material.unlock_at) - Date.now())),
-      1000
-    )
-    return () => clearInterval(id)
-  }, [watched, dayNo, material.unlock_at])
+  const router        = useRouter()
+  const { mutate }    = useMe()          // обновляем /api/me после отметки
+  const [watched,setW]= useState(watchedSSR)
+  const [note,   setN]= useState(material.notes)
+  const [left,   setL]= useState(null)   // мс до открытия N+1
 
-  /* салют по завершении всего курса */
-  useEffect(() => {
-    if (watched && dayNo === 14) confetti({ particleCount:200, spread:80 })
-  }, [watched, dayNo])
+  /* таймер до N+1 */
+  useEffect(()=>{
+    if (watched || dayNo===14 || !material.unlock_at) return
+    const t = setInterval(()=> {
+      const ms = new Date(material.unlock_at) - Date.now()
+      setL(ms>0 ? ms : 0)
+    },1000)
+    return ()=>clearInterval(t)
+  },[watched, dayNo, material.unlock_at])
 
-  /** отметка «изучено» + сохранение заметки */
-  async function handleDone() {
-    const r = await fetch('/api/challenge/mark', {
+  /* салют на финальном дне */
+  useEffect(()=>{ if (watched && dayNo===14) confetti({particleCount:200,spread:80}) },
+             [watched, dayNo])
+
+  /* POST /mark — отметка + заметка */
+  async function handleDone (saveOnly=false) {
+    const r = await fetch('/api/challenge/mark',{
       method :'POST',
       headers:{'Content-Type':'application/json'},
-      body   : JSON.stringify({ day: dayNo, note })
+      body   : JSON.stringify({ day:dayNo, note })
     }).then(r=>r.json())
 
-    if (r.ok) {
-      setWatch(true)
-      mutate()                    // обновить /api/me → прогресс-бар в ЛК синхронен
-    } else alert('Ошибка сервера: '+(r.error||'unknown'))
+    if (r.ok){
+      if (!saveOnly) setW(true)
+      mutate()                   // подтягиваем прогресс-бар в ЛК
+    } else alert('Ошибка: '+(r.error||'unknown'))
   }
 
-  /* helper – часы/минуты */
   const fmt = ms => {
-    const h = Math.floor(ms/3600000)
-    const m = Math.floor(ms/60000)%60
+    const h = Math.floor(ms/3.6e6)
+    const m = Math.floor(ms/6e4)%60
     return `${h} ч ${m} мин`
   }
 
-  /* ─────────────  UI  ───────────── */
+  /* ─────────────  JSX  ───────────── */
   return (
     <main style={{maxWidth:900,margin:'0 auto',padding:'1rem'}}>
       <Head><title>День {dayNo} • Terra Zetetica</title></Head>
 
-      {/* собственно контент дня */}
       <DayMaterial material={material}/>
 
-      {/* прогресс-бар */}
-      <ul className="dots">
+      {/* 14 точек */}
+      <div className="progress-wrapper" style={{margin:'20px 0 8px'}}>
         {Array.from({length:14}).map((_,i)=>(
-          <li key={i}
-              className={i<dayNo-1 || (i===dayNo-1 && watched) ? 'done' : 'todo'}/>
+          <span key={i}
+                style={{
+                  width:12,height:12,borderRadius:'50%',
+                  background: i < dayNo-1 || (i===dayNo-1&&watched)
+                               ? '#28a745' : '#c4c4c4'
+                }}/>
         ))}
-      </ul>
+      </div>
 
-      {/* таймер до следующего дня – пока не нажали «изучил» */}
-      {left!==null && !watched && (
-        <p style={{color:'#666',margin:'6px 0 24px',fontSize:15}}>
-          ⏰&nbsp;Следующий день откроется через&nbsp;<b>{fmt(left)}</b>
+      {/* таймер, только если реально > 0 мс */}
+      {!watched && left>0 && (
+        <p style={{color:'#666',fontSize:15,marginBottom:16}}>
+          ⏰ Следующий день откроется через&nbsp;<b>{fmt(left)}</b>
         </p>
       )}
 
-      {/* заметка – поле доступно ВСЕГДА, даже гостю */}
-      <h3 style={{marginTop:28}}>💾 Ваша заметка</h3>
-      <textarea
-        rows={4}
-        maxLength={1000}
-        style={{width:'100%',marginBottom:12}}
-        value={note}
-        onChange={e=>setNote(e.target.value)}
-      />
+      {/* заметка */}
+      <h3 style={{margin:'24px 0 6px'}}>💾 Ваша заметка</h3>
+      <textarea rows={4}
+                maxLength={1000}
+                value={note}
+                onChange={e=>setN(e.target.value)}
+                style={{width:'100%',marginBottom:10}}/>
 
-      {/* если ещё не отмечен – кнопка, иначе надпись */}
-      {!watched
-        ? <button className="btn primary" onClick={handleDone}>
-            ✔️ Я осознанно изучил материал
-          </button>
-        : <p style={{marginTop:8,color:'#28a745',fontWeight:600}}>
-            ✅ Материал изучен
-          </p>}
+      {/* кнопки под заметкой */}
+      <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+        <button className="btn primary"
+                onClick={()=>handleDone(true)}>💾 Сохранить заметку</button>
+
+        {!watched
+          ? <button className="btn primary"
+                    onClick={()=>handleDone(false)}>
+              ✔️ Я осознанно изучил материал
+            </button>
+          : <span style={{alignSelf:'center',color:'#28a745',fontWeight:600}}>
+              ✅ Материал изучен
+            </span>}
+      </div>
 
       {/* навигация снизу */}
-      <nav style={{marginTop:32,fontSize:18,display:'flex',justifyContent:'space-between'}}>
+      <nav style={{marginTop:32,fontSize:18,display:'flex',
+                  justifyContent:'space-between',alignItems:'center'}}>
         <button className="btn-link"
-                onClick={()=>router.push('/lk?tab=progress')}>← Назад</button>
+                onClick={()=>router.back()}>← Назад</button>
 
-        {dayNo<14 && watched && (!left || left<=0) && (
+        <button className="btn-link"
+                onClick={()=>router.push('/lk?tab=progress')} title="Прогресс">
+          📈 
+        </button>
+
+        {dayNo<14 && watched && (!left||left<=0) && (
           <button className="btn-link"
                   onClick={()=>router.push(`/challenge?day=${dayNo+1}`)}>
             день {dayNo+1} →
           </button>
         )}
       </nav>
-
-      {/* точечки */}
-      <style jsx>{`
-        .dots{display:flex;gap:6px;list-style:none;padding:0;margin:26px 0 8px;justify-content:center}
-        .dots li{width:12px;height:12px;border-radius:50%;background:#ccc}
-        .dots li.done{background:#28a745}
-      `}</style>
     </main>
   )
 }

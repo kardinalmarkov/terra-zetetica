@@ -66,9 +66,9 @@ export default function LK({ user, notes = '{}' }) {
       .from('daily_progress')
       .select('day_no, notes')
       .eq('citizen_id', citizen.id)
-      .then(({ data }) => {
-        const m = {...notesMap}
-        data.forEach(r => { if (r.notes) m[r.day_no] = r.notes })
+      .then(({ data })=>{
+        const m = {...notesMap}          // не теряем уже загруженное
+        data?.forEach(r => { if (r.notes) m[r.day_no] = r.notes })
         setNotesMap(m)
       })
   }, [citizen])
