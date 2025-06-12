@@ -1,21 +1,16 @@
 // pages/challenge.js
 // ──────────────────────────────────────────────────────────────────────────────
-// Страница «День N» + тай-аут до открытия следующего дня + прогресс-бар
-import { useEffect, useState } from 'react'
-import { useRouter }            from 'next/router'
-import Head                     from 'next/head'
-import confetti                 from 'canvas-confetti'
-import DayMaterial              from '../components/DayMaterial'
-import { mutate }           from 'swr';
-import { parse }            from 'cookie';
-import { supabase }         from '../lib/supabase';
-import Link                 from 'next/link';
-
-// ⓘ из utils/useMe берём cid, чтобы не тащить его через getServerSideProps
-import useMe from '../utils/useMe'
+import { useEffect, useState }  from 'react';
+import { useRouter }            from 'next/router';
+import Head                     from 'next/head';
+import confetti                 from 'canvas-confetti';
+import DayMaterial              from '../components/DayMaterial';
+import useMe                    from '../utils/useMe';
+import { parse }                from 'cookie';
+import { supabase }             from '../lib/supabase';
 
 // ──────────────────────────────────────────────────────────────────────────────
-export async function getServerSideProps({ req, query }) {
+export async function getServerSideProps ({ req, query }) {
   const { cid } = parse(req.headers.cookie || '');
   if (!cid) return { redirect:{ destination:'/lk', permanent:false } };
 
@@ -35,7 +30,7 @@ export async function getServerSideProps({ req, query }) {
   ]);
 
   return {
-    props: {
+    props:{
       dayNo   : day,
       material: material || {},
       watched : !!prog,
@@ -45,73 +40,71 @@ export async function getServerSideProps({ req, query }) {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-export default function ChallengePage ({ dayNo, material }) {
-  const r                       = useRouter()
-  const { data:{ citizen } = {} } = useMe()
+export default function ChallengePage ({ dayNo, material, watched, notes }) {
+  const router                    = useRouter();
+  const { data:{ citizen } = {} } = useMe();
 
-  const [done, setDone]     = useState(false)
-  const [note , setNote]    = useState('')
-  const [left , setLeft]    = useState(null)          // ms до открытия d+1
+  const [done , setDone ] = useState(watched);
+  const [note , setNote ] = useState(notes);
+  const [left , setLeft ] = useState(null);          // ms до открытия d+1
 
-  /* обратный счёт до следующего дня */
+  /* таймер до открытия следующего дня */
   useEffect(()=>{
-    if (dayNo === 14) return          // для 14-го не нужен таймер
-    const next = new Date(material.unlock_at)
-    const id   = setInterval(()=>setLeft(Math.max(0, next - Date.now())),1000)
-    return ()=>clearInterval(id)
-  },[material.unlock_at, dayNo])
+    if (dayNo === 14 || !material.unlock_at) return;
+    const id = setInterval(()=>{
+      setLeft(Math.max(0, new Date(material.unlock_at) - Date.now()));
+    },1000);
+    return ()=>clearInterval(id);
+  },[material.unlock_at, dayNo]);
 
-  /* фейерверк на 14-й */
+  /* конфетти при закрытии 14-го дня */
   useEffect(()=>{
-    if (dayNo===14 && done) confetti({ particleCount:200, spread:80 })
-  },[dayNo,done])
+    if (dayNo===14 && done) confetti({ particleCount:200, spread:80 });
+  },[dayNo,done]);
 
-  /* отметка «изучил» */
+  /* отправка отметки */
   async function mark () {
     const r = await fetch('/api/challenge/mark',{
       method :'POST',
       headers:{'Content-Type':'application/json'},
-      body   :JSON.stringify({ day:dayNo, note })
-    })
-    const j = await r.json().catch(()=>({}))
-    if (j.ok) setDone(true)
-    else alert('Ошибка: '+(j.error||'unknown'))
+      body   : JSON.stringify({ dayNo: dayNo, notes: note })
+    });
+    const j = await r.json().catch(()=>({}));
+    if (j.ok) {
+      setDone(true);
+    } else {
+      alert('Ошибка: ' + (j.error || 'server'));
+    }
   }
 
-  /* если пользователь уже всё посмотрел – сразу done */
-  useEffect(()=>{ if (material.watched) setDone(true) },[material.watched])
-
-  const [left,setLeft] = useState(null);
-  useEffect(()=>{
-    if(!material.unlock_at) return;
-    const id = setInterval(()=>{
-      setLeft(Math.max(0,new Date(material.unlock_at)-Date.now()));
-    },1000);
-    return ()=>clearInterval(id);
-  },[material.unlock_at]);
-  
-  // ─────────── render
+  // ─────────────────────────────────────────────────────────── UI
   return (
     <main style={{margin:'0 auto',maxWidth:900,padding:'1rem'}}>
       <Head><title>День {dayNo} • Terra Zetetica</title></Head>
 
-      <DayMaterial material={material}/>
+      <DayMaterial material={material} />
 
-      {/* прогресс-бар 14 кружков */}
+      {/* прогресс-бар 14 зелёных/серых точек */}
       <ul className="dots">
         {Array.from({length:14}).map((_,i)=>(
-          <li key={i} className={i<dayNo-1 ? 'done' : i===dayNo-1&&done ? 'done':'todo'}/>
+          <li key={i}
+              className={
+                i <  dayNo-1          ? 'done' :
+                i === dayNo-1 && done ? 'done' : 'todo'
+              }/>
         ))}
       </ul>
 
       {/* таймер до завтра */}
-      {left!==null && !done && (
+      {left>0 && !done && (
         <p style={{color:'#888',margin:'8px 0 24px'}}>
-          Следующий день откроется через {Math.floor(left/3600000)} ч&nbsp;
-          {Math.floor(left/60000)%60} мин
+          🔒 День {dayNo+1} откроется через&nbsp;
+          {Math.floor(left/3600000)}&nbsp;ч&nbsp;
+          {Math.floor(left/60000)%60}&nbsp;мин
         </p>
       )}
 
+      {/* форма заметки + «Я изучил» */}
       {!done && (
         <>
           <h3 style={{marginTop:32}}>💾 Сохранить заметку</h3>
@@ -126,6 +119,15 @@ export default function ChallengePage ({ dayNo, material }) {
             ✔️ Я осознанно изучил материал
           </button>
         </>
+      )}
+
+      {/* кнопка «Следующий день» */}
+      {done && dayNo < 14 && left===0 && (
+        <button
+          className="btn secondary"
+          onClick={()=>router.push(`/challenge?day=${dayNo+1}`)}
+          style={{marginTop:24}}
+        >➡️ День {dayNo+1}</button>
       )}
 
       <style jsx>{`
