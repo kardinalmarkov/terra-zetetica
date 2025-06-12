@@ -256,7 +256,19 @@ export default function LK({ user }) {
 }
 
 export async function getServerSideProps({ req }) {
-  const { tg } = parse(req.headers.cookie || '')
-  const user    = tg ? JSON.parse(Buffer.from(tg,'base64').toString()) : null
-  return { props: { user } }
+  const { tg, cid } = parse(req.headers.cookie || '')
+  const user   = tg  ? JSON.parse(Buffer.from(tg,'base64').toString()) : null
+
+  if (!cid) return { props:{ user, citizen:null, progress:0, notes:{} } }
+
+  const [{ data: citizen }, { data: prgs }] = await Promise.all([
+    supabase.from('citizens'      ).select('*').eq('id',cid).single(),
+    supabase.from('daily_progress').select('day_no,notes').eq('citizen_id',cid)
+  ])
+
+  const notes = {}
+  prgs.forEach(r=>{ if(r.notes) notes[r.day_no]=r.notes })
+
+  return { props:{ user, citizen, progress:prgs.length, notes } }
 }
+
