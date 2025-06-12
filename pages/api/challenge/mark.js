@@ -5,7 +5,7 @@
 //  ▸ upsert → «одно из двух»: либо insert c датой, либо update без даты
 //
 
-import { supabase } from '../../lib/supabase'   // ← два уровня вверх из /pages/api/*
+import { supabase } from '../../../lib/supabase'   // ← два уровня вверх из /pages/api/*
 
 export default async function handler(req, res) {
   if (req.method !== 'POST')
