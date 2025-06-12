@@ -623,10 +623,3 @@ ul.notes-list{padding-left:1.1rem}            /* новый класс */
 /* styles/globals.css ─ слегка «отодвинули» список */
 .notes-list{padding-left:18px}
 
-/* на мобилке списки не прилипают к краю */
-ul.day-list,
-ul.notes-list { padding-left: 1.1rem; }
-@media(max-width:640px){ ul.notes-list{ padding-left:1.3rem } }
-
-/* фикса Safari-touch внутри progress-wrapper */
-.progress-wrapper{ overflow:visible!important }
