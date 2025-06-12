@@ -7,11 +7,11 @@ import { useState, useEffect } from 'react'
 import ClipLoader    from 'react-spinners/ClipLoader'
 import { supabase }  from '../lib/supabase'
 
-export default function LK({ user }) {
+export default function LK({ user, notes = '{}' }) {
   const router = useRouter()
   const [citizen, setCitizen] = useState(null)
   const [progress, setProgress] = useState(0)
-  const [notesMap, setNotesMap] = useState(JSON.parse(props.notes||'{}'))
+  const [notesMap, setNotesMap] = useState(JSON.parse(notes || '{}'))
   const [tab, setTab] = useState(router.query.tab || 'profile')
 
   useEffect(() => {

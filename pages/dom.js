@@ -22,22 +22,20 @@ export default function Dom() {
         Если вы действительно докажете шарообразность Земли на основе объективных, проверяемых данных — <strong>вы получаете дом в Европе.</strong>
       </p>
 
-      <div style={{
-        display:'flex', flexWrap:'wrap', gap:12,
+
+      <div style={{ display:'flex', flexWrap:'wrap', gap:12,
         justifyContent:'center', margin:'2rem 0'
       }}>
-        <a href="/challenge?day=1" className="btn btn-primary" style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>
+        <a href="/challenge?day=1" className="btn btn-primary"
+           style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>
           🚀 Начать челлендж
         </a>
-        <a href="/lk" className="btn btn-secondary" style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>
-
+        <a href="/lk?tab=progress" className="btn btn-secondary"
+           style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>
           📊 Личный кабинет
         </a>
-
-       {!me && (
-         <a href="/lk" className="btn btn-secondary">📊 Личный кабинет</a>
-       )}
       </div>
+
 
       <h2>🛠 Как это работает</h2>
       <ol style={{ fontSize:'1.1rem' }}>
