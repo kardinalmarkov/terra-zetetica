@@ -25,12 +25,9 @@ export default function Dom() {
         justifyContent:'center', margin:'2rem 0'
       }}>
 
-        <button className="btn primary"
-                onClick={()=>location.href='/challenge?day=1'}>
+        <Link href="/challenge?day=1" className="btn primary" scroll={false}>
           🚀 Начать челлендж
-        </button>
-
-
+        </Link>
 
         <a href="/lk?tab=progress" className="btn btn-secondary"
            style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>

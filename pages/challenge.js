@@ -42,6 +42,18 @@ export async function getServerSideProps ({ query, req }) {
   if (mat.unlock_at && new Date(mat.unlock_at) > Date.now())
     return { redirect:{ destination:'/lk?tab=progress', permanent:false } };
 
+ const { data:last } = await supabase
+   .from('daily_progress')
+   .select('watched_at')
+   .match({ citizen_id:cid, day_no:day-1 })
+   .maybeSingle();
+
+ if (day>1 && !last)
+   return { redirect:{ destination:'/lk?tab=progress', permanent:false } }; // ещё не изучен предыдущий
+
+ if (last && Date.now() - new Date(last.watched_at) < 86_400_000)          // 24 ч
+   return { redirect:{ destination:'/lk?tab=progress', permanent:false } };
+
   return {
     props:{
       dayNo   : day,
@@ -59,7 +71,8 @@ export default function ChallengePage ({ dayNo, material, watched }) {
   const { mutate } = useMe();
 
   const [isDone, setDone] = useState(watched);
-  const [note,   setNote] = useState(material.notes || '');
+  const [note,   setNote] = useState(material.notes ?? '');
+  const [savedOK,setOK ] = useState(false);
   const [left,   setLeft] = useState(null);      // msec
 
   /* динамически подгружаем confetti только в браузере */
@@ -69,11 +82,13 @@ export default function ChallengePage ({ dayNo, material, watched }) {
   }
 
   /* ───── С-инхронизация state ⇄ props при смене дня ───── */
+
   useEffect(()=>{
-    /* когда пришёл другой день – берём “свежие” данные */
-    setNote(material.notes || '');
+    setNote(material.notes ?? '');
     setDone(watched);
-  },[dayNo, material.notes, watched]);
+    setOK(false);
+  },[router.asPath]);               // реагируем на любой переход страницы
+
 
   useEffect(()=>{
     if (isDone && dayNo === 14) fireConfetti();
@@ -100,7 +115,7 @@ export default function ChallengePage ({ dayNo, material, watched }) {
 
     if (r.ok){
       if (!saveOnly) setDone(true);
-      else alert('💾 Сохранено');
+      setOK(true);                  // ✔️ показываем «сохранено»
       mutate();                    // invalidate /api/me
     } else alert('Ошибка: '+(r.error||'unknown'));
   }
@@ -150,6 +165,7 @@ export default function ChallengePage ({ dayNo, material, watched }) {
         <button className="btn primary" onClick={()=>submit({saveOnly:true})}>
           💾 Сохранить&nbsp;заметку
         </button>
+        {savedOK && <span style={{color:'#28a745',fontWeight:600'}}> ✔️</span>}
 
         {!isDone ? (
           <button className="btn primary" onClick={()=>submit()}>
