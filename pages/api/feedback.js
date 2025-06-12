@@ -1,6 +1,8 @@
 // pages/api/feedback.js
 import { parse } from 'cookie'
 import { supabase } from '../../lib/supabase'
+import fetch from 'node-fetch'          // ← добавлено
+
 
 const TG_TOKEN = process.env.BOT_TOKEN
 const ADMIN_ID = process.env.ADMIN_CHAT_ID  // chat_id администратора

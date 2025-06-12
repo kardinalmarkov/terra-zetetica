@@ -177,7 +177,8 @@ export default function LK({ user, notes = '{}' }) {
 
         {tab==='progress' && (
           <section>
-            <p>Дней пройдено: <b>{progress}</b> / 14</p>
+            <p>🏠 Челлендж «Дом за доказательство шара»<br/>
+            Дней пройдено: <b>{progress}</b> / 14</p>
             <div style={{ background:'#eee', height:12, borderRadius:6, maxWidth:400 }}>
               <div style={{
                 width:`${(progress/14)*100}%`, height:'100%', background:'#6c63ff', borderRadius:6
@@ -213,20 +214,10 @@ export default function LK({ user, notes = '{}' }) {
               </form>
             )}
 
-            {progress > 0 ? (
-
-              <button
-                className="btn-link"
-                onClick={()=>router.push(`/challenge?day=${progress}`)}
-              >
-                ↩️ Пересмотреть текущий день
-              </button>
-
-            ) : (
-              <p style={{ opacity:0.7, marginTop:12 }}>
-                Для старта нажмите «Начать челлендж»
-              </p>
-            )}
+           <button className="btn-link"
+                   onClick={()=>router.push(`/challenge?day=${Math.max(progress,1)}`)}>
+             ↩️ Перейти к текущему дню
+           </button>
 
             {progress>0 && (
 

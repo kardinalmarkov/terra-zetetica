@@ -1,11 +1,9 @@
 // pages/dom.js
 import Head from 'next/head'
-import useSWR from 'swr'
-
-const fetcher = url => fetch(url).then(r => r.ok ? r.json() : null)
+import useMe from '../utils/useMe'
 
 export default function Dom() {
-  const { data: me } = useSWR('/api/me', fetcher)
+  const { data: me } = useMe()
 
   return (
     <main style={{ maxWidth:860, margin:'0 auto', padding:'2rem 1rem' }}>
@@ -26,10 +24,14 @@ export default function Dom() {
       <div style={{ display:'flex', flexWrap:'wrap', gap:12,
         justifyContent:'center', margin:'2rem 0'
       }}>
-        <a href="/challenge?day=1" className="btn btn-primary"
-           style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>
+
+        <button className="btn primary"
+                onClick={()=>location.href='/challenge?day=1'}>
           🚀 Начать челлендж
-        </a>
+        </button>
+
+
+
         <a href="/lk?tab=progress" className="btn btn-secondary"
            style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>
           📊 Личный кабинет

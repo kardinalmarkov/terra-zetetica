@@ -16,6 +16,7 @@
     "jsonwebtoken": "^9.0.2",
     "next": "latest",
     "next-i18next": "^15.0.0",
+    "node-fetch": "^3.3.2",
     "react": "latest",
     "react-dom": "latest",
     "react-i18next": "^13.0.0",
