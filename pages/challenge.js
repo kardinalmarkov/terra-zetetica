@@ -1,12 +1,8 @@
-// pages/challenge.js              v3.3 • 19 Jun 2025
+// pages/challenge.js                    v3.4 • 19 Jun 2025
 //
-// ▸ День доступен, ЕСЛИ:
-//
-//     previousDayClosed  &&              // день N-1 отмечен «изучен»
-//     hoursFromStart ≥ (dayNo-1) * 24    // ≥ 24 ч × (N-1) с момента СТАРТА
-//
-// ▸ watched_at пишется один раз (/api/challenge/mark.js)
-// ▸ После дня-14 поздравляем и ведём в ЛК
+// ▸ Доступ: previousDayClosed  &&  hoursFromStart ≥ (dayNo-1)*24
+// ▸ 14-й день поздравляет + конфетти, ведёт в ЛК
+// ▸ Клиент: «обратный» таймер до разблокировки (если день ещё закрыт)
 //
 
 import { useState, useEffect } from 'react'
@@ -16,124 +12,116 @@ import Link                   from 'next/link'
 import DayMaterial            from '../components/DayMaterial'
 import useMe                  from '../utils/useMe'
 
-/* ------------  server side  ------------ */
+/* ---------- SSR ---------- */
 export async function getServerSideProps({ query, req }) {
-  /* ─ 1. Авторизация через cookie ─────────────────────────────────── */
   const { tg, cid } = (await import('cookie')).parse(req.headers.cookie ?? '')
-  if (!tg || !cid)                         // неавторизован → в ЛК
+  if (!tg || !cid)
     return { redirect:{ destination:'/lk', permanent:false } }
 
-  /* ─ 2. Число дня из query (1…14) ────────────────────────────────── */
   const day = Math.min(Math.max(+query.day || 1, 1), 14)
 
-  /* ─ 3. Получаем всё нужное одним Promise.all ────────────────────── */
   const { supabase } = await import('../lib/supabase')
-  const [matRsp, curRsp, allRsp, citRsp] = await Promise.all([
+  const [matR, rowsR, citR] = await Promise.all([
     supabase.from('daily_materials')
-            .select('*').eq('day_no', day).maybeSingle(),          // материал
+            .select('*').eq('day_no',day).maybeSingle(),
     supabase.from('daily_progress')
-            .select('notes,watched_at')
-            .match({ citizen_id:cid, day_no:day }).maybeSingle(),  // строка Н
-    supabase.from('daily_progress')
-            .select('day_no,watched_at')
-            .eq('citizen_id', cid),                               // все строки
+            .select('day_no,watched_at,notes')
+            .eq('citizen_id',cid),
     supabase.from('citizens')
-            .select('challenge_started_at')
-            .eq('id', cid).single()                               // старт
+            .select('challenge_started_at').eq('id',cid).single()
   ])
 
-  const mat      = matRsp.data
-  const prg      = curRsp.data
-  const allRows  = allRsp.data || []
-  const startISO = citRsp.data?.challenge_started_at             // 1-й приоритет
-                || allRows.find(r => r.day_no === 1)?.watched_at // «старые» записи
-                || null                                          // нет → без лимита
-
-  /* ─ 4. Материал не найден → в ЛК ────────────────────────────────── */
-  if (!mat)
+  const material = matR.data
+  if (!material)
     return { redirect:{ destination:'/lk?tab=progress', permanent:false } }
 
-  /* ─ 5. Ограничение по времени ───────────────────────────────────── */
-  let byTime = 14                         // «всё разрешено», если нет даты
-  if (startISO) {
-    const hours = (Date.now() - new Date(startISO)) / 3.6e6 // в часы
-    byTime      = Math.floor(hours / 24) + 1                // 1-й доступен сразу
+  /* 1. дата старта (нужна для тайм-аута) */
+  let startISO = citR.data?.challenge_started_at
+  if (!startISO) {
+    const row1 = rowsR.data?.find(r=>r.day_no===1)
+    startISO = row1?.watched_at || null
   }
 
-  /* ─ 6. Ограничение «не перепрыгивать» ───────────────────────────── */
-  const lastClosed = allRows.reduce((m,r)=>
-                      r.watched_at ? Math.max(m,r.day_no) : m, 0)
-  const byDone     = lastClosed + 1
-
-  /* ─ 7. Итоговый разрешённый день ───────────────────────────────── */
+  /* 2. вычисляем ограничения */
+  const hours = startISO ? (Date.now()-new Date(startISO))/3.6e6 : 1e6
+  const byTime = Math.floor(hours/24)+1        // ≥ N*24 ч
+  const last   = rowsR.data?.reduce((m,r)=>r.watched_at?Math.max(m,r.day_no):m,0) || 0
+  const byDone = last+1
   const allowedDay = Math.min(byTime, byDone)
+  const prevClosed = day===1 || rowsR.data?.some(r=>r.day_no===day-1 && r.watched_at)
 
-  /* ─ 8. Предыдущий день закрыт? ─────────────────────────────────── */
-  const prevClosed = day === 1 ||
-        allRows.some(r => r.day_no === day-1 && r.watched_at)
-
-  if (day > allowedDay || !prevClosed)
+  if (day>allowedDay || !prevClosed)
     return { redirect:{ destination:'/lk?tab=progress', permanent:false } }
 
-  /* ─ 9. Отдаём props ─────────────────────────────────────────────── */
+  const curRow = rowsR.data?.find(r=>r.day_no===day) || {}
   return {
     props:{
       dayNo   : day,
-      material: { ...mat, notes: prg?.notes ?? '' },
-      watched : Boolean(prg?.watched_at)
+      material: { ...material, notes: curRow.notes||'' },
+      watched : Boolean(curRow.watched_at),
+      unlockIn: ((day-1)*24 - hours) * 3600 // секунды до N-го дня (для таймера)
     }
   }
 }
 
-/* ------------  client side  ------------ */
-export default function ChallengePage({ dayNo, material, watched }) {
-  const router             = useRouter()
-  const { mutate }         = useMe()        // лёгкий SWR-хук, перерисовывает ЛК
-  const [isDone,setDone]   = useState(watched)
-  const [note,setNote]     = useState(material.notes)
-  const [savedOK,setSaved] = useState(false)
+/* ---------- Client ---------- */
+export default function ChallengePage({ dayNo, material, watched, unlockIn }) {
+  const router           = useRouter()
+  const { mutate }       = useMe()
+  const [isDone,setDone] = useState(watched)
+  const [note,setNote]   = useState(material.notes)
+  const [saved,setSaved] = useState(false)
 
-  /* сброс стейтов при смене ?day=… */
+  /* живой таймер до открытия */
+  const [secLeft,setLeft] = useState(Math.max(0,Math.floor(unlockIn)))
+  useEffect(()=>{
+    if(secLeft<=0) return
+    const t = setInterval(()=>setLeft(s=>s-1),1000)
+    return ()=>clearInterval(t)
+  },[secLeft])
+
+  /* сбрасываем стейт, когда ?day=… меняется */
   useEffect(()=>{
     setDone(watched); setNote(material.notes); setSaved(false)
-    // eslint-disable-next-line
-  },[router.asPath])
+  },[router.asPath, watched, material.notes])
 
-  /* Конфетти 🎉 после 14-го дня */
+  /* конфетти 🎉 после 14-го дня */
   useEffect(()=>{
     if(isDone && dayNo===14)
       import('canvas-confetti')
         .then(m=>m.default({particleCount:200,spread:80}))
   },[isDone,dayNo])
 
-  async function submit(opts={saveOnly:false}){
+  async function submit(saveOnly=false){
     const r = await fetch('/api/challenge/mark',{
       method :'POST',
       headers:{'Content-Type':'application/json'},
-      body   : JSON.stringify({ day:dayNo, note, ...opts })
+      body   : JSON.stringify({ day:dayNo, note, saveOnly })
     }).then(r=>r.json())
 
     if(r.ok){
-      if(!opts.saveOnly) setDone(true)
-      setSaved(true); setTimeout(()=>setSaved(false),2000)
+      if(!saveOnly) setDone(true)
+      setSaved(true); setTimeout(()=>setSaved(false),1500)
       mutate()
-    }else alert('Ошибка: '+(r.error||'unknown'))
+    } else alert('Ошибка: '+(r.error||'unknown'))
   }
 
+  /* --- UI ---------------------------------------------------------------- */
   return (
     <main style={{maxWidth:900,margin:'0 auto',padding:'1rem'}}>
       <Head><title>День {dayNo} • Terra Zetetica</title></Head>
 
       <DayMaterial material={material}/>
 
-      {/* прогресс-бар «14 точек» */}
+      {/* прогресс-бар из 14 точек */}
       <div style={{display:'flex',gap:6,margin:'22px 0'}}>
         {Array.from({length:14}).map((_,i)=>(
-          <span key={i} style={{
-            width:12,height:12,borderRadius:'50%',
-            background:
-              i<dayNo-1 || (i===dayNo-1&&isDone)?'#28a745':'#ccc'
-          }}/>
+          <span key={i}
+                style={{
+                  width:12,height:12,borderRadius:'50%',
+                  background: i<dayNo-1 || (i===dayNo-1&&isDone)
+                               ? '#28a745' : '#ccc'
+                }}/>
         ))}
       </div>
 
@@ -144,18 +132,26 @@ export default function ChallengePage({ dayNo, material, watched }) {
                 value={note} onChange={e=>setNote(e.target.value)}/>
 
       <div style={{display:'flex',gap:14,flexWrap:'wrap'}}>
-        <button className="btn primary"
-                onClick={()=>submit({saveOnly:true})}>
+        <button className="btn primary" onClick={()=>submit(true)}>
           💾 Сохранить заметку
         </button>
-        {savedOK && <span style={{color:'#28a745',fontWeight:600}}>
-          ✔️ сохранено</span>}
+        {saved && <span style={{color:'#28a745',fontWeight:600}}>✔ сохранено</span>}
 
         {!isDone &&
-          <button className="btn primary" onClick={()=>submit()}>
-            ✅ Материал изучен
+          <button className="btn primary" onClick={()=>submit(false)}>
+            ✅ Я осознанно изучил
           </button>}
       </div>
+
+      {/* если ещё рано — показываем «таймер» */}
+      {dayNo<14 && !isDone && secLeft>0 && (
+        <p style={{marginTop:18,color:'#6c63ff'}}>
+          ⏰ Следующий день станет доступен через&nbsp;
+          <b>{Math.floor(secLeft/3600)} ч&nbsp;
+             {Math.floor(secLeft/60)%60} мин&nbsp;
+             {secLeft%60} сек</b>
+        </p>
+      )}
 
       {/* навигация */}
       <nav style={{
@@ -168,12 +164,12 @@ export default function ChallengePage({ dayNo, material, watched }) {
                 scroll={false}>день {dayNo+1} →</Link>}
       </nav>
 
-      {/* поздравление после 14/14 */}
+      {/* поздравление после 14-го */}
       {dayNo===14 && isDone && (
         <p style={{marginTop:30,fontSize:18,color:'green'}}>
-          🎉 Поздравляем — вы прошли все материалы!<br/>
+          🎉 Вы прошли все материалы!<br/>
           Перейдите в&nbsp;
-          <Link href="/lk?tab=progress"><a>личный&nbsp;кабинет</a></Link>,
+          <Link href="/lk?tab=progress"><a>личный кабинет</a></Link>,
           чтобы отправить доказательства «шара».
         </p>
       )}
