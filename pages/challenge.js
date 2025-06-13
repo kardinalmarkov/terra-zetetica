@@ -2,10 +2,10 @@
 //
 // ▸ День доступен, ЕСЛИ:
 //
-//     previousDayClosed  &&              // день N-1 изучён
-//     hoursFromStart ≥ (dayNo-1)*24      // от старта прошло ≥ 24 ч * (N-1)
+//     previousDayClosed  &&              // день N-1 отмечен «изучен»
+//     hoursFromStart ≥ (dayNo-1) * 24    // ≥ 24 ч × (N-1) с момента СТАРТА
 //
-// ▸ watched_at пишется один раз (см. /api/challenge/mark.js)
+// ▸ watched_at пишется один раз (/api/challenge/mark.js)
 // ▸ После дня-14 поздравляем и ведём в ЛК
 //
 
@@ -16,62 +16,66 @@ import Link                   from 'next/link'
 import DayMaterial            from '../components/DayMaterial'
 import useMe                  from '../utils/useMe'
 
-/* ---------------- SSR ---------------- */
+/* ------------  server side  ------------ */
 export async function getServerSideProps({ query, req }) {
+  /* ─ 1. Авторизация через cookie ─────────────────────────────────── */
   const { tg, cid } = (await import('cookie')).parse(req.headers.cookie ?? '')
-  if (!tg || !cid)
+  if (!tg || !cid)                         // неавторизован → в ЛК
     return { redirect:{ destination:'/lk', permanent:false } }
 
+  /* ─ 2. Число дня из query (1…14) ────────────────────────────────── */
   const day = Math.min(Math.max(+query.day || 1, 1), 14)
-  const { supabase } = await import('../lib/supabase')
 
-  /* ① материал + ② текущая строка прогресса + ③ все строки + ④ дата старта */
+  /* ─ 3. Получаем всё нужное одним Promise.all ────────────────────── */
+  const { supabase } = await import('../lib/supabase')
   const [matRsp, curRsp, allRsp, citRsp] = await Promise.all([
     supabase.from('daily_materials')
-            .select('*').eq('day_no', day).maybeSingle(),
+            .select('*').eq('day_no', day).maybeSingle(),          // материал
     supabase.from('daily_progress')
             .select('notes,watched_at')
-            .match({ citizen_id:cid, day_no:day }).maybeSingle(),
+            .match({ citizen_id:cid, day_no:day }).maybeSingle(),  // строка Н
     supabase.from('daily_progress')
             .select('day_no,watched_at')
-            .eq('citizen_id',cid),
+            .eq('citizen_id', cid),                               // все строки
     supabase.from('citizens')
             .select('challenge_started_at')
-            .eq('id',cid).single()
+            .eq('id', cid).single()                               // старт
   ])
 
   const mat      = matRsp.data
   const prg      = curRsp.data
   const allRows  = allRsp.data || []
-  const startISO = citRsp.data?.challenge_started_at
-                || allRows.find(r => r.day_no === 1)?.watched_at
-                || null                                           // если null → нет лимита времени
+  const startISO = citRsp.data?.challenge_started_at             // 1-й приоритет
+                || allRows.find(r => r.day_no === 1)?.watched_at // «старые» записи
+                || null                                          // нет → без лимита
 
-  /* ---- нет материала → в ЛК ---- */
+  /* ─ 4. Материал не найден → в ЛК ────────────────────────────────── */
   if (!mat)
     return { redirect:{ destination:'/lk?tab=progress', permanent:false } }
 
-  /* ---- высчитываем «день, разрешённый по времени» ---- */
-  let byTime = 14   // если старт не найден — время не ограничивает
+  /* ─ 5. Ограничение по времени ───────────────────────────────────── */
+  let byTime = 14                         // «всё разрешено», если нет даты
   if (startISO) {
-    const hours = (Date.now() - new Date(startISO)) / 3.6e6      // милли-→часы
-    byTime      = Math.floor(hours / 24) + 1                     // 1-й день доступен сразу
+    const hours = (Date.now() - new Date(startISO)) / 3.6e6 // в часы
+    byTime      = Math.floor(hours / 24) + 1                // 1-й доступен сразу
   }
 
-  /* ---- «день, разрешённый по прогрессу» ---- */
-  const lastClosed = allRows.reduce((m,r)=> r.watched_at ? Math.max(m,r.day_no) : m, 0)
+  /* ─ 6. Ограничение «не перепрыгивать» ───────────────────────────── */
+  const lastClosed = allRows.reduce((m,r)=>
+                      r.watched_at ? Math.max(m,r.day_no) : m, 0)
   const byDone     = lastClosed + 1
 
-  /* ---- итог: МИНИМУМ из двух правил ---- */
+  /* ─ 7. Итоговый разрешённый день ───────────────────────────────── */
   const allowedDay = Math.min(byTime, byDone)
 
-  /* ---- Допусловие: предыдущий день должен быть закрыт ---- */
+  /* ─ 8. Предыдущий день закрыт? ─────────────────────────────────── */
   const prevClosed = day === 1 ||
         allRows.some(r => r.day_no === day-1 && r.watched_at)
 
   if (day > allowedDay || !prevClosed)
     return { redirect:{ destination:'/lk?tab=progress', permanent:false } }
 
+  /* ─ 9. Отдаём props ─────────────────────────────────────────────── */
   return {
     props:{
       dayNo   : day,
@@ -81,21 +85,21 @@ export async function getServerSideProps({ query, req }) {
   }
 }
 
-/* ---------------- CSR ---------------- */
+/* ------------  client side  ------------ */
 export default function ChallengePage({ dayNo, material, watched }) {
   const router             = useRouter()
-  const { mutate }         = useMe()                 // обновляет /api/me
+  const { mutate }         = useMe()        // лёгкий SWR-хук, перерисовывает ЛК
   const [isDone,setDone]   = useState(watched)
   const [note,setNote]     = useState(material.notes)
   const [savedOK,setSaved] = useState(false)
 
-  /* сбрасываем state при смене ?day=… */
+  /* сброс стейтов при смене ?day=… */
   useEffect(()=>{
     setDone(watched); setNote(material.notes); setSaved(false)
     // eslint-disable-next-line
   },[router.asPath])
 
-  /* конфетти на финише */
+  /* Конфетти 🎉 после 14-го дня */
   useEffect(()=>{
     if(isDone && dayNo===14)
       import('canvas-confetti')
@@ -112,7 +116,7 @@ export default function ChallengePage({ dayNo, material, watched }) {
     if(r.ok){
       if(!opts.saveOnly) setDone(true)
       setSaved(true); setTimeout(()=>setSaved(false),2000)
-      mutate()                               // перерисуем ЛК
+      mutate()
     }else alert('Ошибка: '+(r.error||'unknown'))
   }
 
@@ -122,7 +126,7 @@ export default function ChallengePage({ dayNo, material, watched }) {
 
       <DayMaterial material={material}/>
 
-      {/* кружочки прогресса */}
+      {/* прогресс-бар «14 точек» */}
       <div style={{display:'flex',gap:6,margin:'22px 0'}}>
         {Array.from({length:14}).map((_,i)=>(
           <span key={i} style={{
@@ -144,7 +148,8 @@ export default function ChallengePage({ dayNo, material, watched }) {
                 onClick={()=>submit({saveOnly:true})}>
           💾 Сохранить заметку
         </button>
-        {savedOK && <span style={{color:'#28a745',fontWeight:600}}>✔️ сохранено</span>}
+        {savedOK && <span style={{color:'#28a745',fontWeight:600}}>
+          ✔️ сохранено</span>}
 
         {!isDone &&
           <button className="btn primary" onClick={()=>submit()}>
@@ -154,15 +159,16 @@ export default function ChallengePage({ dayNo, material, watched }) {
 
       {/* навигация */}
       <nav style={{
-        marginTop:34,display:'flex',justifyContent:'space-between',fontSize:18}}>
+        marginTop:34,display:'flex',
+        justifyContent:'space-between',fontSize:18}}>
         <button className="btn-link" onClick={()=>router.back()}>← Назад</button>
         <Link href="/lk?tab=progress" className="btn-link" scroll={false}>📈</Link>
         {dayNo<14 && isDone &&
-          <Link href={`/challenge?day=${dayNo+1}`} className="btn-link" scroll={false}>
-            день {dayNo+1} →
-          </Link>}
+          <Link href={`/challenge?day=${dayNo+1}`} className="btn-link"
+                scroll={false}>день {dayNo+1} →</Link>}
       </nav>
 
+      {/* поздравление после 14/14 */}
       {dayNo===14 && isDone && (
         <p style={{marginTop:30,fontSize:18,color:'green'}}>
           🎉 Поздравляем — вы прошли все материалы!<br/>
