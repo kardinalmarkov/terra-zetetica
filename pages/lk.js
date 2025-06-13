@@ -1,44 +1,48 @@
 // pages/lk.js
 //
-// v3.1 • 19 Jun 2025
+// v 3.2 • 19 Jun 2025
 //
-// ▸ Три вкладки: profile / passport / progress
-// ▸ profile   – показывает Телеграм-данные + даты начала/конца челленджа
-// ▸ passport  – кнопка «начать», либо статус «⏳ / 🎉» (активен / пройден)
-// ▸ progress  – индикатор 14-дневки + форма «Доказательства шара» после 14/14
-// ▸ “↩ К текущему дню” ведёт туда, где пользователь остановился
-// ▸ Заметки подгружаются «лениво» через Supabase-SDK (не ломаем кеш Next.js)
-// ▸ На сервере отдаём лёгкий JSON с заметками, чтобы не тащить лишние поля
-//
+// ───────────────────────────  ОБЩЕЕ  ───────────────────────────
+// • 3 вкладки: profile / passport / progress
+// • profile   – Телеграм-данные + даты start/finish челленджа
+// • passport  – кнопка «начать», либо статус ⏳ / 🎉
+// • progress  – индикатор 14 дней, форма feedback после 14/14,
+//               список заметок с быстрыми ссылками
+// • заметки тянем «лениво» на клиенте → не нагружаем SSR
+// • куки: tg (payload TG) + cid (id гражданина)
+// • зависимости:      npm i cookie
+//                     npm i @supabase/supabase-js
+// ────────────────────────────────────────────────────────────────
 
-import Head                 from 'next/head'
-import Link                 from 'next/link'
-import { parse }            from 'cookie'
-import { useRouter }        from 'next/router'
+import Head                   from 'next/head'
+import Link                   from 'next/link'
+import { parse }              from 'cookie'
+import { useRouter }          from 'next/router'
 import { useState, useEffect } from 'react'
-import { supabase }         from '../lib/supabase'
+import { supabase }           from '../lib/supabase'
 
-/* ───────────────────────────  COMPONENT  ─────────────────────────── */
-
+/* ───────────────────────────  КОМПОНЕНТ  ─────────────────────────── */
 export default function LK ({ user, citizen, progress, notesJSON }) {
-  /* — локальный стейт вкладки и заметок — */
-  const router            = useRouter()
-  const [tab,   setTab]   = useState(router.query.tab || 'profile')
-  const [notes, setNotes] = useState(JSON.parse(notesJSON || '{}'))
 
-  /* переключаем вкладки «мягко», без перезагрузки страницы */
+  /* локальный стейт вкладки и заметок */
+  const router            = useRouter()
+  const [tab , setTab ]   = useState(router.query.tab || 'profile')
+  const [notes,setNotes ] = useState(JSON.parse(notesJSON || '{}'))
+
+  /* «мягкое» переключение вкладок */
   const switchTab = key => {
     setTab(key)
-    router.push(`/lk?tab=${key}`, undefined, { shallow: true })
+    router.push(`/lk?tab=${key}`, undefined, { shallow:true })
   }
 
+  /* выход */
   const logout = () =>
-    fetch('/api/logout', { method: 'POST' }).then(() => router.replace('/'))
+    fetch('/api/logout', { method:'POST' }).then(()=>router.replace('/'))
 
-  /* ─────────────  GUARD: если пользователь не авторизован  ───────────── */
+  /* ─────────────  GUARD: гость без авторизации  ───────────── */
   if (!user) {
     return (
-      <main style={{ padding:'2rem', maxWidth:600, margin:'0 auto' }}>
+      <main style={{padding:'2rem',maxWidth:600,margin:'0 auto'}}>
         <h2>Авторизация</h2>
         <p>Войдите через Telegram:</p>
         <div dangerouslySetInnerHTML={{ __html: `
@@ -49,9 +53,9 @@ export default function LK ({ user, citizen, progress, notesJSON }) {
     )
   }
 
-  /* ─────────────  LAZY-FETCH заметок при каждой навигации  ───────────── */
+  /* ─────────────  лениво подкачиваем заметки  ───────────── */
   useEffect(() => {
-    if (!citizen?.id) return                       // safety-check
+    if (!citizen?.id) return
     supabase
       .from('daily_progress')
       .select('day_no,notes')
@@ -59,34 +63,32 @@ export default function LK ({ user, citizen, progress, notesJSON }) {
       .then(({ data }) => {
         const map = { ...notes }
         data?.forEach(r => { if (r.notes) map[r.day_no] = r.notes })
-        setNotes(map)                             // обновляем только изменённое
+        setNotes(map)
       })
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.asPath])                             // триггер при смене URL
+  }, [router.asPath])               // при смене URL / вкладки
 
-  /* ─────────────────────────────  RENDER  ───────────────────────────── */
+  /* ───────────────────────────  UI  ─────────────────────────── */
   return (
     <>
       <Head><title>Личный кабинет • Terra Zetetica</title></Head>
 
-      <main style={{ maxWidth:920, margin:'2rem auto', padding:'0 1rem' }}>
+      <main style={{maxWidth:920,margin:'2rem auto',padding:'0 1rem'}}>
 
-        {/* ====== Header ====== */}
-        <header style={{
-          display:'flex', justifyContent:'space-between', marginBottom:20
-        }}>
+        {/* ===== Header ===== */}
+        <header style={{display:'flex',justifyContent:'space-between',marginBottom:20}}>
           <strong>Здравствуйте, {user.first_name}!</strong>
           <button className="btn-secondary" onClick={logout}>Выйти</button>
         </header>
 
-        {/* ====== Tabs ====== */}
-        <nav style={{ display:'flex', gap:12, marginBottom:18 }}>
+        {/* ===== Tabs ===== */}
+        <nav style={{display:'flex',gap:12,marginBottom:18}}>
           {[
             ['profile' , '🙏 Профиль'],
             ['passport', '📜 Паспорт / 🏠 Челлендж'],
             ['progress', '📈 Прогресс']
           ].map(([k,label]) => (
-            <button key={k} onClick={() => switchTab(k)}
+            <button key={k} onClick={()=>switchTab(k)}
               style={{
                 padding:'0.5rem 0.9rem',
                 borderRadius:6,
@@ -96,23 +98,21 @@ export default function LK ({ user, citizen, progress, notesJSON }) {
           ))}
         </nav>
 
-        {/* ========== 1. PROFILE ========== */}
+        {/* ────────────────── 1. PROFILE ────────────────── */}
         {tab==='profile' && (
           <>
             <img src={user.photo_url} width={120} height={120}
-                 style={{ borderRadius:8 }}/>
+                 style={{borderRadius:8}}/>
             <p>ID Telegram: <b>{user.id}</b></p>
-            {!!user.username && <p>Username: <b>@{user.username}</b></p>}
+            {user.username && <p>Username: <b>@{user.username}</b></p>}
 
-            {!!citizen && (
+            {citizen && (
               <>
                 <p><b>Статус:</b>{' '}
                   {citizen.status==='valid' ? '✅ Гражданин'
                    : citizen.status==='guest' ? '👤 Гость'
                    : '❓'}
                 </p>
-
-                {/* даты старта / финиша челленджа */}
                 {citizen.challenge_started_at &&
                   <p>Челлендж начат:&nbsp;
                     {new Date(citizen.challenge_started_at)
@@ -128,14 +128,13 @@ export default function LK ({ user, citizen, progress, notesJSON }) {
           </>
         )}
 
-        {/* ========== 2. PASSPORT (Старт / Статус) ========== */}
+        {/* ───────────── 2. PASSPORT / CHALLENGE ───────────── */}
         {tab==='passport' && (
           <>
             {citizen ? (
               <>
                 <p><strong>Z-ID:</strong> {citizen.zetetic_id||'—'}</p>
 
-                {/* INACTIVE → кнопка старта */}
                 {citizen.challenge_status==='inactive' && (
                   <button className="btn primary"
                           onClick={() =>
@@ -145,18 +144,15 @@ export default function LK ({ user, citizen, progress, notesJSON }) {
                   </button>
                 )}
 
-                {/* ACTIVE → краткий прогресс */}
-                {citizen.challenge_status==='active' &&
+                {citizen.challenge_status==='active'   &&
                   <p>⏳ Пройдено {progress}/14</p>}
 
-                {/* FINISHED → поздравление */}
                 {citizen.challenge_status==='finished' &&
                   <p style={{color:'green'}}>
                     🎉 Челлендж пройден — ждём ваших доказательств!
                   </p>}
               </>
             ) : (
-              /* гость без записи */
               <button className="btn primary"
                       onClick={() =>
                         fetch('/api/challenge/start',{method:'POST'})
@@ -167,11 +163,10 @@ export default function LK ({ user, citizen, progress, notesJSON }) {
           </>
         )}
 
-        {/* ========== 3. PROGRESS ========== */}
+        {/* ────────────────── 3. PROGRESS ────────────────── */}
         {tab==='progress' && (
           <>
             <h2 style={{margin:'1rem 0'}}>
-              {/* название кликабельно, ведёт на /dom */}
               <Link href="/dom">🏠 Челлендж «Докажи шар»</Link>
             </h2>
 
@@ -184,25 +179,24 @@ export default function LK ({ user, citizen, progress, notesJSON }) {
               }}/>
             </div>
 
-            {/* быстрый переход к «рабочему» дню */}
+            {/* быстрый переход */}
             <button className="btn-link" style={{marginTop:12}}
-                    onClick={() =>
-                      router.push(`/challenge?day=${Math.max(progress,1)}`)}>
+                    onClick={()=>router.push(`/challenge?day=${Math.max(progress,1)}`)}>
               ↩ К текущему дню
             </button>
 
-            {/* форма обратной связи + «доказательства шара»  */}
+            {/* форма feedback после 14/14 */}
             {progress===14 && (
               <form onSubmit={async e=>{
                        e.preventDefault()
-                       const txt = e.target.fb.value.trim()
-                       if(!txt) return
-                       const ok = await fetch('/api/feedback',{
-                         method :'POST',
+                       const txt=e.target.fb.value.trim()
+                       if(!txt)return
+                       const ok=await fetch('/api/feedback',{
+                         method:'POST',
                          headers:{'Content-Type':'application/json'},
-                         body   : JSON.stringify({ text:txt })
+                         body:JSON.stringify({text:txt})
                        }).then(r=>r.json())
-                       if(ok) { alert('Спасибо!'); e.target.reset() }
+                       if(ok){ alert('Спасибо!'); e.target.reset() }
                      }}
                     style={{marginTop:32,maxWidth:500}}>
                 <h4>💬 Доказательства шара / обратная связь</h4>
@@ -212,7 +206,7 @@ export default function LK ({ user, citizen, progress, notesJSON }) {
               </form>
             )}
 
-            {/* список заметок за пройденные дни */}
+            {/* заметки */}
             {progress>0 && (
               <>
                 <h4 style={{marginTop:24}}>Заметки по дням</h4>
@@ -231,45 +225,35 @@ export default function LK ({ user, citizen, progress, notesJSON }) {
             )}
           </>
         )}
+
       </main>
     </>
   )
 }
 
-/* ─────────────────────  SERVER-SIDE  (SSR)  ───────────────────── */
-export async function getServerSideProps({ req }) {
-  /* 1. читаем cookie (tg = Telegram-payload, cid = id в citizens) */
+/* ───────────────────────  SERVER-SIDE  ─────────────────────── */
+export async function getServerSideProps ({ req }) {
   const { tg, cid } = parse(req.headers.cookie || '')
   const user = tg ? JSON.parse(Buffer.from(tg,'base64').toString()) : null
 
-  /* гостю отдаём минимальный набор пропсов */
+  /* гость: ничего лишнего не тянем */
   if (!cid)
     return { props:{ user, citizen:null, progress:0, notesJSON:'{}' } }
 
-  /* 2. параллельно тянем запись citizen + все заметки */
-  const [
-    { data: citizen },
-    { data: rows }
-  ] = await Promise.all([
-    supabase.from('citizens')
-            .select('*')
-            .eq('id',cid)
-            .maybeSingle(),
-    supabase.from('daily_progress')
-            .select('day_no,notes')
-            .eq('citizen_id',cid)
+  /* параллельно читаем citizen + его заметки */
+  const [{ data: citizen }, { data: prgs }] = await Promise.all([
+    supabase.from('citizens').select('*').eq('id',cid).maybeSingle(),
+    supabase.from('daily_progress').select('day_no,notes').eq('citizen_id',cid)
   ])
 
-  /* 3. превращаем список rows → объект notes { 1:'...', … } */
-  const notes = {}
-  ;(rows || []).forEach(r => { if (r.notes) notes[r.day_no] = r.notes })
+  const notes={}
+  ;(prgs||[]).forEach(r=>{ if(r.notes) notes[r.day_no]=r.notes })
 
-  /* 4. возвращаем SSR-пропсы */
   return {
     props:{
       user,
-      citizen : citizen || null,
-      progress: (rows || []).length,
+      citizen : citizen||null,
+      progress: (prgs||[]).length,
       notesJSON: JSON.stringify(notes)
     }
   }
