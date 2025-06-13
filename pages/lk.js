@@ -250,7 +250,7 @@ export async function getServerSideProps ({ req }) {
     return { props:{ user, citizen:null, progress:0, notesJSON:'{}' } }
 
   const [{ data: citizen },{ data: prgs }] = await Promise.all([
-    supabase.from('citizens').select('*').eq('id',cid).maybeSingle(),
+    supabase.from('citizens').select('*, challenge_started_at, challenge_finished_at').eq('id',cid).maybeSingle(),
     supabase.from('daily_progress').select('day_no,notes').eq('citizen_id',cid)
   ])
 

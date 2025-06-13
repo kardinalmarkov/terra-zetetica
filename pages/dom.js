@@ -2,9 +2,11 @@
 import Head from 'next/head'
 import Link from 'next/link'     // ← раньше импорта не было!
 import useMe from '../utils/useMe'
+import { useRouter } from 'next/router'
 
 export default function Dom() {
   const { data: me } = useMe()
+  const router = useRouter()
 
   return (
     <main style={{ maxWidth:860, margin:'0 auto', padding:'2rem 1rem' }}>
@@ -26,9 +28,15 @@ export default function Dom() {
         justifyContent:'center', margin:'2rem 0'
       }}>
 
-        <Link href="/challenge?day=1" className="btn primary" scroll={false}>
+
+        <button
+          className="btn primary"
+          onClick={async ()=>{
+            await fetch('/api/challenge/start', { method:'POST' })
+            router.push('/challenge?day=1')
+          }}>
           🚀 Начать челлендж
-        </Link>
+        </button>
 
         <a href="/lk?tab=progress" className="btn btn-secondary"
            style={{ fontSize:'1.1rem', padding:'1rem 2rem' }}>

@@ -1,13 +1,11 @@
-// pages/api/challenge/start.js                           v2.0 • 19 Jun 2025
+// pages/api/challenge/start.js                v2.1 • 20 Jun 2025
 //
 // POST /api/challenge/start
-// • ставит challenge_started_at, если ещё пусто
-// • переводит challenge_status → 'active'
-//
-// ⚠️   вызов делается из двух мест:
-//      • кнопка «🚀 Начать челлендж» в /lk?tab=passport
-//      • для «гостя» – та же кнопка после быстрой авторизации
-//--------------------------------------------------------------------
+// ────────────────────────────────────────────────────────────────
+// • ставит  challenge_started_at   ОДИН раз (если ещё NULL)
+// • переводит challenge_status  →  'active'
+// • НЕ трогает status гражданина (guest/valid) ‒ это решается вручную
+//----------------------------------------------------------------
 
 import { parse }    from 'cookie'
 import { supabase } from '../../../lib/supabase'
@@ -20,15 +18,16 @@ export default async function handler (req, res) {
   if (!cid)
     return res.status(401).json({ ok:false, error:'not-auth' })
 
-  /*  ▸ Один UPDATE – однажды:  challenge_started_at IS NULL  */
   const { error } = await supabase
     .from('citizens')
     .update({
-      challenge_started_at: new Date(),      // NOW() в Postgres-часах
+      // COALESCE(old, NOW())  – в Postgres сделать одной строчкой не можем,
+      // поэтому условие .is('challenge_started_at', null)
+      challenge_started_at: new Date(),
       challenge_status    : 'active'
     })
     .eq('id', cid)
-    .is('challenge_started_at', null)        // << гарантирует «once»
+    .is('challenge_started_at', null)   // <= гарантирует, что дата ставится «один раз»
 
   if (error)
     return res.status(500).json({ ok:false, error:error.message })
