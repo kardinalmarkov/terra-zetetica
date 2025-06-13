@@ -1,121 +1,142 @@
 // pages/challenge.js
 //
-// ▸ Защита «по-взрослому»: 1 день разблокируется каждые 24 ч от challenge_started_at
-// ▸ Если день недоступен — редирект + сообщаем в query ?wait=секунд
-// ▸ На клиенте показан тай-мер обратного отсчёта
-// ▸ «💾 Сохранить заметку» работает и до, и после отметки «Материал изучен»
+// ▸ Доступ к-дню = (предыдущий закрыт) && (прошло ≥ N × 24 ч от challenge_started_at)
+// ▸ Если день недоступен → SSR-редирект в ЛК с query ?wait=секунд
+// ▸ На клиенте показывается живой таймер «⏰ 00:23:51:08»
+// ▸ Кнопка «Я осознанно изучил…» создаёт запись только один раз
+// ▸ Сохранение заметки доступно в любой момент
 //
 
-import Head          from 'next/head'
-import Link          from 'next/link'
-import { parse }     from 'cookie'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/router'
-import { supabase }  from '../lib/supabase'
+import Head               from 'next/head'
+import Link               from 'next/link'
+import { parse }          from 'cookie'
+import { useState,
+         useEffect }      from 'react'
+import { useRouter }      from 'next/router'
+import { supabase }       from '../lib/supabase'
 
-/* ---------- CLIENT ---------- */
+/* ───────────────────────────────── CLIENT ─────────────────────────────── */
 export default function Challenge({ dayNo, material, watched, waitSec }) {
-  const router      = useRouter()
-  const [note,setN] = useState(material.notes || '')
-  const [isDone,setD]= useState(watched)
-  const [saved,setS] = useState(false)       // небольшой «галочка-флэш»
-  const [left, setLeft] = useState(waitSec || 0)
 
-  /* live-countdown */
-  useEffect(()=>{
-    if(!left) return
-    const t = setInterval(()=>setLeft(s=>Math.max(0,s-1)),1000)
-    return ()=>clearInterval(t)
-  },[left])
+  /* локальное состояние -------------------------------------------------- */
+  const [note,   setNote]   = useState(material.notes ?? '')
+  const [isDone, setDone]   = useState(watched)     // материал отмечен?
+  const [saved,  setSaved]  = useState(false)       // галочка-подтверждение
+  const [left,   setLeft]   = useState(waitSec||0)  // секунд до разлока
 
-  /* отправка заметки / закрытие дня */
-  async function submit({saveOnly=false}={}) {
-    const r = await fetch('/api/challenge/mark',{
-      method :'POST',
-      headers:{'Content-Type':'application/json'},
-      body   : JSON.stringify({ day:dayNo, note, saveOnly })
-    }).then(r=>r.json())
+  const router = useRouter()
 
-    if(!r.ok){ alert('Ошибка: '+(r.error||'unknown')); return }
+  /* live-countdown ------------------------------------------------------- */
+  useEffect(() => {
+    if (!left) return
+    const t = setInterval(() => setLeft(s => Math.max(0, s - 1)), 1_000)
+    return () => clearInterval(t)
+  }, [left])
 
-    setS(true); setTimeout(()=>setS(false),1800)
-    if(!saveOnly){ setD(true); router.replace(router.asPath) }
+  /* POST /api/challenge/mark  ------------------------------------------- */
+  async function submit({ saveOnly = false } = {}) {
+    const r = await fetch('/api/challenge/mark', {
+      method : 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body   : JSON.stringify({ day: dayNo, note, saveOnly })
+    }).then(r => r.json())
+
+    if (!r.ok) { alert('Ошибка: ' + (r.error || 'unknown')); return }
+
+    /* маленькая «зелёная галочка» на 1.8 сек */
+    setSaved(true); setTimeout(() => setSaved(false), 1_800)
+
+    if (!saveOnly) {               // клик «изучил»
+      setDone(true)
+      /* перезагружаем страницу, чтобы пересчитать next-day / таймер */
+      router.replace(router.asPath)
+    }
   }
 
-  /* ---------- UI ---------- */
+  /* ────────────────── UI ────────────────── */
   return (
     <>
       <Head><title>День {dayNo} • Terra Zetetica</title></Head>
 
-      <main style={{maxWidth:860,margin:'2rem auto',padding:'0 1rem'}}>
-        {/* === СОДЕРЖИМОЕ ДНЯ === */}
-        <h2>{material.title}</h2>
-        {/* …текст / markdown можно рендерить как вам угодно… */}
+      <main style={{ maxWidth:860, margin:'2rem auto', padding:'0 1rem' }}>
 
-        {/* === круги-индикаторы === */}
-        <div style={{margin:'18px 0'}}>
-          {Array.from({length:14}).map((_,i)=>(
-            <span key={i} style={{
-              display:'inline-block',width:10,height:10,borderRadius:'50%',
-              marginRight:4,
-              background: i<dayNo ? (i<dayNo-1?'#28a745':'#198754') : '#ccc'
-            }}/>
+        {/* ---------- содержание урока ---------- */}
+        <h2>{material.title}</h2>
+        <div dangerouslySetInnerHTML={{ __html: material.content_md||'' }} />
+
+        {/* ---------- «бублик» прогресса ---------- */}
+        <div style={{ margin:'18px 0' }}>
+          {Array.from({ length: 14 }).map((_, i) => (
+            <span key={i}
+              style={{
+                display       : 'inline-block',
+                width         : 10,
+                height        : 10,
+                borderRadius  : '50%',
+                marginRight   : 4,
+                background    : i < dayNo
+                               ? (i < dayNo-1 ? '#28a745' : '#198754')
+                               : '#ccc'
+              }}
+            />
           ))}
         </div>
 
-        {/* === заметка === */}
+        {/* ---------- заметка пользователя ---------- */}
         <h3>📝 Ваша заметка</h3>
-        <textarea value={note} rows={4} maxLength={1000}
-                  onChange={e=>setN(e.target.value)}
-                  style={{width:'100%',marginBottom:12}}/>
+        <textarea
+          rows={4}
+          maxLength={1_000}
+          style={{ width:'100%', marginBottom:12 }}
+          value={note}
+          onChange={e => setNote(e.target.value)}
+        />
 
-        <button className="btn primary"
-                onClick={()=>submit({saveOnly:true})}>
-          💾 Сохранить заметку
+        {/* кнопка «Сохранить заметку» */}
+        <button className="btn primary" onClick={() => submit({ saveOnly:true })}>
+          💾 Сохранить&nbsp;заметку
         </button>
-        {saved && <span style={{color:'#28a745',fontWeight:600,marginLeft:6}}>✔️</span>}
+        {saved && <span style={{ color:'#28a745', fontWeight:600, marginLeft:6 }}>✔️</span>}
 
-        {/* чек-бокс «изучил» */}
+        {/* чек-бокс «Материал изучен» */}
         {!isDone ? (
-          <button className="btn primary" style={{marginLeft:14}}
-                  onClick={()=>submit()}>
+          <button className="btn primary" style={{ marginLeft:14 }} onClick={() => submit()}>
             ✔️ Я осознанно изучил материал
           </button>
-        ):(
-          <span style={{color:'#28a745',marginLeft:14,fontWeight:600}}>
+        ) : (
+          <span style={{ color:'#28a745', marginLeft:14, fontWeight:600 }}>
             Материал изучен
           </span>
         )}
 
-        {/* === навигация === */}
-        <div style={{marginTop:26}}>
+        {/* ---------- навигация ---------- */}
+        <div style={{ marginTop:26 }}>
           <Link href="/lk?tab=progress" className="btn-link">← Назад</Link>
 
-          {/* NEXT-DAY (доступен сразу после отметки) */}
-          {dayNo<14 && isDone &&
-            <Link href={`/challenge?day=${dayNo+1}`}
-                  className="btn-link" style={{float:'right'}}>
-              день {dayNo+1} →
+          {/* next-day появляется ТОЛЬКО если текущий закрыт */}
+          {dayNo < 14 && isDone &&
+            <Link href={`/challenge?day=${dayNo + 1}`} scroll={false}
+                  className="btn-link" style={{ float:'right' }}>
+              день {dayNo + 1} →
             </Link>}
         </div>
 
-        {/* === финал === */}
-        {dayNo===14 && isDone && (
-          <p style={{marginTop:32,fontSize:18,color:'green'}}>
+        {/* финальный баннер после 14 дня */}
+        {dayNo === 14 && isDone && (
+          <p style={{ marginTop:32, fontSize:18, color:'green' }}>
             🎉 Все материалы пройдены!<br/>
-            Перейдите в&nbsp;
-            <Link href="/lk?tab=progress"><a>Личный кабинет</a></Link>,
+            Перейдите в&nbsp;<Link href="/lk?tab=progress">Личный кабинет</Link>,
             чтобы отправить доказательства «шара».
           </p>
         )}
 
-        {/* === TIMER до разблокировки (если прилетел waitSec > 0) === */}
-        {left>0 && (
-          <p style={{marginTop:32,fontSize:18,color:'#dc3545'}}>
+        {/* таймер ожидания */}
+        {left > 0 && (
+          <p style={{ marginTop:32, fontSize:18, color:'#dc3545' }}>
             ⏰ Следующий день откроется через&nbsp;
-            {Math.floor(left/3600).toString().padStart(2,'0')}:
-            {Math.floor(left/60%60).toString().padStart(2,'0')}:
-            {(left%60).toString().padStart(2,'0')}
+            {String(Math.floor(left / 3_600)).padStart(2,'0')}:
+            {String(Math.floor(left / 60 % 60)).padStart(2,'0')}:
+            {String(left % 60).padStart(2,'0')}
           </p>
         )}
       </main>
@@ -123,58 +144,74 @@ export default function Challenge({ dayNo, material, watched, waitSec }) {
   )
 }
 
-/* ---------- SSR ---------- */
-export async function getServerSideProps({ query, req }){
-  const { tg, cid } = parse(req.headers.cookie||'')
-  if(!tg || !cid)
-    return {redirect:{destination:'/lk',permanent:false}}
+/* ───────────────────────────────── SERVER (SSR) ───────────────────────── */
+export async function getServerSideProps({ query, req }) {
+  const { tg, cid } = parse(req.headers.cookie || '')
+  if (!tg || !cid)
+    return { redirect:{ destination:'/lk', permanent:false } }
 
-  const dayNo = Math.min(Math.max(+query.day||1,1),14)
+  const dayNo = Math.min(Math.max(+query.day || 1, 1), 14)
 
-  /* тащим citizen — нужен challenge_started_at / progress */
-  const [{data: citizen},{data: mat},{count},{data: prev}] = await Promise.all([
-    supabase.from('citizens').select('*').eq('id',cid).maybeSingle(),
+  /* citizen нужен для challenge_started_at */
+  const [
+    { data: citizen },
+    { data: material },
+    { data: prev },
+    { data: cur }
+  ] = await Promise.all([
+    supabase.from('citizens')
+            .select('challenge_started_at').eq('id', cid).maybeSingle(),
+
     supabase.from('daily_materials')
-            .select('*').eq('day_no',dayNo).maybeSingle(),
+            .select('*').eq('day_no', dayNo).maybeSingle(),
+
+    /* проверяем, закрыт ли предыдущий день */
     supabase.from('daily_progress')
-            .select('*',{count:'exact'}).match({citizen_id:cid}),
+            .select('watched_at')
+            .match({ citizen_id: cid, day_no: dayNo - 1 })
+            .maybeSingle(),
+
+    /* текущее прохождение/заметка */
     supabase.from('daily_progress')
-            .select('watched_at').match({citizen_id:cid,day_no:dayNo-1}).maybeSingle()
+            .select('notes')
+            .match({ citizen_id: cid, day_no: dayNo })
+            .maybeSingle()
   ])
 
-  /* защита: нет материала → назад */
-  if(!mat)
-    return {redirect:{destination:'/lk?tab=progress',permanent:false}}
+  /* 1) материала нет → в ЛК */
+  if (!material)
+    return { redirect:{ destination:'/lk?tab=progress', permanent:false } }
 
-  /* вычисляем «разрешённый максимальный день» */
-  const started = citizen?.challenge_started_at
-  const allowed = started
-        ? 1 + Math.floor((Date.now()-new Date(started))/86400000)
-        : 1                                              // safety-fallback
+  /* 2) вычисляем, какой день МОЖНО открыть по тайм-ауту */
+  const startedAt = citizen?.challenge_started_at
+  const allowDay  = startedAt
+        ? 1 + Math.floor((Date.now() - new Date(startedAt)) / 86_400_000)
+        : 1                                // fallback — только день 1
 
-  /* если пользователь лезет вперёд… */
-  if(dayNo>allowed || (dayNo>1 && !prev)){
-    const wait = started
+  const tooEarly  = dayNo > allowDay
+  const prevMiss  = dayNo > 1 && !prev   // предыдущий не закрыт
+
+  if (tooEarly || prevMiss) {
+    /* сколько ждать до разлока? */
+    const waitSec = tooEarly
       ? Math.max(0,
-          Math.ceil((new Date(started).getTime()+allowed*86400000 - Date.now())/1000))
+          Math.ceil((new Date(startedAt).getTime() + allowDay * 86_400_000 - Date.now()) / 1_000))
       : 0
-    return {redirect:{
-      destination:`/lk?tab=progress&wait=${wait}`,
-      permanent:false
-    }}
-  }
 
-  /* берём заметку + факт «день закрыт» */
-  const {data: cur}=await supabase
-    .from('daily_progress')
-    .select('notes').match({citizen_id:cid,day_no:dayNo}).maybeSingle()
+    return {
+      redirect:{
+        destination:`/lk?tab=progress&wait=${waitSec}`,
+        permanent  : false
+      }
+    }
+  }
 
   return {
     props:{
       dayNo,
-      material:{ ...mat, notes:cur?.notes||'' },
-      watched : !!cur,
-      waitSec : 0
+      material : { ...material, notes: cur?.notes || '' },
+      watched  : !!cur,
+      waitSec  : 0
     }
   }
 }
