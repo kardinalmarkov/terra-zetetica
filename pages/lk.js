@@ -122,34 +122,26 @@ export default function LK ({ user, citizen, progress, notesJSON }) {
         {/* PASSPORT / CHALLENGE */}
         {tab==='passport' && (
           <>
-            {citizen ? (
-              <>
-                {citizen.zetetic_id &&
-                  <p><strong>Z-ID:</strong> {citizen.zetetic_id}</p>}
+            {citizen && citizen.zetetic_id &&
+              <p><strong>Z-ID:</strong> {citizen.zetetic_id}</p>}
 
-                {citizen.challenge_status==='inactive' && (
-                  <button className="btn primary"
-                          onClick={()=>fetch('/api/challenge/start',{method:'POST'})
-                                       .then(()=>router.push('/challenge?day=1'))}>
-                    🚀 Начать челлендж
-                  </button>
-                )}
-
-                {citizen.challenge_status==='active'   &&
-                  <p>⏳ Пройдено {progress}/14</p>}
-
-                {citizen.challenge_status==='finished' &&
-                  <p style={{color:'green'}}>🎉 Челлендж пройден — ждём ваших доказательств!</p>}
-              </>
-            ):(
+            {/* кнопка теперь показывается ТОЛЬКО если status='inactive' */}
+            {citizen?.challenge_status==='inactive' && (
               <button className="btn primary"
                       onClick={()=>fetch('/api/challenge/start',{method:'POST'})
                                    .then(()=>router.push('/challenge?day=1'))}>
-                🚀 Присоединиться к челленджу
+                🚀 Начать челлендж
               </button>
             )}
+
+            {citizen?.challenge_status==='active'   &&
+              <p>⏳ Пройдено {progress}/14</p>}
+
+            {citizen?.challenge_status==='finished' &&
+              <p style={{color:'green'}}>🎉 Челлендж пройден — ждём ваших доказательств!</p>}
           </>
         )}
+
 
         {/* PROGRESS */}
         {tab==='progress' && (
