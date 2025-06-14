@@ -59,7 +59,7 @@ export default function Nav() {
           rel="noopener noreferrer"
           className={styles.searchLink}
         >
-          🔍 {t.search}
+          🔍 
         </a>
         <Link href="/contacts">{t.contacts}</Link>
 
