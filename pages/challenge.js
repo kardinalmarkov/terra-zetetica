@@ -1,9 +1,9 @@
-// pages/challenge.js                    v3.4 • 19 Jun 2025
+// pages/challenge.js                    v3.6 • 14 Jun 2025 submit-изменил
 //
 // ▸ Доступ: previousDayClosed  &&  hoursFromStart ≥ (dayNo-1)*24
 // ▸ 14-й день поздравляет + конфетти, ведёт в ЛК
 // ▸ Клиент: «обратный» таймер до разблокировки (если день ещё закрыт)
-//
+// submit-изменил
 
 import { useState, useEffect } from 'react'
 import { useRouter }          from 'next/router'
@@ -92,13 +92,25 @@ export default function ChallengePage({ dayNo, material, watched, unlockIn }) {
         .then(m=>m.default({particleCount:200,spread:80}))
   },[isDone,dayNo])
 
-  async function submit(saveOnly=false){
-    const r = await fetch('/api/challenge/mark',{
-      method :'POST',
-      headers:{'Content-Type':'application/json'},
-      body   : JSON.stringify({ day:dayNo, note, saveOnly })
-    }).then(r=>r.json())
 
+  async function submit({ saveOnly = false } = {}) {
+    const r = await fetch('/api/challenge/mark', {
+      method : 'POST',
+      headers: { 'Content-Type':'application/json' },
+      credentials: 'include',          // ← передать cookie 100 %
+      body   : JSON.stringify({ day, saveOnly, note:txt })
+    });
+    const j = await r.json();
+
+    if (!j.ok) {
+      if (j.error === 'not-auth') {
+        alert('⛔ Сессия истекла. Войдите заново.');
+        location.href = '/lk';        // перебрасываем на авторизацию
+      } else {
+        alert('Ошибка: '+ j.error);
+      }
+      return;
+    }
     if(r.ok){
       if(!saveOnly) setDone(true)
       setSaved(true); setTimeout(()=>setSaved(false),1500)
