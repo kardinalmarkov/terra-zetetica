@@ -7,7 +7,7 @@ const materials = [
     title: 'Фото',
     description: 'Фотографии от наших граждан',
     videoSrc: '/media/photo-preview-clip.mp4',
-    poster: '/images/photo-preview.jpg', // добавьте изображение
+    poster: '/images/photo-preview.jpg',
     driveLink: 'https://drive.google.com/drive/folders/1HcETdfZEZOtg9Dm0idmQSTnd9DdAXk9C?usp=sharing',
   },
   {
@@ -52,7 +52,15 @@ const materials = [
     description: 'Интерактивные практики.',
     previewSrc: '/images/practices-preview.jpg',
     driveLink: '/practices',
-  }  
+  },
+  {
+    key: 'search',
+    icon: '🔎',
+    title: 'Поисковик TZ',
+    description: 'Terra Zetetica Search — приватный, не отслеживает. Настрой движки и веса!',
+    previewSrc: '/images/search-preview.jpg',
+    driveLink: 'https://zsearch.terra-zetetica.org',
+  }
 ];
 
 export default function Materials() {
@@ -64,7 +72,16 @@ export default function Materials() {
 
       <main className="wrapper" style={{ maxWidth: 960, margin: '0 auto', padding: '2rem 1rem' }}>
         <h1>Материалы Terra Zetetica</h1>
-        <p>Ниже — по одному примеру из каждой категории. Для полного архива переходите по ссылке «Смотреть всё».</p>
+        <p>
+          Ниже — по одному примеру из каждой категории. Для полного архива переходите по ссылке
+          «Смотреть всё». ⬇️ Также теперь доступен наш экспериментальный поисковик 🧭 Terra Zetetica Search. Это
+          открытая приватная система, где вы можете выбрать поисковые движки, задать их вес и искать свободно без гугл-цензуры.
+        </p>
+        <p style={{ fontStyle: 'italic', fontSize: '0.95rem', color: '#666' }}>
+          ❗Внимание: ввод после печати работает по кнопке 🔍 (лупа), не Enter. Возможны сбои. Настройте поисковые
+          источники в разделе "Настройки" вверху справа. Рекомендуем: отключить Google, включить Mojeek
+          и другие доверенные системы.
+        </p>
 
         <div
           className="grid"
@@ -90,7 +107,6 @@ export default function Materials() {
                 <h3 style={{ margin: '0 0 .5rem' }}>{m.icon} {m.title}</h3>
                 <p style={{ margin: '0 0 1rem', color: '#555' }}>{m.description}</p>
 
-                {/* Видео в <video> */}
                 {m.videoSrc && (
                   <div
                     style={{
@@ -102,24 +118,22 @@ export default function Materials() {
                       backgroundColor: '#000',
                     }}
                   >
-                <video
-                  src={m.videoSrc}
-                  poster={m.poster}
-                  controls
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
-                />
-
+                    <video
+                      src={m.videoSrc}
+                      poster={m.poster}
+                      controls
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
                   </div>
                 )}
 
-                {/* Видео в iframe */}
                 {m.embedSrc && (
                   <div
                     style={{
@@ -147,7 +161,6 @@ export default function Materials() {
                   </div>
                 )}
 
-                {/* Изображение */}
                 {m.previewSrc && !m.videoSrc && (
                   <div
                     style={{
@@ -173,8 +186,6 @@ export default function Materials() {
                   </div>
                 )}
 
-                {/* Аудио */}
-                {/* Аудио: несколько треков */}
                 {m.audioList && (
                   <div style={{ marginBottom: '1rem' }}>
                     {m.audioList.map((track, idx) => (
@@ -190,7 +201,6 @@ export default function Materials() {
                   </div>
                 )}
 
-                 {/* Один трек */}
                 {m.audioSrc && !m.audioList && (
                   <audio
                     controls
