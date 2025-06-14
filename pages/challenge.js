@@ -1,193 +1,160 @@
-// pages/challenge.js                                 v3.7 • 14 Jun 2025
+// pages/challenge.js                                   v3.8 • 24 Jun 2025
 //
-// ──────────────────────────────────────────────────────────────
-//  Страница «/challenge?day=N» — материал + заметка + кнопка «Я осознанно…»
-//  v3.7:
-//    • исправлен submit(): в запрос снова уходят поля { day, note, saveOnly } –
-//      из-за переименования day→dayNo, txt→note ломался POST.
-//    • обновлена стрелка «день N →»: когда день заблокирован – показываем
-//      встроенный таймер до разблокировки (рассчитывается от challenge_started_at)
-//    • мелкие правки типизации / комментарии
-// ──────────────────────────────────────────────────────────────
-
+//  • bug-fix: submit() отправляет правильные поля { day: dayNo, note }
+//  • убрана привязка к Challenge.module.css → файл больше не обязателен
+//  • импорт DayMaterial оставлен (если компонента нет — закомментируйте)
+//  • живой таймер рассчитывается от citizens.challenge_started_at
+//
+import { useState, useEffect } from 'react'
 import { useRouter }          from 'next/router'
 import Head                   from 'next/head'
 import Link                   from 'next/link'
-import { useEffect, useState } from 'react'
-import styles                 from '../styles/Challenge.module.css'  // (условный css-mod)
 
-export default function ChallengePage ({ dayNo, material, watched, startedAtUTC }) {
+// ↓ если компонента нет, просто закомментируйте – разметка будет без него
+import DayMaterial            from '../components/DayMaterial'
 
-  /* --------------------------- локальное состояние --------------------------- */
-  const [note   , setNote   ] = useState(material.notes ?? '')
-  const [savedOk, setSavedOk] = useState(false)
-  const [isDone , setIsDone ] = useState(watched)        // кнопка уже нажата?
-  const [leftMs , setLeftMs ] = useState(null)           // millis → следующий день
-  const router = useRouter()
-
-  /* ---- клиентский таймер до разблокировки следующего дня ------------------- */
-  useEffect(() => {
-    // next unlock point = startedAt + (dayNo)*24h   (dayNo – считаем с 0)
-    const start = new Date(startedAtUTC)
-    const next  = new Date(+start + dayNo * 86_400_000)
-
-    const tick = () => {
-      const ms = +next - Date.now()
-      setLeftMs(ms > 0 ? ms : 0)
-    }
-    tick()
-    const id = setInterval(tick, 1_000)
-    return () => clearInterval(id)
-  }, [dayNo, startedAtUTC])
-
-  /* ------------------------ отправка на бек-энд ----------------------------- */
-  async function submit ({ saveOnly = false } = {}) {
-    /* day        – номер (1..14)   note – trimmed   saveOnly – true/false */
-    const res = await fetch('/api/challenge/mark', {
-      method :'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body   : JSON.stringify({
-        day      : dayNo,
-        note     : note.trim(),
-        saveOnly
-      })
-    }).then(r => r.json())
-
-    if (!res.ok) {
-      alert('Ошибка: '+ res.error)
-      return
-    }
-    setSavedOk(true)
-    if (!saveOnly) setIsDone(true)
-    // перегружаем, чтобы SSR-часть подхватила обновлённый watched_at
-    router.replace(router.asPath, undefined, { scroll:false })
-  }
-
-  /* ----------------------------- разметка ----------------------------------- */
-  return (
-    <>
-      <Head><title>День {dayNo} · Докажи шар</title></Head>
-
-      <article className={styles.wrapper}>
-
-        <h1>{material.title}</h1>
-        <p className={styles.subtitle}>{material.subtitle}</p>
-
-        {/*  ------- контент дня (в markdown отображается отдельно) -------- */}
-        <section
-          className={styles.content}
-          dangerouslySetInnerHTML={{ __html: material.html }}
-        />
-
-        {/* ----------- блок заметки / кнопки  -------------------------------- */}
-        <section className={styles.noteBox}>
-          <label>📝 Ваша заметка</label>
-
-          <textarea
-            rows={5}
-            value={note}
-            onChange={e=>setNote(e.target.value)}
-          />
-
-          <div className={styles.btnRow}>
-            {/* сохранить только заметку */}
-            <button className="btn primary"
-                    onClick={()=>submit({saveOnly:true})}>
-              💾 Сохранить заметку
-            </button>
-
-            {savedOk && <span className={styles.ok}>✔︎</span>}
-
-            {/* «Я осознанно изучил…» – ставит watched_at, даёт след. день */}
-            {!isDone ? (
-              <button className="btn success"
-                      onClick={()=>submit()}>
-                ✅ Я осознанно изучил
-              </button>
-            ) : (
-              <span className={styles.done}>Материал пройден 🎉</span>
-            )}
-          </div>
-        </section>
-
-        {/* ------------------ навигация внизу ------------------------------ */}
-        <nav className={styles.nav}>
-          {dayNo>1 &&
-            <Link href={`/challenge?day=${dayNo-1}`} className="btn-link" scroll={false}>
-              ← день {dayNo-1}
-            </Link>}
-
-          {/* если день закрыт – показываем таймер; иначе активную ссылку */}
-          {dayNo<14 && isDone && (
-            leftMs && leftMs > 0
-              ? <span className={styles.timer}>
-                  ⏰ {new Date(leftMs).toISOString().substr(11,8)}
-                </span>
-              : <Link href={`/challenge?day=${dayNo+1}`} className="btn-link" scroll={false}>
-                  день {dayNo+1} →
-                </Link>
-          )}
-
-          {/* финальный баннер после дня 14 */}
-          {dayNo===14 && isDone &&
-            <p className={styles.final}>
-              🎉 Вы прошли все материалы!<br/>
-              Перейдите в&nbsp;
-              <Link href="/lk?tab=progress">Личный кабинет</Link>, чтобы отправить доказательства «шара».
-            </p>}
-        </nav>
-
-      </article>
-    </>
-  )
-}
-
-/* ────────────────────────── SSR - данные дня ────────────────────────── */
+/* ──────────────────────────────── SSR ──────────────────────────────── */
 export async function getServerSideProps ({ query, req }) {
-
   const { tg, cid } = (await import('cookie')).parse(req.headers.cookie ?? '')
   if (!tg || !cid)
     return { redirect:{ destination:'/lk', permanent:false } }
 
   const dayNo = Math.min(Math.max(+query.day || 1, 1), 14)
-
   const { supabase } = await import('../lib/supabase')
 
-  /* материалы дня + заметка пользователя */
-  const [{ data:mat }, { data:prg }, { data:cit }] = await Promise.all([
+  const [{ data:mat }, { data:row }, { data:cit }] = await Promise.all([
     supabase.from('daily_materials')
             .select('*').eq('day_no', dayNo).maybeSingle(),
     supabase.from('daily_progress')
-            .select('notes').match({ citizen_id:cid, day_no:dayNo }).maybeSingle(),
+            .select('day_no,watched_at,notes')
+            .match({ citizen_id:cid, day_no:dayNo }).maybeSingle(),
     supabase.from('citizens')
-            .select('challenge_started_at').eq('id',cid).maybeSingle()
+            .select('challenge_started_at').eq('id', cid).maybeSingle()
   ])
 
   if (!mat)
     return { redirect:{ destination:'/lk?tab=progress', permanent:false } }
 
-  /* проверяем предыдущий день + 24 ч от старта */
-  if (dayNo>1) {
-    const { data:last } = await supabase
+  /* ----------- доступ к дню: «предыдущий закрыт» + «прошло N×24ч» ---------- */
+  if (dayNo > 1) {
+    const { data:prev } = await supabase
       .from('daily_progress')
       .select('watched_at')
       .match({ citizen_id:cid, day_no:dayNo-1 })
       .maybeSingle()
-    if (!last) // предыдущий день не закрыт
+    if (!prev?.watched_at)
       return { redirect:{ destination:'/lk?tab=progress', permanent:false } }
 
-    const started = new Date(cit?.challenge_started_at ?? 0)
-    const now     = Date.now()
-    if (started && now - +started < (dayNo-1)*86_400_000)
+    const startedAt = cit?.challenge_started_at
+      ? new Date(cit.challenge_started_at)
+      : new Date(prev.watched_at)               // fallback: время 1-го дня
+    const unlockAt  = +startedAt + (dayNo-1)*86_400_000
+    if (Date.now() < unlockAt)
       return { redirect:{ destination:'/lk?tab=progress', permanent:false } }
   }
 
   return {
     props:{
       dayNo,
-      material: { ...mat, notes: prg?.notes ?? '' },
-      watched : Boolean(prg),
+      material: { ...mat, notes: row?.notes ?? '' },
+      watched : Boolean(row?.watched_at),
       startedAtUTC: cit?.challenge_started_at ?? null
     }
   }
+}
+
+/* ─────────────────────────── Client Component ───────────────────────── */
+export default function ChallengePage ({ dayNo, material, watched,
+                                         startedAtUTC }) {
+
+  const router                 = useRouter()
+  const [note,  setNote ]      = useState(material.notes)
+  const [saved, setSaved]      = useState(false)
+  const [isDone,setDone ]      = useState(watched)
+  const [leftMs,setLeftMs]     = useState(null)      // millis → следующий день
+
+  /* live-timer до разблокировки */
+  useEffect(() => {
+    if (!startedAtUTC) return
+    const next = +new Date(startedAtUTC) + dayNo*86_400_000   // (dayNo is 0-based)
+    const tick = () => setLeftMs(Math.max(0, next - Date.now()))
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [dayNo, startedAtUTC])
+
+  /* отсылаем на бек-энд ----------------------------------------------------- */
+  async function submit ({ saveOnly = false } = {}) {
+    const res = await fetch('/api/challenge/mark', {
+      method :'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body   : JSON.stringify({
+        day  : dayNo,
+        note : note.trim(),
+        saveOnly
+      })
+    }).then(r => r.json())
+
+    if (!res.ok)            { alert('Ошибка: '+res.error); return }
+    if (!saveOnly) setDone(true)
+    setSaved(true); setTimeout(()=>setSaved(false),1500)
+    router.replace(router.asPath, undefined, { scroll:false })
+  }
+
+  /* ──────────────────────────── UI ──────────────────────────── */
+  return (
+    <>
+      <Head><title>День {dayNo} • Terra Zetetica</title></Head>
+      <main style={{maxWidth:900,margin:'0 auto',padding:'1rem'}}>
+
+        {/* Контент дня */}
+        {typeof DayMaterial==='function'
+          ? <DayMaterial material={material}/>
+          : <article dangerouslySetInnerHTML={{__html:material.html}} />}
+
+        {/* Заметка */}
+        <h3 style={{margin:'24px 0 6px'}}>📝 Ваша заметка</h3>
+        <textarea rows={4} style={{width:'100%'}}
+                  value={note} onChange={e=>setNote(e.target.value)} />
+
+        <div style={{display:'flex',gap:12,flexWrap:'wrap',marginTop:10}}>
+          <button className="btn primary"
+                  onClick={()=>submit({saveOnly:true})}>
+            💾 Сохранить заметку
+          </button>
+          {saved && <span style={{color:'#28a745'}}>✔ сохранено</span>}
+
+          {!isDone &&
+            <button className="btn success" onClick={()=>submit()}>
+              ✅ Я осознанно изучил
+            </button>}
+        </div>
+
+        {/* Навигация */}
+        <nav style={{
+          marginTop:32,display:'flex',justifyContent:'space-between',
+          fontSize:18,flexWrap:'wrap',gap:10}}>
+
+          {dayNo>1 &&
+            <Link href={`/challenge?day=${dayNo-1}`} scroll={false}
+                  className="btn-link">← день {dayNo-1}</Link>}
+
+          {/* след. день / таймер */}
+          {dayNo<14 && isDone &&
+            (leftMs>0
+              ? <span style={{color:'#6c63ff'}}>
+                  ⏰ {new Date(leftMs).toISOString().substr(11,8)}
+                </span>
+              : <Link href={`/challenge?day=${dayNo+1}`} scroll={false}
+                      className="btn-link">день {dayNo+1} →</Link>)}
+
+          {dayNo===14 && isDone &&
+            <p style={{marginTop:10,color:'green'}}>
+              🎉 Вы прошли все материалы! Перейдите в&nbsp;
+              <Link href="/lk?tab=progress">личный кабинет</Link>.
+            </p>}
+        </nav>
+      </main>
+    </>
+  )
 }
