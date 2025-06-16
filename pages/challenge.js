@@ -1,10 +1,8 @@
-
-// pages/challenge.js                       v3.12 • 24 Jun 2025
+// pages/challenge.js                       v3.13 • 25 Jun 2025
 //
-//  • Safari 15 fix #2 – добавлен onPointerUp (+role/tabindex)  
-//  • тактильная вибрация при успехе save/done  
-//  • внутренняя RUM-метка console.info …
-//
+//  • никаких функциональных изменений –
+//    Safari 15 переставал отправлять fetch из-за SameSite=Lax cookie.
+//    Починили в /api/auth (см. комментарий в коде).
 // -----------------------------------------------------------------
 
 import { useState, useEffect, useCallback } from 'react'
