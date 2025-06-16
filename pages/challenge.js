@@ -1,16 +1,19 @@
-// pages/challenge.js                          v3.11 • 24 Jun 2025
-//
-// ▸ Safari 15 / iOS 15: дубль onTouchEnd → POST гарантированно уходит
-// ▸ визуальный статус «сохраняю… / готово»
-// ▸ кнопки type="button"  ▸ мелкие правки комментариев
-//-----------------------------------------------------------------
 
-import { useState, useEffect } from 'react'
+// pages/challenge.js                       v3.12 • 24 Jun 2025
+//
+//  • Safari 15 fix #2 – добавлен onPointerUp (+role/tabindex)  
+//  • тактильная вибрация при успехе save/done  
+//  • внутренняя RUM-метка console.info …
+//
+// -----------------------------------------------------------------
+
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter }          from 'next/router'
 import Head                   from 'next/head'
 import Link                   from 'next/link'
 import DayMaterial            from '../components/DayMaterial'
 import useMe                  from '../utils/useMe'
+
 
 /* ──────────────────── SSR ──────────────────── */
 export async function getServerSideProps({ query, req }) {
@@ -66,124 +69,139 @@ export async function getServerSideProps({ query, req }) {
   }
 }
 
-/* ───────────────────── Client ───────────────────── */
-export default function ChallengePage({ dayNo, material, watched, unlockIn }) {
+
+
+/* ─────────────── Client ─────────────── */
+export default function ChallengePage ({ dayNo, material, watched, unlockIn }) {
 
   const router     = useRouter()
   const { mutate } = useMe()
 
   const [note  , setNote ] = useState(material.notes)
   const [isDone, setDone ] = useState(watched)
-  const [state , setState] = useState('idle')   // idle | saving | saved
+  const [state , setState] = useState('idle')           // idle | saving | saved
   const [secLeft, setLeft ] = useState(Math.max(0, Math.floor(unlockIn)))
 
-  /* live-таймер */
-  useEffect(()=>{
-    if (secLeft<=0) return
-    const id = setInterval(()=>setLeft(s=>s-1), 1_000)
-    return ()=>clearInterval(id)
-  },[secLeft])
+  /* таймер до разблокировки */
+  useEffect(() => {
+    if (secLeft <= 0) return
+    const id = setInterval(() => setLeft(s => s - 1), 1_000)
+    return () => clearInterval(id)
+  }, [secLeft])
 
-  /* сброс при навигации (?day=) */
-  useEffect(()=>{
-    setDone(watched); setNote(material.notes); setState('idle')
-  },[router.asPath, watched, material.notes])
+  /* сброс локального стейта при навигации ?day= */
+  useEffect(() => { setDone(watched); setNote(material.notes); setState('idle') },
+            [router.asPath, watched, material.notes])
 
-  /* финальное 🎉 */
-  useEffect(()=>{
-    if(isDone && dayNo===14)
-      import('canvas-confetti').then(m=>m.default({particleCount:180,spread:70}))
-  },[isDone,dayNo])
+  /* mini-🎉 */
+  useEffect(() => {
+    if (isDone && dayNo === 14)
+      import('canvas-confetti')
+        .then(m => m.default({ particleCount: 180, spread: 70 }))
+  }, [isDone, dayNo])
 
-  /* POST ↓ */
-  async function submit(saveOnly=false){
-    if(state==='saving') return
+  /* POST ---------------------------------------------------- */
+  const submit = useCallback(async (saveOnly = false) => {
+    if (state === 'saving') return
     setState('saving')
-    const r = await fetch('/api/challenge/mark',{
-      method      :'POST',
-      credentials :'include',
-      headers     :{ 'Content-Type':'application/json' },
-      body        : JSON.stringify({ day:dayNo, note:note.trim(), saveOnly })
-    }).then(r=>r.json()).catch(()=>({ok:false,error:'network'}))
 
-    if(!r.ok){
-      alert('⛔ '+ (r.error||'unknown error'))
-      if(r.error==='not-auth') location.href='/lk'
-      setState('idle'); return
+    const body = { day: dayNo, note: note.trim(), saveOnly }
+    console.info('%cPOST fired', 'color:#6c63ff', body)      // RUM-метка
+
+    const rsp = await fetch('/api/challenge/mark', {
+      method      : 'POST',
+      credentials : 'include',
+      headers     : { 'Content-Type': 'application/json' },
+      body        : JSON.stringify(body)
+    }).then(r => r.json()).catch(() => ({ ok: false, error: 'network' }))
+
+    if (!rsp.ok) {
+      alert('⛔ ' + (rsp.error || 'unknown error'))
+      if (rsp.error === 'not-auth') location.href = '/lk'
+      setState('idle')
+      return
     }
-    if(!saveOnly) setDone(true)
-    setState('saved'); setTimeout(()=>setState('idle'),1300)
+
+    /* success */
+    if (navigator.vibrate) navigator.vibrate(50)
+    if (!saveOnly) setDone(true)
+    setState('saved'); setTimeout(() => setState('idle'), 1200)
     mutate()
-  }
+  }, [note, dayNo, state, mutate])
 
-  /* хэндлеры (Safari 15 fix — тач может не дать click) */
-  const handleSave = () => submit(true)
-  const handleDone = () => submit(false)
+  /* Safari-fix : handler обёрнут, чтобы одну функцию отдавать во все события */
+  const handleSave = e => { e.preventDefault(); submit(true) }
+  const handleDone = e => { e.preventDefault(); submit(false) }
 
-  /* ─────────────────── markup ─────────────────── */
-  return(
-    <main style={{maxWidth:900,margin:'0 auto',padding:'1rem'}}>
+  /* ─────────────── markup ─────────────── */
+  return (
+    <main style={{ maxWidth: 900, margin: '0 auto', padding: '1rem' }}>
       <Head><title>День {dayNo} • Terra Zetetica</title></Head>
 
-      <DayMaterial material={material}/>
+      <DayMaterial material={material} />
 
       {/* прогресс 14 точек */}
-      <div style={{display:'flex',gap:6,margin:'22px 0'}}>
-        {Array.from({length:14}).map((_,i)=>(
+      <div style={{ display:'flex', gap:6, margin:'22px 0' }}>
+        {Array.from({ length:14 }, (_,i) => (
           <span key={i}
                 style={{
                   width:12,height:12,borderRadius:'50%',
-                  background:i<dayNo-1||i===dayNo-1&&isDone?'#28a745':'#ccc'
+                  background: i<dayNo-1 || i===dayNo-1&&isDone ? '#28a745':'#ccc'
                 }}/>
         ))}
       </div>
 
       {/* заметка + кнопки */}
-      <h3 style={{margin:'26px 0 6px'}}>📝 Ваша заметка</h3>
+      <h3 style={{ margin:'26px 0 6px' }}>📝 Ваша заметка</h3>
       <textarea rows={4} maxLength={1000}
-                style={{width:'100%',marginBottom:10}}
-                value={note} onChange={e=>setNote(e.target.value)}/>
+                style={{ width:'100%', marginBottom:10 }}
+                value={note} onChange={e => setNote(e.target.value)} />
 
-      <div style={{display:'flex',gap:14,flexWrap:'wrap',marginBottom:26}}>
+      <div style={{ display:'flex', gap:14, flexWrap:'wrap', marginBottom:26 }}>
+
+        {/* SAVE  */}
         <button type="button" className="btn primary"
-                onClick={handleSave} onTouchEnd={handleSave}>
-          {state==='saving' && '💾 сохраняю…'}
-          {state!=='saving' && '💾 Сохранить заметку'}
+                role="button" tabIndex={0}
+                onClick={handleSave} onPointerUp={handleSave}>
+          {state === 'saving' ? '💾 сохраняю…' : '💾 Сохранить заметку'}
         </button>
 
+        {/* DONE */}
         {!isDone && (
           <button type="button" className="btn primary"
-                  onClick={handleDone} onTouchEnd={handleDone}>
+                  role="button" tabIndex={0}
+                  onClick={handleDone} onPointerUp={handleDone}>
             ✅ Я осознанно изучил
           </button>
         )}
-        {isDone && <span style={{color:'#28a745',fontWeight:600}}>
+
+        {isDone && <span style={{ color:'#28a745', fontWeight:600 }}>
                      Материал пройден 🎉
                    </span>}
 
-        {state==='saved' && <span
-           style={{color:'#28a745',fontWeight:600,marginLeft:6}}>✔</span>}
+        {state === 'saved' &&
+          <span style={{ color:'#28a745', fontWeight:600, marginLeft:6 }}>✔</span>}
       </div>
 
       {/* таймер */}
-      {dayNo<14 && !isDone && secLeft>0 && (
-        <p style={{color:'#6c63ff'}}>
+      {dayNo < 14 && !isDone && secLeft > 0 && (
+        <p style={{ color:'#6c63ff' }}>
           ⏰ Следующий день откроется через&nbsp;
           <b>{Math.floor(secLeft/3600)} ч&nbsp;
-             {Math.floor(secLeft/60)%60} мин&nbsp;
-             {secLeft%60} с</b>
+             {Math.floor(secLeft/60)%60}&nbsp;мин&nbsp;
+             {secLeft%60}&nbsp;с</b>
         </p>
       )}
 
       {/* навигация */}
-      <nav style={{marginTop:30,display:'flex',
-                   justifyContent:'space-between',fontSize:18}}>
+      <nav style={{ marginTop:30, display:'flex',
+                    justifyContent:'space-between', fontSize:18 }}>
         <button type="button" className="btn-link"
-                onClick={()=>router.back()}>← Назад</button>
+                onClick={() => router.back()}>← Назад</button>
 
         <Link href="/lk?tab=progress" className="btn-link" scroll={false}>📈</Link>
 
-        {dayNo<14 && isDone && secLeft<=0 &&
+        {dayNo < 14 && isDone && secLeft <= 0 &&
           <Link href={`/challenge?day=${dayNo+1}`}
                 className="btn-link" scroll={false}>
             день {dayNo+1} →
@@ -191,8 +209,8 @@ export default function ChallengePage({ dayNo, material, watched, unlockIn }) {
       </nav>
 
       {/* финальный баннер */}
-      {dayNo===14 && isDone && (
-        <p style={{marginTop:30,fontSize:18,color:'green'}}>
+      {dayNo === 14 && isDone && (
+        <p style={{ marginTop:30, fontSize:18, color:'green' }}>
           🎉 Вы прошли все материалы!<br/>
           Перейдите в&nbsp;
           <Link href="/lk?tab=progress">личный&nbsp;кабинет</Link>,
@@ -202,3 +220,4 @@ export default function ChallengePage({ dayNo, material, watched, unlockIn }) {
     </main>
   )
 }
+
