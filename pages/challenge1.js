@@ -1,194 +1,177 @@
-// pages/challenge1.js  • offline‑friendly version of the 14‑day challenge page
-// ---------------------------------------------------------------------------
-// Goals
-//  1. 100 % надёжная кнопка «✅ Я осознанно…» даже при временных сетевых
-//     сбоях, старых мобильных браузерах, отсутствии Cookies и оффлайне.
-//  2. Мгновенный отклик UI (optimistic UI) + фоновая повторная отправка.
-//  3. Никаких лишних запросов — очередь хранится локально (localStorage).
-//  4. Код максимально повторяет «/challenge», чтобы не ломать логику SSR.
-// ---------------------------------------------------------------------------
+// pages/challenge1.js – playground with 5×2 fallback strategies + UI buttons
+// ========================================================================
+// URL     : /challenge1?day=3
+// Buttons : переключают варианты сохранения (A–E) и таймера (1–5)
+// ------------------------------------------------------------------------
+import { useEffect, useState, useCallback } from 'react';
+import { getCid } from '../utils/localAuth';
 
-import { useState, useEffect, useCallback } from 'react'
-import { useRouter }           from 'next/router'
-import Head                    from 'next/head'
-import Link                    from 'next/link'
-import DayMaterial             from '../components/DayMaterial'
-import useMe                   from '../utils/useMe'
+// ---------- экспериментальные матрицы -----------------------------------
+const SAVE_VARIANTS  = ['A', 'B', 'C', 'D', 'E'];
+const TIMER_VARIANTS = ['1', '2', '3', '4', '5'];
 
-/* --------------- constants & helpers --------------- */
-const LS_KEY = 'tz_pending_marks_v1'          // очередь «неотправленных» POST‑ов
+export default function Challenge1({ queryDay, querySave, queryTimer }) {
+  const [saveV,  setSaveV]  = useState(querySave);
+  const [timerV, setTimerV] = useState(queryTimer);
+  const [status, setStatus] = useState('idle'); // idle | saving | queued | saved | error
+  const [countdown, setCountdown] = useState(0);
 
-const readQueue   = () => JSON.parse(localStorage.getItem(LS_KEY) || '[]')
-const writeQueue  = q  => localStorage.setItem(LS_KEY, JSON.stringify(q))
-const pushToQueue = rec => { const q = readQueue(); q.push(rec); writeQueue(q) }
+  // --- helpers -----------------------------------------------------------
+  const reload = (k, v) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set(k, v);
+    window.location.href = url.toString();
+  };
 
-async function flushQueue () {
-  const queue = readQueue()
-  if (!queue.length) return
+  // --- SAVE STRATEGIES ---------------------------------------------------
+  const sendMark = useCallback(async () => {
+    if (status === 'saving') return;
+    setStatus('saving');
 
-  const rest = []
-  for (const rec of queue) {
-    try {
-      const ok = await fetch('/api/challenge/mark', {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(rec)
-      }).then(r => r.ok)
-      if (!ok) rest.push(rec)      // не удалось — остаётся в очереди
-    } catch { rest.push(rec) }
-  }
-  writeQueue(rest)
-}
-
-/* -------------------- SSR -------------------- */
-// Вытаскиваем готовую server‑side логику из существующей страницы
-export { getServerSideProps } from './challenge'
-
-/* ------------------ Component ----------------- */
-export default function Challenge1Page ({ dayNo, material, watched, unlockIn }) {
-
-  const router     = useRouter()
-  const { mutate } = useMe()
-
-  const [note  , setNote ] = useState(material.notes)
-  const [isDone, setDone ] = useState(watched)
-  const [state , setState] = useState('idle')           // idle | saving | saved
-  const [secLeft, setLeft ] = useState(Math.max(0, Math.floor(unlockIn)))
-
-  /* --- flush queue once on mount + при восстановлении сети/табов --- */
-  useEffect(() => {
-    flushQueue()
-    const onOnline = () => flushQueue()
-    window.addEventListener('online', onOnline)
-    document.addEventListener('visibilitychange', onOnline)
-    return () => {
-      window.removeEventListener('online', onOnline)
-      document.removeEventListener('visibilitychange', onOnline)
-    }
-  }, [])
-
-  /* --- таймер открытия следующего дня --- */
-  useEffect(() => {
-    if (secLeft <= 0) return
-    const id = setInterval(() => setLeft(s => s - 1), 1_000)
-    return () => clearInterval(id)
-  }, [secLeft])
-
-  /* --- сброс стейта при переходах между ?day= --- */
-  useEffect(() => { setDone(watched); setNote(material.notes); setState('idle') },
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-            [router.asPath, watched, material.notes])
-
-  /* --- мини‑конфетти на 14‑м дне --- */
-  useEffect(() => {
-    if (isDone && dayNo === 14)
-      import('canvas-confetti').then(m => m.default({ particleCount: 180, spread: 70 }))
-  }, [isDone, dayNo])
-
-  /* ----------- POST /api/challenge/mark ----------- */
-  const postMark = useCallback(async ({ saveOnly }) => {
-    if (state === 'saving') return
-    setState('saving')
-
-    const payload = { day: dayNo, note: note.trim(), saveOnly }
-
-    const trySend = async () => {
+    const payload = { day: queryDay, note: '' };
+    const attempt = async () => {
       try {
-        const rsp = await fetch('/api/challenge/mark', {
-          method: 'POST', credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
+        const ok = await fetch('/api/challenge/mark', {
+          method : 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-cid'       : getCid()
+          },
           body: JSON.stringify(payload)
-        })
-        return rsp.ok && (await rsp.json()).ok
-      } catch { return false }
+        }).then(r => r.ok);
+        return ok;
+      } catch (_) { return false; }
+    };
+
+    switch (saveV) {
+      // A: прямой запрос ----------------------------------------------------
+      case 'A': {
+        const ok = await attempt();
+        setStatus(ok ? 'saved' : 'error');
+        break;
+      }
+      // B: offline‑queue ---------------------------------------------------
+      case 'B': {
+        const queue = JSON.parse(localStorage.getItem('tz_pending') || '[]');
+        queue.push(payload);
+        localStorage.setItem('tz_pending', JSON.stringify(queue));
+        setStatus('queued');
+        break;
+      }
+      // C: sendBeacon ------------------------------------------------------
+      case 'C': {
+        const ok = navigator.sendBeacon && navigator.sendBeacon('/api/challenge/mark', JSON.stringify(payload));
+        setStatus(ok ? 'saved' : 'error');
+        break;
+      }
+      // D: idle‑callback + retry ------------------------------------------
+      case 'D': {
+        const retry = (n=0) => {
+          if (n>3) { setStatus('error'); return; }
+          requestIdleCallback(async () => {
+            const ok = await attempt();
+            ok ? setStatus('saved') : setTimeout(()=>retry(n+1), 2000);
+          });
+        };
+        retry();
+        break;
+      }
+      // E: Supabase client‑side upsert -------------------------------------
+      case 'E': {
+        const { supabase } = await import('../lib/supabase');
+        const { error } = await supabase.from('daily_progress').upsert({
+          citizen_id : Number(getCid()),
+          day_no     : queryDay,
+          watched_at : new Date().toISOString()
+        }, { onConflict: 'citizen_id,day_no' });
+        setStatus(error ? 'error' : 'saved');
+        break;
+      }
     }
+  }, [saveV, status, queryDay]);
 
-    const ok = await trySend()
+  // --- TIMER VARIANTS ----------------------------------------------------
+  useEffect(() => {
+    let stop;
+    const target = Date.now() + 1000*60*60*24; // 24h demo
+    const update = () => setCountdown(Math.max(0, target - Date.now()));
 
-    if (!ok) {
-      // ¯\\_(ツ)_/¯  Сеть недоступна / cookie пропали — кладём в офф‑очередь
-      pushToQueue(payload)
+    switch (timerV) {
+      case '1': stop = setInterval(update, 1000); break;
+      case '2': (function raf(){ update(); stop=requestAnimationFrame(raf); })(); break;
+      case '3': {
+        const el = document.createElement('div');
+        el.style.animation = 'tick 1s steps(1) infinite';
+        el.addEventListener('animationiteration', update);
+        document.body.appendChild(el);
+        stop = () => { el.remove(); };
+        break;
+      }
+      case '4': {
+        const worker = new Worker(URL.createObjectURL(new Blob([`
+          setInterval(()=>postMessage(Date.now()),1000);
+        `])));
+        worker.onmessage = update; stop = () => worker.terminate();
+        break;
+      }
+      case '5': {
+        const loop = () => { update(); stop=setTimeout(loop,800); }; loop();
+        break;
+      }
     }
+    return () => stop && (typeof stop==='number'?clearInterval(stop):stop());
+  }, [timerV]);
 
-    // optimistic UI
-    if (!saveOnly) setDone(true)
-    if (navigator.vibrate) navigator.vibrate(40)
-    setState('saved'); setTimeout(() => setState('idle'), 1200)
-    mutate()
-  }, [dayNo, note, state, mutate])
-
-  const handleSave = e => { e.preventDefault(); postMark({ saveOnly:true  }) }
-  const handleDone = e => { e.preventDefault(); postMark({ saveOnly:false }) }
-
-  /* ------------------- markup ------------------- */
+  // -----------------------------------------------------------------------
   return (
-    <main style={{ maxWidth: 900, margin: '0 auto', padding: '1rem' }}>
-      <Head><title>День {dayNo} • Terra Zetetica</title></Head>
+    <main style={{padding:20,fontFamily:'sans-serif'}}>
+      <h1>День {queryDay}</h1>
 
-      <DayMaterial material={material} />
-
-      {/* прогресс 14 точек */}
-      <div style={{ display:'flex', gap:6, margin:'22px 0' }}>
-        {Array.from({ length:14 }, (_,i) => (
-          <span key={i}
-                style={{
-                  width:12,height:12,borderRadius:'50%',
-                  background: i<dayNo-1 || (i===dayNo-1 && isDone) ? '#28a745':'#ccc'
-                }}/>
-        ))}
+      {/* ===== панель выбора вариантов ================================== */}
+      <div style={{display:'flex',gap:16,marginBottom:24}}>
+        {/* сохранялка */}
+        <fieldset>
+          <legend>Save variant</legend>
+          {SAVE_VARIANTS.map(v=>
+            <button key={v}
+              disabled={v===saveV}
+              style={{marginRight:4}}
+              onClick={()=>reload('save',v)}>{v}</button>) }
+        </fieldset>
+        {/* таймер */}
+        <fieldset>
+          <legend>Timer variant</legend>
+          {TIMER_VARIANTS.map(v=>
+            <button key={v}
+              disabled={v===timerV}
+              style={{marginRight:4}}
+              onClick={()=>reload('timer',v)}>{v}</button>) }
+        </fieldset>
       </div>
 
-      {/* заметка + кнопки */}
-      <h3 style={{ margin:'26px 0 6px' }}>📝 Ваша заметка</h3>
-      <textarea rows={4} maxLength={1000}
-                style={{ width:'100%', marginBottom:10 }}
-                value={note} onChange={e => setNote(e.target.value)} />
+      {/* ===== кнопка отметки ============================================ */}
+      <button onClick={sendMark} disabled={status==='saving'} style={{fontSize:24,padding:'8px 20px'}}>
+        ✅ Я осознанно изучил
+      </button>
+      <span style={{marginLeft:12}}>
+        {status==='saving' && 'Saving…'}
+        {status==='saved'  && 'Saved ✓'}
+        {status==='queued' && 'Queued ✓'}
+        {status==='error'  && 'Error ×'}
+      </span>
 
-      <div style={{ display:'flex', gap:14, flexWrap:'wrap', marginBottom:26 }}>
-        {/* SAVE */}
-        <button type="button" className="btn primary"
-                onClick={handleSave} onPointerUp={handleSave}>
-          {state === 'saving' ? '💾 сохраняю…' : '💾 Сохранить заметку'}
-        </button>
-
-        {/* DONE */}
-        {!isDone && (
-          <button type="button" className="btn primary"
-                  onClick={handleDone} onPointerUp={handleDone}>
-            ✅ Я осознанно изучил
-          </button>
-        )}
-
-        {isDone && <span style={{ color:'#28a745', fontWeight:600 }}>Материал пройден 🎉</span>}
-        {state === 'saved' && <span style={{ color:'#28a745', fontWeight:600, marginLeft:6 }}>✔</span>}
-      </div>
-
-      {/* таймер */}
-      {dayNo < 14 && !isDone && secLeft > 0 && (
-        <p style={{ color:'#6c63ff' }}>
-          ⏰ Следующий день откроется через&nbsp;
-          <b>{Math.floor(secLeft/3600)} ч&nbsp;
-             {Math.floor(secLeft/60)%60}&nbsp;мин&nbsp;
-             {secLeft%60}&nbsp;с</b>
-        </p>
-      )}
-
-      {/* навигация */}
-      <nav style={{ marginTop:30, display:'flex', justifyContent:'space-between', fontSize:18 }}>
-        <button type="button" className="btn-link" onClick={() => router.back()}>← Назад</button>
-        <Link href="/lk?tab=progress" className="btn-link" scroll={false}>📈</Link>
-        {dayNo < 14 && isDone && secLeft <= 0 &&
-          <Link href={`/challenge1?day=${dayNo+1}`} className="btn-link" scroll={false}>
-            день {dayNo+1} →
-          </Link>}
-      </nav>
-
-      {dayNo === 14 && isDone && (
-        <p style={{ marginTop:30, fontSize:18, color:'green' }}>
-          🎉 Вы прошли все материалы! Перейдите в&nbsp;
-          <Link href="/lk?tab=progress">личный&nbsp;кабинет</Link>, чтобы отправить доказательства «шара».
-        </p>
-      )}
+      {/* ===== таймер ===================================================== */}
+      <p style={{marginTop:24,fontSize:20}}>
+        <strong>До следующего дня: </strong>
+        {Math.floor(countdown/3600000)}ч {Math.floor(countdown/60000)%60}м {Math.floor(countdown/1000)%60}с
+      </p>
     </main>
-  )
+  );
 }
+
+// ------------------------------------------------------------------------
+Challenge1.getInitialProps = ({ query }) => ({
+  queryDay   : Number(query.day   || 1),
+  querySave  : (query.save  || SAVE_VARIANTS[0]).toUpperCase(),
+  queryTimer : (query.timer || TIMER_VARIANTS[0])
+});
