@@ -4,7 +4,7 @@
 // body (text/plain, up to few kB): JSON.stringify([...payloads])
 // payload item = { citizen_id, day_no, watched_at, note }
 
-import { supabase } from '../../../../lib/supabase';
+import { supabase } from '../../../lib/supabase';
 
 export const config = { api: { bodyParser: false } }; // raw body
 
