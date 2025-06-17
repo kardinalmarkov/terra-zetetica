@@ -1,31 +1,63 @@
-// pages/challenge2.js  · Markdown через react-markdown, без remark
+// pages/challenge2.js
 // ================================================================
-import { useEffect, useState, useRef } from 'react';
-import { supabase }                   from '../lib/supabase';
-import { getCid }                     from '../utils/localAuth';
-import ReactMarkdown                  from 'react-markdown';
-import Link                           from 'next/link';
+//  • URL: /challenge2?day=N     (N от 1 до 14)
+//  • Markdown через react-markdown
+//  • Сохранение:
+//       1) Supabase SDK upsert  → статус «Сохранено ✓»
+//       2) если ошибка/оффлайн → кладём в очередь LS  → «В очереди ✓»
+//       3) sendBeacon отправит очередь при закрытии вкладки
+//  • Таймер 24 ч – Web-Worker, fallback setInterval
+//-----------------------------------------------------------------
+
+import { useEffect, useState }   from 'react';
+import { supabase }              from '../lib/supabase';
+import { getCid }                from '../utils/localAuth';
+import ReactMarkdown             from 'react-markdown';
+import Link                      from 'next/link';
 
 const ONE_DAY  = 86_400_000;
 const queueKey = 'tz_queue_v1';
 
-export default function Challenge2({ day, materialMd }) {
-  /* --- state -------------------------------------------------------- */
+export default function Challenge({ day, material }) {
+  /* ---------------- state --------------------------------------- */
   const [note, setNote]         = useState('');
-  const [doneStatus, setDone]   = useState('idle');  // idle | saving | queued | saved | error
-  const [noteStatus, setNStat]  = useState('idle');  // для кнопки 💾
+  const [noteStatus, setNStat]  = useState('idle');    // idle | saving | saved | error
+  const [doneStatus, setDStat]  = useState('idle');    // idle | saving | saved | queued | error
   const [left, setLeft]         = useState(0);
-  const redirectRef             = useRef(null);
 
-  /* --- init: note + timer ------------------------------------------ */
+  /* ---------------- helpers ------------------------------------- */
+  async function upsert(payload) {
+    // Переименовываем поле note → notes, чтобы совпало со схемой
+    if (payload.note !== undefined) {
+      payload.notes = payload.note;
+      delete payload.note;
+    }
+    const { error } = await supabase
+      .from('daily_progress')
+      .upsert(payload, { onConflict: 'citizen_id,day_no' });
+    return !error;
+  }
+
+  async function flushQueue() {
+    const arr = JSON.parse(localStorage.getItem(queueKey) || '[]');
+    if (!arr.length) return;
+    const rest = [];
+    for (const p of arr) if (!(await upsert(p))) rest.push(p);
+    localStorage.setItem(queueKey, JSON.stringify(rest));
+    if (!rest.length && doneStatus === 'queued') setDStat('saved');
+  }
+
+  /* ---------------- initial load ------------------------------- */
   useEffect(() => {
+    // 1) подгружаем черновик заметки
     setNote(localStorage.getItem(`tz_note_${day}`) || '');
 
+    // 2) считаем остаток времени до следующего дня
     const started = Number(localStorage.getItem('tz_started') || Date.now());
     const next    = started + ONE_DAY;
     setLeft(Math.max(0, next - Date.now()));
 
-    /* Web-Worker-таймер (fallback setInterval) */
+    // 3) запускаем таймер (Web Worker если доступен)
     let stop;
     if (window.Worker) {
       const w = new Worker(URL.createObjectURL(
@@ -40,95 +72,86 @@ export default function Challenge2({ day, materialMd }) {
     return stop;
   }, [day]);
 
-  /* --- helpers ------------------------------------------------------ */
-  async function upsert(payload) {
-    const { error } = await supabase
-      .from('daily_progress')
-      .upsert(payload, { onConflict:'citizen_id,day_no' });
-    return !error;
-  }
-  async function flushQueue() {
-    const q = JSON.parse(localStorage.getItem(queueKey) || '[]');
-    if (!q.length) return;
-    const rest=[];
-    for (const p of q) if (!(await upsert(p))) rest.push(p);
-    localStorage.setItem(queueKey, JSON.stringify(rest));
-    if (!rest.length && doneStatus==='queued') setDone('saved');
-  }
-  /* queue flush hooks */
+  /* ---------------- queue listeners ----------------------------- */
   useEffect(() => {
     flushQueue();
     window.addEventListener('online', flushQueue);
     document.addEventListener('visibilitychange', flushQueue);
     window.addEventListener('pagehide', () => {
       const q = localStorage.getItem(queueKey);
-      if (!q || q==='[]') return;
+      if (!q || q === '[]') return;
       navigator.sendBeacon(`/api/challenge/beacon?cid=${getCid()}`, q);
     });
     return () => {
       window.removeEventListener('online', flushQueue);
       document.removeEventListener('visibilitychange', flushQueue);
     };
-  }, []);
+  }, [doneStatus]);
 
-  /* --- handlers ----------------------------------------------------- */
-  const saveNote = async () => {
-    if (noteStatus==='saving') return;
+  /* ---------------- handlers ------------------------------------ */
+  const handleSaveNote = async () => {
+    if (noteStatus === 'saving') return;
     setNStat('saving');
     const ok = await upsert({
       citizen_id : Number(getCid()),
       day_no     : day,
-      note       : note.trim()
+      note
     });
     setNStat(ok ? 'saved' : 'error');
+    if (ok) localStorage.removeItem(`tz_note_${day}`);
   };
 
-  const saveDone = async () => {
-    if (doneStatus==='saving') return;
-    setDone('saving');
+  const handleDone = async () => {
+    if (doneStatus === 'saving') return;
+    setDStat('saving');
+
     const payload = {
       citizen_id : Number(getCid()),
       day_no     : day,
       watched_at : new Date().toISOString(),
-      note       : note.trim()
+      note
     };
     const ok = await upsert(payload);
+
     if (ok) {
-      setDone('saved');
+      setDStat('saved');
       if (!localStorage.getItem('tz_started'))
         localStorage.setItem('tz_started', Date.now());
     } else {
+      // кладём в очередь (оффлайн или любая другая ошибка)
       const q = JSON.parse(localStorage.getItem(queueKey) || '[]');
       q.push(payload);
       localStorage.setItem(queueKey, JSON.stringify(q));
-      setDone('queued');
+      setDStat('queued');
     }
   };
 
-  const h=Math.floor(left/3_600_000), m=Math.floor(left/60_000)%60, s=Math.floor(left/1000)%60;
+  /* ---------------- render -------------------------------------- */
+  const h = Math.floor(left / 3_600_000);
+  const m = Math.floor(left / 60_000) % 60;
+  const s = Math.floor(left / 1000) % 60;
 
-  /* --- auto-redirect ------------------------------------------------ */
-  useEffect(() => {
-    if (left>0 || day===14) return;
-    if (redirectRef.current) return;
-    redirectRef.current = setTimeout(()=>location.href=`/challenge2?day=${day+1}`,5000);
-  }, [left, day]);
-
-  /* --- render ------------------------------------------------------- */
   return (
-    <main style={{padding:20,fontFamily:'system-ui'}}>
+    <main style={{padding:24,fontFamily:'system-ui'}}>
       <h1>День {day}</h1>
 
-      <ReactMarkdown>{materialMd||'*Нет контента*'}</ReactMarkdown>
+      <ReactMarkdown>{material || '*Нет контента*'}</ReactMarkdown>
 
       <textarea
         value={note}
-        onChange={e=>{setNote(e.target.value); localStorage.setItem(`tz_note_${day}`,e.target.value)}}
-        rows={4} style={{width:'100%',marginTop:16}}
+        onChange={e=>{
+          setNote(e.target.value);
+          localStorage.setItem(`tz_note_${day}`, e.target.value);
+        }}
+        rows={4}
+        style={{width:'100%',marginTop:16}}
       />
 
+      {/* -------- кнопка заметки -------- */}
       <div style={{marginTop:12,display:'flex',gap:12,alignItems:'center'}}>
-        <button onClick={saveNote} disabled={noteStatus==='saving'}>💾 Сохранить заметку</button>
+        <button onClick={handleSaveNote} disabled={noteStatus==='saving'}>
+          💾 Сохранить заметку
+        </button>
         <span>
           {noteStatus==='saving' && 'Сохраняю…'}
           {noteStatus==='saved'  && 'Сохранено ✓'}
@@ -136,8 +159,13 @@ export default function Challenge2({ day, materialMd }) {
         </span>
       </div>
 
+      {/* -------- кнопка завершения дня -------- */}
       <div style={{marginTop:16,display:'flex',gap:12,alignItems:'center'}}>
-        <button onClick={saveDone} disabled={doneStatus==='saving'} style={{fontSize:18}}>
+        <button
+          onClick={handleDone}
+          disabled={doneStatus==='saving'}
+          style={{fontSize:18}}
+        >
           ✅ Я осознанно изучил
         </button>
         <span>
@@ -148,27 +176,32 @@ export default function Challenge2({ day, materialMd }) {
         </span>
       </div>
 
+      {/* -------- таймер -------- */}
       <p style={{marginTop:24,fontSize:18}}>
-        {left>0
+        {left > 0
           ? `До следующего дня: ${h}ч ${m}м ${s}с`
-          : day<14
-            ? '✅ Время вышло — можно переходить к следующему дню.'
+          : day < 14
+            ? '✅ Можно переходить к следующему дню.'
             : '🎉 Челлендж завершён!'}
       </p>
-      {left<=0 && day<14 &&
-        <Link href={`/challenge2?day=${day+1}`}><a style={{fontSize:20}}>⏭ Перейти к дню {day+1}</a></Link>}
+
+      {left <= 0 && day < 14 &&
+        <Link href={`/challenge2?day=${day+1}`}>
+          ⏭ Перейти к дню {day+1}
+        </Link>}
     </main>
   );
 }
 
-/* ---------- SSR: контент дня --------------------------------------- */
-Challenge2.getInitialProps = async ({ query, res }) => {
+/* ---------- getInitialProps ------------------------------------ */
+Challenge.getInitialProps = async ({ query, res }) => {
   const day = Number(query.day || 1);
   const { data } = await supabase
     .from('daily_materials')
     .select('content_md')
     .eq('day_no', day)
     .single();
+
   if (res) res.setHeader('Cache-Control','s-maxage=3600, stale-while-revalidate');
-  return { day, materialMd: data?.content_md || '' };
+  return { day, material: data?.content_md || '' };
 };
