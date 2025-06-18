@@ -1,106 +1,187 @@
-// pages/challenge3.js — «железобетонный» вариант для самых старых браузеров
-// ========================================================================
-//  • без fetch: все вызовы через utils/sbRest.js (XMLHttpRequest)
-//  • полифиллы (Promise/Array.from) подгружаются лениво
-//  • onClick + onTouchEnd события
-//  • offline‑очередь localStorage (можно убрать, но без неё офлайн‑тапы теряются)
-// ------------------------------------------------------------------------
-import { useEffect, useState } from 'react'
-import Link                   from 'next/link'
-import DayMaterial            from '../components/DayMaterial'
+// pages/challenge3.js — «ультра-совместимый» вариант (XHR + полифиллы)
+// =============================================================
+import { useEffect, useState } from 'react';
+import sb                     from '../utils/sbRest';     // лёгкий XHR-клиент
+import DayMaterial            from '../components/DayMaterial';
+import Link                   from 'next/link';
+import { parse }              from 'cookie';
 
-// лёгкий XHR‑клиент
-import sb                     from '../utils/sbRest'
+const ONE_DAY  = 86_400_000;
+const queueKey = 'tz_queue_v1';
+const isBrowser = typeof window !== 'undefined';
 
-const ONE_DAY  = 86_400_000
-const QUEUE    = 'tz_queue_v1'
-
-export async function getServerSideProps({ query, req }) {
-  const { parse } = await import('cookie')
-  const { tg, cid } = parse(req.headers.cookie || '')
-  if (!tg || !cid) return { redirect:{destination:'/lk',permanent:false} }
-
-  const day = Math.min(Math.max(+query.day || 1,1),14)
-
-  // контент + прогресс — на сервере можно через supabase-js (node.js ≠ старый)
-  const { supabase } = await import('../lib/supabase')
-  const [mat, prg] = await Promise.all([
-    supabase.from('daily_materials').select('*').eq('day_no',day).single(),
-    supabase.from('daily_progress').select('day_no,watched_at').eq('citizen_id',cid)
-  ])
-
-  const watched = prg.data?.some(r=>r.day_no===day && r.watched_at)
-  return { props:{ day, material: mat.data||null, watched } }
+/* ---------- lazy polyfills (Promise, Array.from) ------------- */
+if (isBrowser) {
+  if (!('Promise' in window))         await import('es6-promise/auto');
+  if (!Array.from)                    Array.from = obj => [].slice.call(obj);
 }
 
-/* ------------------------- Client ------------------------- */
-export default function Challenge3({ day, material, watched }){
-  const [note,setNote]   = useState('')
-  const [ok,setOK]       = useState(watched)
-  const [left,setLeft]   = useState(()=>{
-    const st=+localStorage.getItem('tz_started')||Date.now();
-    return Math.max(0, st + day*ONE_DAY - Date.now())
-  })
-  const [stat,setStat]   = useState('idle') // idle|saving|saved|queued|err
+export default function Challenge({ day, material, canSkip }) {
+  /* ---------- state ------------------------------------------ */
+  const [note, setNote]      = useState('');
+  const [noteStat, setNS]    = useState('idle');      // idle | saving | saved | error
+  const [doneStat, setDS]    = useState('idle');      // idle | saving | saved | queued | error
+  const [left, setLeft]      = useState(canSkip ? 0 : ONE_DAY);
 
-  /* polyfills */
+  /* ---------- helpers ---------------------------------------- */
+  function upsert(row) {
+    if (row.note !== undefined) { row.notes = row.note; delete row.note; }
+    return sb.upsert('daily_progress', row, 'citizen_id,day_no');
+  }
+
+  async function flushQueue() {
+    if (!isBrowser) return;
+    const arr = JSON.parse(localStorage.getItem(queueKey) || '[]');
+    if (!arr.length) return;
+    const rest = [];
+    for (const r of arr) if (!(await upsert(r))) rest.push(r);
+    localStorage.setItem(queueKey, JSON.stringify(rest));
+    if (!rest.length && doneStat === 'queued') setDS('saved');
+  }
+
+  /* ---------- mount ------------------------------------------ */
   useEffect(()=>{
-    (async()=>{
-      if(typeof Promise==='undefined') await import('es6-promise/auto')
-      if(!Array.from) await import('core-js/features/array/from')
-    })()
-  },[])
 
-  /* таймер */
+    if (isBrowser) {
+      setNote(localStorage.getItem(`tz_note_${day}`) || '');
+    }
+
+    if (canSkip) { setLeft(0); return; }
+
+    const started = isBrowser
+      ? Number(localStorage.getItem('tz_started') || Date.now())
+      : Date.now();
+    const next    = started + ONE_DAY;
+    setLeft(Math.max(0, next - Date.now()));
+
+    let stop;
+    if (isBrowser && window.Worker) {
+      const w = new Worker(URL.createObjectURL(
+        new Blob(['setInterval(()=>postMessage(Date.now()),1000)'])
+      ));
+      w.onmessage = () => setLeft(Math.max(0, next - Date.now()));
+      stop = () => w.terminate();
+    } else {
+      const id = setInterval(() => setLeft(Math.max(0, next - Date.now())), 1000);
+      stop = () => clearInterval(id);
+    }
+    return stop;
+  }, [day, canSkip]);
+
+  /* ---------- queue listeners -------------------------------- */
   useEffect(()=>{
-    if(left<=0) return; const id=setInterval(()=>setLeft(l=>l>0?l-1000:0),1000);return()=>clearInterval(id)
-  },[left])
+    flushQueue();
+    if (!isBrowser) return;
+    window.addEventListener('online', flushQueue);
+    document.addEventListener('visibilitychange', flushQueue);
+    window.addEventListener('pagehide', () => {
+      const q = localStorage.getItem(queueKey);
+      if (!q || q === '[]') return;
+      navigator.sendBeacon(`/api/challenge/beacon?cid=${localStorage.cid}`, q);
+    });
+    return () => {
+      window.removeEventListener('online', flushQueue);
+      document.removeEventListener('visibilitychange', flushQueue);
+    };
+  }, [doneStat]);
 
-  /* flush queue online */
-  useEffect(()=>{ window.addEventListener('online',flushQ); return()=>window.removeEventListener('online',flushQ) },[])
+  /* ---------- handlers --------------------------------------- */
+  const saveNote = async () => {
+    if (noteStat==='saving') return;
+    setNS('saving');
+    const ok = await upsert({ citizen_id:+localStorage.cid, day_no:day, note });
+    setNS(ok?'saved':'error');
+    if (ok && isBrowser) localStorage.removeItem(`tz_note_${day}`);
+  };
 
-  async function flushQ(){
-    const q=JSON.parse(localStorage.getItem(QUEUE)||'[]'); if(!q.length) return;
-    const rest=[]; for(const r of q) if(!(await sb.upsert('daily_progress',r))) rest.push(r);
-    localStorage.setItem(QUEUE,JSON.stringify(rest)); if(!rest.length) setStat('saved')
-  }
+  const saveDone = async () => {
+    if (doneStat==='saving') return;
+    setDS('saving');
+    const row = { citizen_id:+localStorage.cid, day_no:day, watched_at:new Date().toISOString(), note };
+    const ok  = await upsert(row);
+    if (ok) {
+      setDS('saved');
+      if (isBrowser && !localStorage.getItem('tz_started'))
+        localStorage.setItem('tz_started', Date.now());
+    } else if (isBrowser) {
+      const q = JSON.parse(localStorage.getItem(queueKey) || '[]');
+      q.push(row);
+      localStorage.setItem(queueKey, JSON.stringify(q));
+      setDS('queued');
+    } else setDS('error');
+  };
 
-  async function handleDone(){
-    if(stat==='saving') return; setStat('saving')
-    const row={ citizen_id:+localStorage.cid, day_no:day, watched_at:new Date().toISOString(), notes:note }
-    const ok=await sb.upsert('daily_progress',row)
-    if(ok){ setOK(true); setStat('saved'); if(!localStorage.getItem('tz_started')) localStorage.tz_started=Date.now() }
-    else { const q=JSON.parse(localStorage.getItem(QUEUE)||'[]'); q.push(row); localStorage.setItem(QUEUE,JSON.stringify(q)); setStat('queued') }
-  }
-  async function handleNote(){
-    if(stat==='saving') return; setStat('saving')
-    const ok=await sb.patchNote(day,note)
-    setStat(ok?'saved':'err')
-  }
-
-  const h=Math.floor(left/3.6e6),m=Math.floor(left/6e4)%60,s=Math.floor(left/1e3)%60
+  /* ---------- render ----------------------------------------- */
+  const h=Math.floor(left/3_600_000), m=Math.floor(left/60_000)%60, s=Math.floor(left/1000)%60;
 
   return (
-    <main style={{maxWidth:820,margin:'0 auto',padding:20,fontFamily:'sans-serif'}}>
+    <main style={{padding:24,maxWidth:820,margin:'0 auto',fontFamily:'system-ui'}}>
       <h1>День {day}</h1>
-      {material ? <DayMaterial material={material}/> : <em>Нет контента</em>}
 
-      <textarea rows={4} style={{width:'100%',marginTop:16}} value={note} onChange={e=>setNote(e.target.value)}/>
+      {material
+        ? <DayMaterial day={day} data={material}/>
+        : <p><em>Нет контента</em></p>}
 
-      <div style={{display:'flex',gap:12,marginTop:12}}>
-        <button onClick={handleNote} onTouchEnd={e=>{e.preventDefault();handleNote()}}>💾 Сохранить</button>
-        <button onClick={handleDone} onTouchEnd={e=>{e.preventDefault();handleDone()}} disabled={ok}>✅ Я осознанно изучил</button>
-        {stat==='saved'&&'✓'}{stat==='queued'&&'В очереди ✓'}{stat==='saving'&&'…'}
+      <textarea
+        rows={4} style={{width:'100%',marginTop:16}}
+        value={note}
+        onChange={e=>{
+          setNote(e.target.value);
+          if(isBrowser) localStorage.setItem(`tz_note_${day}`,e.target.value);
+        }}
+      />
+
+      <div style={{display:'flex',gap:12,alignItems:'center',marginTop:12}}>
+        <button onClick={saveNote} onTouchEnd={e=>{e.preventDefault();saveNote();}}
+                disabled={noteStat==='saving'}>💾 Сохранить заметку</button>
+        {noteStat==='saving'&&'Сохраняю…'}
+        {noteStat==='saved'  &&'Сохранено ✓'}
+        {noteStat==='error'  &&'Ошибка ×'}
       </div>
 
-      {day<14 && (
-        <p style={{marginTop:24}}>До следующего дня: {h}ч {m}м {s}с</p>
-      )}
+      <div style={{display:'flex',gap:12,alignItems:'center',marginTop:16}}>
+        <button onClick={saveDone} onTouchEnd={e=>{e.preventDefault();saveDone();}}
+                disabled={doneStat==='saving'} style={{fontSize:18}}>
+          ✅ Я осознанно изучил
+        </button>
+        {doneStat==='saved'  &&'✓'}
+        {doneStat==='queued' &&'В очереди ✓'}
+        {doneStat==='saving' &&'Сохраняю…'}
+        {doneStat==='error'  &&'Ошибка ×'}
+      </div>
 
-      <nav style={{marginTop:32,display:'flex',justifyContent:'space-between'}}>
-        {day>1 && <Link href={`/challenge3?day=${day-1}`}>◀ День {day-1}</Link>}
-        {day<14 && <Link href={`/challenge3?day=${day+1}`} style={{opacity:left>0?0.4:1,pointerEvents:left>0?'none':'auto'}}>День {day+1} ▶</Link>}
-      </nav>
+      {!canSkip &&
+        <p style={{marginTop:24,fontSize:18}}>
+          До следующего дня: {h}ч {m}м {s}с
+        </p>}
+
+      <div style={{marginTop:32,display:'flex',justifyContent:'space-between'}}>
+        {day>1  && <Link href={`/challenge3?day=${day-1}`}>◀ День {day-1}</Link>}
+        {day<14 && <Link href={`/challenge3?day=${day+1}`}
+           style={{pointerEvents:(left>0&&!canSkip)?'none':'auto',
+                   opacity      :(left>0&&!canSkip)?0.4:1}}>
+           День {day+1} ▶</Link>}
+      </div>
     </main>
-  )
+  );
 }
+
+/* ---------- getInitialProps ---------------------------------- */
+Challenge.getInitialProps = async ({ req, res, query }) => {
+  const day = Number(query.day || 1);
+
+  // контент
+  const { data:material } = await sb.select('daily_materials','*',`day_no=eq.${day}`).single();
+
+  // can_skip
+  let canSkip=false;
+  if (req) {
+    const cid = parse(req.headers.cookie||'').cid;
+    if (cid) {
+      const { data:c } = await sb.select('citizens','can_skip',`id=eq.${cid}`).single();
+      canSkip = !!c?.can_skip;
+    }
+    res.setHeader('Cache-Control','s-maxage=300, stale-while-revalidate');
+  }
+  return { day, material, canSkip };
+};
