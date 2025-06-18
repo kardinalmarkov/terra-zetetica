@@ -1,5 +1,6 @@
 // pages/news.js
 import Head from 'next/head'
+import Link from 'next/link'
 
 const videos = [
   '5b64fe1e1a054fe3a9acbbe080d5b66e', // пример – можно расширять массив
@@ -15,7 +16,7 @@ export default function News() {
 
       <h1>Новости Terra Zetetica</h1>
       <p>Последние объявления, видеоролики и события нашего государства.</p>
-      
+
       {/* ----------------------------------------------------------- */}
       <article style={{background:'#F8F9FA',padding:'1.5rem 1rem',borderRadius:8,margin:'2rem 0'}}>
         <h2 style={{marginTop:0}}>🏠 Челлендж «Докажи шар — получи дом!»</h2>
