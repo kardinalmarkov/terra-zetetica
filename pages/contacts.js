@@ -78,6 +78,7 @@ export default function Contact() {
             <option value="Общий вопрос">❓ Общий вопрос</option>
             <option value="Предложение по анклаву">🏘 Предложение по анклаву</option>
             <option value="Техническая проблема">🚧 Техническая проблема</option>
+            <option value="Дом за шар">🏠 Дом за шар / Челлендж</option>
             <option value="Отчёт об анклаве">📸 Отчёт об анклаве</option>
             <option value="Другое">✉️ Другое</option>
           </select>
