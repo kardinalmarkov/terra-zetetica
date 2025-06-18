@@ -67,7 +67,7 @@ export default function Materials() {
   return (
     <>
       <Head>
-        <title>Материалы | Terra Zetetica</title>
+        <title>Материалы | Terra Zetetica (в процессе наполнения)</title>
       </Head>
 
       <main className="wrapper" style={{ maxWidth: 960, margin: '0 auto', padding: '2rem 1rem' }}>

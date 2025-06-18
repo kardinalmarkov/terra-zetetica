@@ -25,7 +25,7 @@ export default function Home() {
             <a href="/apply" className="btn primary">Стать гражданином</a>
             <button
               onClick={() => setTokensOpen(true)}
-              className="btn outline"
+              className="btn secondary"
             >
               Что такое Zetetic ID?
             </button>
