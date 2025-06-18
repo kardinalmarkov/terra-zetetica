@@ -130,9 +130,11 @@ export default function Challenge({ day, material, canSkip, cid }) {
       <h1>День {day}</h1>
 
       {/* ---- КОНТЕНТ ДНЯ ---- */}
-      {material
-        ? <DayMaterial material={material}/>   {/* ← фикс: prop = material */}
-        : <p><em>Нет контента</em></p>}
+      {material ? (
+        <DayMaterial material={material} />
+      ) : (
+        <p><em>Нет контента</em></p>
+      )}
 
       <textarea rows={4} style={{width:'100%',marginTop:16}}
         value={note}
