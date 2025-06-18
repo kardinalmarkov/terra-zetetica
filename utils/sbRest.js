@@ -1,38 +1,71 @@
-// utils/sbRest.js — минималистичный REST‑клиент Supabase поверх XMLHttpRequest
+// utils/sbRest.js
 // ---------------------------------------------------------------------------
-// Работает в любом браузере с XHR (Android 4.4, iOS 9). Никаких fetch/Promise не
-// требуется, но если Promise доступны — возвращаем real Promise, иначе свой poly.
+//  usage:
+//     import sb from '../utils/sbRest';
+//
+//     // SELECT
+//     const { data } = await sb.select('daily_materials', '*', 'day_no=eq.1').single();
+//
+//     // UPSERT (idempotent)
+//     await sb.upsert('daily_progress',
+//         { citizen_id: 1, day_no: 1, notes: 'ok' },
+//         'citizen_id,day_no');
+//
+//  options:
+//     select(table, columns='*', filter='', { head=false } )
+//       • .single()  -> first row or null
+//
+// ---------------------------------------------------------------------------
 
-(function(root,factory){
-  if(typeof module==='object'&&module.exports) module.exports=factory();
-  else root.sbRest=factory();
-})(typeof self!=='undefined'?self:this,function(){
+const URL  = process.env.NEXT_PUBLIC_SUPABASE_URL.replace(/\/$/, '') + '/rest/v1';
+const KEY  = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  var SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  var SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// ---------- low-level ------------------------------------------------------
+function xhr(method, path, body, extra = {}) {
+  return new Promise((resolve, reject) => {
+    try {
+      const r = new XMLHttpRequest();
+      r.open(method, URL + path, true);
+      r.setRequestHeader('apikey', KEY);
+      r.setRequestHeader('authorization', `Bearer ${KEY}`);
+      Object.keys(extra).forEach(k => r.setRequestHeader(k, extra[k]));
+      if (body) r.setRequestHeader('Content-Type', 'application/json');
 
-  function xhr(method, path, body, params){
-    return new Promise(function(res,rej){
-      var x = new XMLHttpRequest();
-      x.open(method, SB_URL + '/rest/v1' + path + (params||''), true);
-      x.setRequestHeader('apikey', SB_KEY);
-      x.setRequestHeader('authorization','Bearer '+SB_KEY);
-      x.setRequestHeader('Content-Type','application/json');
-      x.onload = function(){ res({ ok: (x.status/100|0)===2, status:x.status, json:function(){return JSON.parse(x.responseText||'null')} }); };
-      x.onerror= function(){ rej(new Error('network')); };
-      x.send(body?JSON.stringify(body):null);
-    });
-  }
+      r.onreadystatechange = () => {
+        if (r.readyState !== 4) return;
+        const ok = r.status >= 200 && r.status < 300;
+        const json = r.responseText ? JSON.parse(r.responseText) : null;
+        ok ? resolve({ status: r.status, data: json }) 
+           : reject({ status: r.status, error: json || r.statusText });
+      };
+      r.send(body ? JSON.stringify(body) : null);
+    } catch (err) { reject(err); }
+  });
+}
 
-  /* public api */
-  function select(table, query){
-    var qs = '?select=*' + (query||'');
-    return xhr('GET','/'+table, null, qs).then(function(r){return r.json();});
-  }
-  function upsert(table, row, onConflict){
-    var q='?on_conflict='+encodeURIComponent(onConflict)+'&return=minimal';
-    return xhr('POST','/'+table, row, q).then(function(r){return r.ok});
-  }
+// ---------- SELECT ---------------------------------------------------------
+function select(table, columns = '*', filter = '', opts = {}) {
+  const head   = opts.head ? '&head=true' : '';
+  const path   = `/${table}?select=${encodeURIComponent(columns)}${filter ? `&${filter}` : ''}${head}`;
+  const target = {
+    then: (res, rej) => xhr('GET', path, null).then(res, rej),
 
-  return { select:select, upsert:upsert };
-});
+    // sugar: .single()  (.maybeSingle() аналога нет — просто ловим null)
+    single: () =>
+      xhr('GET', path + '&limit=1', null, { Accept: 'application/vnd.pgrst.object+json' })
+        .then(({ data }) => ({ data }))
+  };
+  return target;
+}
+
+// ---------- UPSERT ---------------------------------------------------------
+function upsert(table, row, conflictKeys = '') {
+  const path = `/${table}${conflictKeys ? `?on_conflict=${conflictKeys}` : ''}`;
+  const headers = {
+    Prefer: 'return=minimal,resolution=merge-duplicates'   // 204 No Content, idempotent
+  };
+  return xhr('POST', path, row, headers).then(({ status }) => status === 204);
+}
+
+// ---------- PUBLIC API -----------------------------------------------------
+export default { select, upsert };
