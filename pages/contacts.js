@@ -38,7 +38,7 @@ export default function Contact() {
             <li>
               ✅ <a href="https://t.me/TerraZetetica" target="_blank" rel="noopener noreferrer">
                 Telegram-канал: <strong>@TerraZetetica</strong>
-              </a> – для официальных объявлений и новостей (в процессе создания)
+              </a> – для официальных объявлений и новостей (в процессе создания и наполнения)
             </li>
             <li>
               ✅ <a href="/enclaves" target="_blank" rel="noopener noreferrer">
