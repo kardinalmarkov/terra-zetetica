@@ -22,7 +22,6 @@ export default function EnclavePage() {
 
       <h2 className="text-2xl font-semibold mt-8 mb-2">🧭 Быстрые ссылки:</h2>
       <ul className="list-disc list-inside space-y-2">
-        <li><Link href="/enclaves/map" className="text-blue-600 hover:underline">🗺️ Интерактивная карта анклавов</Link></li>
         <li><Link href="/enclaves/new" className="text-blue-600 hover:underline">🆕 Создать анклав (расширенно)</Link></li>
       </ul>
     </main>

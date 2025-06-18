@@ -32,12 +32,12 @@ export default function Contact() {
           <ul style={{ paddingLeft: '1.2rem', lineHeight: '1.6' }}>
             <li>
               ✅ <a href="https://t.me/TerraZetChat" target="_blank" rel="noopener noreferrer">
-                Telegram-чат: <strong>@TerraZetChat</strong>
+                Telegram-чат (в процессе содания): <strong>@TerraZetChat</strong>
               </a> – для оперативного общения и вопросов
             </li>
             <li>
               ✅ <a href="https://t.me/TerraZetetica" target="_blank" rel="noopener noreferrer">
-                Telegram-канал: <strong>@TerraZetetica</strong>
+                Telegram-канал (в процессе содания): <strong>@TerraZetetica</strong>
               </a> – для официальных объявлений и новостей
             </li>
             <li>
