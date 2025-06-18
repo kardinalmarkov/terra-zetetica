@@ -11,6 +11,8 @@
     "@supabase/supabase-js": "^2.50.0",
     "canvas-confetti": "^1.9.3",
     "cookie": "^1.0.2",
+    "core-js": "^3.43.0",
+    "es6-promise": "^4.2.8",
     "framer-motion": "latest",
     "i18next": "^23.0.0",
     "jsonwebtoken": "^9.0.2",
