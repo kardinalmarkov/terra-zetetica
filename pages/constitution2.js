@@ -34,7 +34,7 @@ export default function Constitution() {
         <p>
           💾 <strong>Скачать PDF:</strong><br />
           <a
-            href="/public/1.2. Конституция Terra Zetetica.pdf"
+            href="/public/constitution-terra-zetetica-1-2.pdf"
             target="_blank"
             rel="noopener noreferrer"
             style={{ display: 'inline-block', margin: '1rem 0' }}
