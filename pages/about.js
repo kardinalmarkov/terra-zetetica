@@ -1,6 +1,8 @@
 // pages/about.js
 import Head from 'next/head'
 import Link from 'next/link'
+import Image from 'next/image'
+
 
 export default function About() {
   return (
@@ -18,7 +20,7 @@ export default function About() {
         <title>О государстве — Terra Zetetica</title>
       </Head>
 
-      {/* ── Слоган-баннер ─────────────────────────────────── */}
+      {/* ── Слоган‑баннер ─────────────────────────────────── */}
       <div
         style={{
           background: '#fff8e6',
@@ -35,18 +37,22 @@ export default function About() {
       </div>
 
       {/* --- HERO изображение макета под Куполом --- */}
-      <img
-        src="/images/flat-earth.jpg"
-        alt="Исторический макет под куполом"
-        style={{
-          width: '100%',
-          maxWidth: '520px',
-          display: 'block',
-          margin: '0 auto 2rem',
-          borderRadius: '12px',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
-        }}
-      />
+      <figure style={{ textAlign: 'center' }}>
+        <Image
+          src="/images/flat-earth.jpg"
+          alt="Исторический макет Плоской Земли под Куполом"
+          width={520}
+          height={340}
+          style={{
+            width: '100%',
+            height: 'auto',
+            borderRadius: '12px',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+          }}
+          priority
+        />
+      </figure>
+
 
       <h1>О государстве Terra Zetetica</h1>
 
