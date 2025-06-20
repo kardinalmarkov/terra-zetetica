@@ -72,7 +72,7 @@
 .moreWrap{position:relative;display:inline-block}
 .moreLabel{cursor:pointer;display:flex;align-items:center;gap:.25rem}
 .submenu{
-  position:absolute;top:100%;left:0; /* убран зазор, теперь кликабельно */
+  position:absolute;top:100%;left:0;
   background:#374151;border-radius:6px;padding:.5rem 0;
   display:none;flex-direction:column;min-width:180px;
   box-shadow:0 8px 16px rgba(0,0,0,.12);
@@ -91,4 +91,16 @@
 @media(max-width:768px){.mobile{display:flex;transform:translateY(-110%);transition:.3s}
 .open{transform:translateY(0)}}
 
+
+/* 👉 tagline — сделан компактнее и легче */
+.tagline{
+  font-size:.68rem;          /* меньше, чем раньше */
+  font-style:normal;         /* убрали курсив для читабельности */
+  font-weight:400;
+  color:#9ca3af;             /* светло‑серый */
+  margin-right:auto;
+  white-space:nowrap;
+  opacity:.85;
+}
+@media(max-width:880px){.tagline{display:none}}
 
