@@ -93,14 +93,9 @@
 
 
 /* 👉 tagline — сделан компактнее и легче */
+/* ▼ tagline -------------------------------------------- */
 .tagline{
-  font-size:.68rem;          /* меньше, чем раньше */
-  font-style:normal;         /* убрали курсив для читабельности */
-  font-weight:400;
-  color:#9ca3af;             /* светло‑серый */
-  margin-right:auto;
-  white-space:nowrap;
-  opacity:.85;
+  font-size:.75rem;font-style:italic;color:#d1d5db;margin-left:1rem;
 }
 @media(max-width:880px){.tagline{display:none}}
 
