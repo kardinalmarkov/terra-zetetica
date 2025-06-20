@@ -72,19 +72,29 @@ export default function About() {
       </p>
 
 
-      {/* --- Кнопка скачивания Конституции --- */}
-      <p style={{ textAlign: 'center', margin: '2rem 0' }}>
-        💾 <strong>Скачать PDF‑версию Конституции v1.2 (19‑06‑2025)</strong><br />
-        <a
-          className="btn primary"
-          href="/constitution-terra-zetetica-1-2.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ display: 'inline-block', marginTop: '1rem' }}
-        >
-          📜 Скачать с сайта
-        </a>
-      </p>
+
+
+{/* --- Кнопка скачивания Конституции и стать гражданином --- */}
+<p style={{ textAlign: 'center', margin: '2rem 0' }}>
+  💾 <strong>Скачать PDF‑версию Конституции v1.2 (19‑06‑2025)</strong><br />
+  <a
+    className="btn primary"
+    href="/constitution-terra-zetetica-1-2.pdf"
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{ display: 'inline-block', margin: '1rem 0.5rem' }}
+  >
+    📜 Скачать Конституцию
+  </a>
+  <Link
+    href="/apply"
+    className="btn secondary"
+    style={{ display: 'inline-block', margin: '1rem 0.5rem' }}
+  >
+    🪪 Стать гражданином
+  </Link>
+</p>
+
 
       {/* --- Анклавы --- */}
 
@@ -172,9 +182,8 @@ export default function About() {
     <strong>докажите экспериментально шарообразность Земли</strong> и получите реальную недвижимость в анклаве. <br/>
     Цель — включить критическое мышление и показать, как работает зететический метод.
   </p>
-  <Link href=\"/dom\" className=\"btn primary\" style={{ marginTop:'1rem' }}>
-    ➜  Принять вызов
-  </Link>
+
+<Link href="/dom"> ➜  Принять вызов</Link>
 </section>
 
 
