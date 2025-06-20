@@ -94,15 +94,6 @@ export default function Nav() {
         <Link href="/roadmap" onClick={closeMenu}>{t.roadmap}</Link>
         <Link href="/materials" onClick={closeMenu}>📚 {t.materials}</Link>
         <Link href="/dom" onClick={closeMenu}>🏰 {t.dom}</Link>
-        <a
-          href="https://zsearch.terra-zetetica.org"
-          onClick={closeMenu}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.searchLink}
-        >
-          🔍 {t.search}
-        </a>
         <Link href="/contacts" onClick={closeMenu}>{t.contacts}</Link>
         <Link href="/lk" className={styles.login} onClick={closeMenu}>{t.login}</Link>
         <Link href="/apply" className={`${styles.cta} ${styles.mobile}`} onClick={closeMenu}>{t.apply} ↗</Link>
