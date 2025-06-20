@@ -192,6 +192,13 @@ export default function About() {
         Terra Zetetica — не идея, а реальность, формирующаяся на наших глазах. Присоединяйтесь!
       </p>
 
+      <p style={{textAlign:'center', marginTop:'3rem'}}>
+        <Link href="/apply" target="_blank" rel="noopener noreferrer"
+              className="btn primary">
+          🪪 Стать гражданином ↗
+        </Link>
+      </p>
+
     </main>
   );
 }
