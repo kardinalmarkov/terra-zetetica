@@ -20,43 +20,32 @@ export default function About() {
         <title>О государстве — Terra Zetetica</title>
       </Head>
 
-      {/* ── Слоган‑баннер ─────────────────────────────────── */}
-      <div
-        style={{
-          background: '#fff8e6',
-          borderLeft: '6px solid #ffbf00',
-          padding: '1.25rem 1.5rem',
-          fontWeight: 700,
-          fontSize: '1.1rem',
-          textAlign: 'right',
-          marginBottom: '2rem',
-          borderRadius: '8px',
-        }}
-      >
-        Государство создано для человека, а&nbsp;не человек для государства
-      </div>
-
       {/* --- HERO изображение макета под Куполом --- */}
-      <figure style={{ textAlign: 'center' }}>
-        <Image
-          src="/images/flat-earth.jpg"
-          alt="Исторический макет Плоской Земли под Куполом"
-          width={520}
-          height={340}
-          style={{
-            width: '100%',
-            height: 'auto',
-            borderRadius: '12px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-          }}
-          priority
-        />
-      </figure>
-
+      <img
+        src="/images/flat-earth.jpg"
+        alt="Исторический макет под куполом"
+        style={{
+          width: '100%',
+          maxWidth: '520px',
+          display: 'block',
+          margin: '0 auto 2rem',
+          borderRadius: '12px',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
+        }}
+      />
 
       <h1>О государстве Terra Zetetica</h1>
 
-    
+      {/* ——— Слоган (виден и на мобиле) ——— */}
+      <p style={{
+        fontWeight: 600,
+        fontSize: '1rem',
+        textAlign: 'center',
+        margin: '0.5rem 0 1.5rem'
+      }}>
+        Государство создано для человека, а&nbsp;не человек для государства
+      </p>
+
       <p>
         В XX веке народ без территории, армии и международного признания основал Израиль. Это стало возможным благодаря внутренней идентичности, общей цели и воле к самоопределению.
       </p>
