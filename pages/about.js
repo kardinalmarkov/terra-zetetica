@@ -18,6 +18,22 @@ export default function About() {
         <title>О государстве — Terra Zetetica</title>
       </Head>
 
+      {/* ── Слоган-баннер ─────────────────────────────────── */}
+      <div
+        style={{
+          background: '#fff8e6',
+          borderLeft: '6px solid #ffbf00',
+          padding: '1.25rem 1.5rem',
+          fontWeight: 700,
+          fontSize: '1.1rem',
+          textAlign: 'right',
+          marginBottom: '2rem',
+          borderRadius: '8px',
+        }}
+      >
+        Государство создано для человека, а&nbsp;не человек для государства
+      </div>
+
       {/* --- HERO изображение макета под Куполом --- */}
       <img
         src="/images/flat-earth.jpg"
@@ -34,16 +50,7 @@ export default function About() {
 
       <h1>О государстве Terra Zetetica</h1>
 
-      {/* ——— Слоган (виден и на мобиле) ——— */}
-      <p style={{
-        fontWeight: 600,
-        fontSize: '1rem',
-        textAlign: 'center',
-        margin: '0.5rem 0 1.5rem'
-      }}>
-        Государство создано для человека, а&nbsp;не человек для государства
-      </p>
-
+    
       <p>
         В XX веке народ без территории, армии и международного признания основал Израиль. Это стало возможным благодаря внутренней идентичности, общей цели и воле к самоопределению.
       </p>
