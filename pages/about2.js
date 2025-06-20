@@ -61,9 +61,7 @@ export default function About() {
           получите <strong>дом в Европе</strong>. Задача челленджа —
           популяризировать зететический метод и запустить собственное мышление у тех, кто ещё
           полагается на догмы. 
-          <Link href="/dom" target="_blank" rel="noopener noreferrer">
-             Читать условия&nbsp;↗
-          </Link>
+          <Link href="/dom" target="_blank" rel="noopener noreferrer"> Читать условия&nbsp;↗</Link>
 
         </p>
       </section>
@@ -133,7 +131,7 @@ export default function About() {
           👉 <a href="https://www.vedomosti.ru/society/news/2022/08/02/934109-35-rossiyan-schitayut-chto-solntse-vraschaetsya-vokrug-zemli" target="_blank">Источник (Ведомости)</a>
         </li>
         <li>
-          🇺🇸 <strong>10% </strong> американцев уверены в альтернативной геомодели. 
+          🇺🇸 <strong>10% </strong> американцев также уверены в альтернативной геомодели. 
           Это <strong>33 миллиона человек</strong>. 👉 <a href="https://carsey.unh.edu/publication/conspiracy-vs-science-survey-us-public-beliefs" target="_blank">Carsey Institute</a>
         </li>
       </ul>

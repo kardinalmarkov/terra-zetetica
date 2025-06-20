@@ -67,3 +67,20 @@
 @media(max-width:880px){
   .menu{display:none}.burger{display:block}
 }
+
+
+
+
+/* dropdown */
+.moreWrap{position:relative;margin-left:.8rem}
+.moreBtn{cursor:pointer}
+.dropdown{
+  display:none;position:absolute;top:110%;right:0;
+  background:#374151;padding:.6rem 1rem;border-radius:6px;
+  flex-direction:column;gap:.4rem;white-space:nowrap;z-index:50
+}
+.dropdown a{color:#fff;text-decoration:none}
+.moreWrap:hover .dropdown{display:flex}
+
+/* кнопка-акцент */
+.cta{color:#ffbf00!important;font-weight:600}
