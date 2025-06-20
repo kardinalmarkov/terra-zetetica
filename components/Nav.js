@@ -88,8 +88,6 @@ export default function Nav() {
         <Link href="/" onClick={closeMenu}>{t.home}</Link>
         <Link href="/about" onClick={closeMenu}>{t.about}</Link>
         <Link href="/news" onClick={closeMenu}>{t.news}</Link>
-        {/* На мобиле оставляем все пункты открытыми, без подменю */}
-        <Link href="/constitution" onClick={closeMenu}>{t.constitution}</Link>
         <Link href="/faq" onClick={closeMenu}>{t.faq}</Link>
         <Link href="/roadmap" onClick={closeMenu}>{t.roadmap}</Link>
         <Link href="/materials" onClick={closeMenu}>📚 {t.materials}</Link>
