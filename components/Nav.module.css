@@ -68,11 +68,11 @@
   .menu{display:none}.burger{display:block}
 }
 
-/* ▼ dropdown «Ещё…» ------------------------------------- */
-.moreWrap{position:relative}
+/* ▼ dropdown «Ещё… / More…» */
+.moreWrap{position:relative;display:inline-block}
 .moreLabel{cursor:pointer;display:flex;align-items:center;gap:.25rem}
 .submenu{
-  position:absolute;top:calc(100% + 6px);left:0;
+  position:absolute;top:100%;left:0; /* убран зазор, теперь кликабельно */
   background:#374151;border-radius:6px;padding:.5rem 0;
   display:none;flex-direction:column;min-width:180px;
   box-shadow:0 8px 16px rgba(0,0,0,.12);
@@ -81,11 +81,14 @@
   color:#fff;padding:.35rem 1rem;text-decoration:none;white-space:nowrap;
 }
 .submenu a:hover{background:#475569}
-.moreWrap:hover .submenu{display:flex}
+.moreWrap:hover .submenu,
+.moreWrap:focus-within .submenu{display:flex}
 
-/* ▼ tagline -------------------------------------------- */
-.tagline{
-  font-size:.75rem;font-style:italic;color:#d1d5db;margin-left:1rem;
-}
-@media(max-width:880px){.tagline{display:none}}
+/* 👉 mobile sheet */
+.mobile{display:none;flex-direction:column;background:#1f2937;position:fixed;top:48px;left:0;right:0;z-index:999}
+.mobile a{padding:.65rem 1rem;color:#fff;text-decoration:none;border-bottom:1px solid #374151}
+.mobile a:hover{background:#111827}
+@media(max-width:768px){.mobile{display:flex;transform:translateY(-110%);transition:.3s}
+.open{transform:translateY(0)}}
+
 
