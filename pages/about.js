@@ -197,7 +197,7 @@ export default function About() {
       <p style={{textAlign:'center', marginTop:'3rem'}}>
         <Link href="/apply" target="_blank" rel="noopener noreferrer"
               className="btn primary">
-          🪪 Стать гражданином ↗
+          Стать гражданином ↗
         </Link>
       </p>
 
