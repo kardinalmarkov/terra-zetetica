@@ -122,8 +122,11 @@ export default function LK ({ user, citizen, progress, notesJSON }) {
         {/* PASSPORT / CHALLENGE */}
         {tab==='passport' && (
           <>
-            {citizen && citizen.zetetic_id &&
-              <p><strong>Z-ID:</strong> {citizen.zetetic_id}</p>}
+            
+              
+
+              {/* ⚠️ Z-ID временно скрыт — будет доступен после релиза паспортов  {citizen && citizen.zetetic_id &&       <p><strong>Z-ID:</strong> {citizen.zetetic_id}</p>} */}
+              <p style={{opacity:.6}}>🚧 Паспорт Zetetic&nbsp;ID&nbsp;— в&nbsp;разработке</p>
 
             {/* кнопка теперь показывается ТОЛЬКО если status='inactive' */}
             {citizen?.challenge_status==='inactive' && (
