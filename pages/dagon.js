@@ -1,173 +1,183 @@
 // pages/dagon.js
-import {useState,useEffect} from 'react';
-import Head                 from 'next/head';
+import { useState, useRef } from 'react';
+import Head from 'next/head';
 
-export default function Dagon(){
+/*
+  ──────────────────────────────────────────────────────────────────────────
+  1.  СТРАНИЦА ДАГОНА   (Next-JS / React)  –   единственный front-end файл
+      – ничего больше на клиенте менять не нужно.
+  2.  Бэкенд-расчёт остаётся прежним:      https://bankrot.express/calculate4.php
+  3.  Все таблицы, которые приезжают из PHP, автоматически «поджимаются»
+      с помощью CSS-правил ниже (calculate4.php трогать не придётся).
+  ──────────────────────────────────────────────────────────────────────────
+*/
 
-  /* ---------------- state ---------------- */
-  const [birth , setBirth ] = useState('');
-  const [html  , setHtml  ] = useState('');
-  const [error , setError ] = useState('');
-  const [kbOpen, setKbOpen] = useState(false);
+export default function Dagon() {
+  const [html, setHtml] = useState('');
+  const [showVK, setShowVK] = useState(false);
+  const inputRef = useRef(null);
 
-  /* ------------ helpers ------------- */
-  const yearFromBirth = (b)=>+b.slice(4);
+  /* ─ helpers ─────────────────────────────────────────────────────────── */
 
-  async function handleSubmit(e){
-    e.preventDefault();
-    if(birth.length!==8){setError('Введите 8 цифр (ДДММГГГГ)');return;}
+  const addDigit = d => {
+    if (!inputRef.current) return;
+    if (inputRef.current.value.length < 8) {
+      inputRef.current.value += d;
+      if (inputRef.current.value.length === 8) setShowVK(false);
+    }
+  };
 
-    /*  —- дата ≥ 2000 ?  —- */
-    if(yearFromBirth(birth)>=2000){
-      setHtml(`<p style="color:#c00;font-weight:600">
-                ⚠️ С&nbsp;1&nbsp;января&nbsp;2000 метод расчёта меняется,
-                поэтому результат может быть некорректен.</p>`);
+  const clearInput = () => {
+    if (inputRef.current) inputRef.current.value = '';
+  };
+
+  const calculate = async () => {
+    const val = inputRef.current?.value.trim();
+    if (!/^\d{8}$/.test(val)) {
+      alert('Введите дату в формате ДДММГГГГ');
       return;
     }
-
-    try{
-      setError('');
-      const body=new URLSearchParams();body.append('birthdate',birth);
-      const r=await fetch('https://bankrot.express/calculate4.php',{
-        method:'POST',
-        headers:{'Content-Type':'application/x-www-form-urlencoded'},
-        body});
-      if(!r.ok) throw new Error('Сервер не отвечает');
-      setHtml(await r.text());
-      setKbOpen(false);                        // прячем клавиатуру
-    }catch(e){setError(e.message);setHtml('');}
-  }
-
-  /* ----- подцепляем «Дополнительно» из PHP-ответа ------ */
-  useEffect(()=>{
-    if(!html) return;
-    const btn  =[...document.querySelectorAll('.dagon-html button')]
-                .find(b=>b.textContent.trim()==='Дополнительно');
-    const info = document.getElementById('additionalInfo');
-    if(btn && info){
-      info.style.display='none';
-      const t=()=>info.style.display=
-               info.style.display==='none'?'block':'none';
-      btn.addEventListener('click',t);
-      return()=>btn.removeEventListener('click',t);
+    try {
+      const body = new URLSearchParams({ birthdate: val }).toString();
+      const res  = await fetch(
+        'https://bankrot.express/calculate4.php',
+        { method: 'POST', headers: { 'Content-Type':'application/x-www-form-urlencoded' }, body }
+      );
+      setHtml(await res.text());
+      setShowVK(false);
+    } catch (e) {
+      console.error(e);
+      alert('Ошибка при обращении к серверу');
     }
-  },[html]);
-
-  /* ---------------- keyboard ---------------- */
-  const digits=['1','2','3','4','5','6','7','8','9','0'];
-  const addDigit = (d)=>{
-    if(birth.length<8) setBirth(birth+d);
   };
-  const clear   = ()=>setBirth('');
-  const submit  = ()=>document.getElementById('dagonForm').dispatchEvent(
-                    new Event('submit',{cancelable:true, bubbles:true}));
 
-  /* ================= render ================ */
-  return(
-   <>
-    <Head><title>Расчёт дагона • Terra Zetetica</title></Head>
+  /* ─ JSX ─────────────────────────────────────────────────────────────── */
 
-    <main className="wrap">
+  return (
+    <>
+      <Head>
+        <title>Расчёт дагона</title>
+      </Head>
 
-      <h1>Расчёт дагона</h1>
+      <main className="wrapper">
+        <h1>Расчёт дагона</h1>
 
-      <form id="dagonForm" onSubmit={handleSubmit} className="form">
-        <button type="button"
-                className="vkBtn"
-                onClick={()=>setKbOpen(!kbOpen)}>Введите</button>
+        <div className="form">
+          <button className="openvk" onClick={() => setShowVK(v => !v)}>
+            Введите
+          </button>
 
-        <input value={birth}
-               onChange={e=>setBirth(e.target.value.replace(/\D/g,''))}
-               maxLength={8}
-               placeholder="ДДММГГГГ"
-               className="input"/>
+          <input
+            ref={inputRef}
+            type="text"
+            maxLength={8}
+            placeholder="ДДММГГГГ"
+          />
 
-        <button className="btn">Рассчитать</button>
-      </form>
+          <button onClick={calculate}>Рассчитать</button>
+        </div>
 
-      { kbOpen &&
-        <div className="vkWrap">
-          <table>
-            {[[0,1,2],[3,4,5],[6,7,8],[9]].map((row,i)=>(
-              <tr key={i}>{row.map(idx=>(
-                <td key={idx} onClick={()=>addDigit(digits[idx])}>{digits[idx]}</td>
-              ))}
-              {i===3&&<>
-                <td onClick={clear}>C</td>
-                <td onClick={submit} colSpan={2}>Ввод</td>
-              </>}
-              </tr>
-            ))}
-          </table>
-        </div>}
+        {/* virtual keyboard */}
+        {showVK && (
+          <div className="vkWrap">
+            <table>
+              <tbody>
+                {[['1','2','3'],['4','5','6'],['7','8','9'],['C','0','Ввод']].map(r=>(
+                  <tr key={r.join('')}>
+                    {r.map(cell=>(
+                      <td
+                        key={cell}
+                        onClick={()=>{
+                          if(cell==='C') clearInput();
+                          else if(cell==='Ввод') calculate();
+                          else addDigit(cell);
+                        }}
+                      >{cell}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-      {error && <p className="err">{error}</p>}
+        {/* HTML с расчёта PHP (safe – приходит от вашего сервера) */}
+        <div
+          className="dagon-html"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </main>
 
-      <div className="dagon-html" dangerouslySetInnerHTML={{__html:html}}/>
+      {/* ─────────── STYLES ─────────── */}
+      <style jsx>{`
+        .wrapper{
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 40px 16px 120px;
+        }
+        h1{ text-align:center;margin-bottom:24px }
+        .form{
+          display:flex;
+          flex-wrap:wrap;
+          gap:12px;
+          justify-content:center;
+          margin-bottom:24px;
+        }
+        .form input{
+          padding:6px 10px;
+          font-size:16px;
+          width:140px;
+        }
+        .form button{
+          cursor:pointer;
+          padding:6px 12px;
+          font-size:16px;
+          border:1px solid #111;
+          background:#f3f3f3;
+        }
+        .openvk{
+          font-weight:600;
+        }
 
-      {/* collapsibles */}
-      <details className="accord">
-        <summary>Методика расчёта</summary>
-        <p>1. Берём дату рождения… (полный текст методики как у Вас)</p>
-      </details>
+        /* ─ virtual keyboard compact ─ */
+        .vkWrap           {max-width:240px;margin:12px auto}
+        .vkWrap table     {width:100%;border-collapse:collapse}
+        .vkWrap td        {width:33.33%;padding:10px 0;border:1px solid #000;
+                           font-size:1.2rem;text-align:center;cursor:pointer;
+                           user-select:none}
 
-      <details className="accord">
-        <summary>Правила использования</summary>
-        <ol>
-          <li>Не считать дагоны умерших.</li>
-          <li>Не озвучивать расчёт… пока не разберётесь в трактовке.</li>
-        </ol>
-      </details>
+        .vkWrap tr:last-child td{font-size:.9rem}
 
-    </main>
+        /* ─ к расчётному HTML ─ */
+        .dagon-html table{
+          border-collapse:collapse;
+          width:100%;
+          margin:16px 0;
+        }
+        /* первая (E1-E6) таблица ограничиваем ширину и подкрашиваем */
+        .dagon-html table:first-of-type{
+          max-width:560px;
+          margin:24px auto 32px;
+        }
+        .dagon-html table:first-of-type th{
+          background:#fafafa;
+          font-weight:700;
+        }
+        .dagon-html table:first-of-type td{
+          background:#fffef2;
+        }
 
-    {/* ============== STYLE ============== */}
-    <style jsx>{`
-      .wrap {max-width:960px;margin:40px auto;padding:0 16px;font:16px/1.45 Roboto,Arial,sans-serif}
-      h1    {text-align:center;font-size:2rem;margin-bottom:24px}
-      /* form */
-      .form {display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:24px}
-      .input{border:1px solid #bbb;border-radius:4px;padding:6px 10px;width:128px;text-align:center}
-      .btn  {background:#0060e6;border:none;border-radius:4px;color:#fff;padding:6px 14px;cursor:pointer}
-      .btn:hover{background:#004bbf}
-      .vkBtn{border:2px solid #0060e6;background:#fff;border-radius:4px;padding:4px 10px;cursor:pointer}
-      .vkBtn:hover{background:#e9f1ff}
-      .err  {color:#c00;text-align:center;margin-bottom:16px}
-      /* virtual kb */
-      .vkWrap table{margin:0 auto;border-collapse:collapse}
-      .vkWrap td{width:64px;height:64px;border:1px solid #000;text-align:center;
-                 vertical-align:middle;font-size:1.4rem;cursor:pointer}
-      .vkWrap td:hover{background:#f3f3f3}
-      /* === контент из PHP === */
-      .dagon-html{--accent:#0060e6;--good:#0a8400;--warn:#c00}
-      /* первая таблица */
-      .dagon-html table:first-of-type{border-collapse:collapse;margin:16px 0}
-      .dagon-html table:first-of-type th,
-      .dagon-html table:first-of-type td{border:1px solid #999;padding:4px 8px;font-size:.9rem}
-      .dagon-html table:first-of-type tr:nth-child(1) th{background:#f7f7f7;font-weight:700}
-      .dagon-html table:first-of-type tr:nth-child(2) td{background:#fffde6}
-      .dagon-html table:first-of-type td:nth-child(3){color:var(--good);font-weight:700}
-      /* квадрат Пифагора */
-      .dagon-html .number-square{max-width:420px;border-collapse:collapse;margin:24px auto}
-      .dagon-html .number-square td{padding:6px 4px;font-size:.8rem;text-align:center;border:1px solid #999}
-      .dagon-html .number-square .number{font-weight:700;border-bottom:1px dashed rgba(0,0,0,.5)}
-      .dagon-html .number-square .description{color:var(--good);font-size:.72rem}
-      .dagon-html .number-square tr:nth-child(1) td,
-      .dagon-html .number-square tr:nth-child(3) td,
-      .dagon-html .number-square tr:nth-child(5) td{border-top:2px solid #000}
-      .dagon-html .number-square tr:last-child td{border-bottom:2px solid #000}
-      .dagon-html .number-square td:nth-child(1),
-      .dagon-html .number-square td:nth-child(3){border-left:2px solid #000}
-      .dagon-html .number-square td:nth-child(3){border-right:2px solid #000}
-      /* кнопка "Дополнительно" */
-      .dagon-html button{background:#00833e;color:#fff;border:none;
-                         padding:4px 12px;border-radius:3px;cursor:pointer}
-      .dagon-html button:hover{background:#06692f}
-      /* accordions */
-      .accord{margin:32px 0;border-top:1px solid #ccc;padding-top:8px}
-      .accord summary{cursor:pointer;font-weight:600;color:#0060e6}
-      .accord[open]{padding-bottom:12px}
-    `}</style>
-   </>
+        /* все последующие квадраты-таблицы узкие */
+        .dagon-html table:not(:first-of-type):not(.number-square){
+          max-width:380px;
+          margin:24px auto;
+        }
+        .dagon-html td{
+          border:1px solid #999;
+          padding:6px 8px;
+          text-align:center;
+        }
+      `}</style>
+    </>
   );
 }
