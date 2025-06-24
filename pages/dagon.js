@@ -216,18 +216,26 @@ export default function Dagon() {useState, useRef
         /* блок результата */
         .dagon table{border-collapse:collapse;width:100%;margin:24px 0;font-size:15px}
         .dagon table:first-of-type{max-width:560px;margin:20px auto}
+
+        /* — тёплый жёлтый фон по банку — */
+        .dagon table:first-of-type td:first-child{
+          background:#fff9d6;        /* колонка «Дата рождения» */
+          font-weight:600;
+        }
+        .dagon table:first-of-type tr:nth-child(2) td{
+          background:#fffde7;        /* строка-результат (значения) */
+          font-size:17px;
+        }
+
+
         .dagon th{background:#ececec;font-weight:700;text-align:center;padding:6px 4px}
         .dagon td{padding:6px 8px;text-align:center;border:1px solid #bbb}
-        /* фон для первой таблицы */
-        .dagon table:first-of-type td{background:#fffef2}
-        /* E2 (3-й столбец) выделяем !important */
 
-        .dagon table:first-of-type tr td:nth-child(3),
-        .dagon table:first-of-type tr th:nth-child(3){
-          color:#008000 !important;
-          font-weight:700 !important;
-          background:#f0fff4 !important;        /* лёгкий салатовый фон */
+        .dagon table:first-of-type td,
+        .dagon table:first-of-type th{
+          padding:4px 6px;           /* было 6 × 8 — уменьшили отступы */
         }
+
 
         /* квадраты ниже ужимаем */
         .dagon table:not(:first-of-type){max-width:380px;margin:24px auto;font-size:15px}
