@@ -3,10 +3,11 @@
  *  (скопируйте как есть ─ на Vercel перезальётся одним файлом)
  *********************************************************************/
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+
 import Head from 'next/head';
 
-export default function Dagon() {
+export default function Dagon() {useState, useRef
   /* ─────────── state ─────────── */
   const [html, setHtml]       = useState('');
   const [showKB, setShowKB]   = useState(false);
@@ -37,6 +38,16 @@ export default function Dagon() {
         { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body }
       );
       setHtml(await r.text());
+      /* ─── подсветить 3-й столбец (E2) ─── */
+      setTimeout(()=>{
+        const tbl = document.querySelector('.dagon table');   // первая таблица
+        if(!tbl) return;
+        [...tbl.rows].forEach(row=>{
+          const cell = row.children[2];                       // индекс 2 = E2
+          if(cell) cell.classList.add('e2');
+        });
+      },0);
+
     } catch (e) {
       console.error(e); alert('Ошибка соединения');
     }
@@ -63,7 +74,7 @@ export default function Dagon() {
             ref={inputRef}
             maxLength={8}
             placeholder="ДДММГГГГ"
-            onKeyDown={e=>e.key==='Enter'&&calc()}
+            onKeyDown={e=>e.key==='Enter' && calc()}
           />
           <button className="btn primary" onClick={calc}>Рассчитать</button>
         </div>

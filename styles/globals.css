@@ -633,3 +633,11 @@ ul.notes-list{padding-left:1.1rem}            /* новый класс */
 /* styles/globals.css ─ слегка «отодвинули» список */
 .notes-list{padding-left:18px}
 
+
+/* подчёркиваем E-ячейку даже если сторонние стили перезаписывают фон */
+.dagon table:first-of-type td:nth-child(3),
+.dagon table:first-of-type th:nth-child(3){
+  background:#e8fff0!important;
+  color:#067c00!important;
+  font-weight:700!important;
+}
