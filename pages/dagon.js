@@ -56,9 +56,11 @@ export default function Dagon() {
 
         <div className="form">
           <button className="btn"         onClick={()=>setShowKB(v=>!v)}>Введите</button>
+          дату рождения (ДДММГГГГ):
           <input  ref={inputRef} maxLength={8} placeholder="ДДММГГГГ"/>
           <button className="btn primary" onClick={calc}>Рассчитать</button>
         </div>
+
 
         {/* клавиатура */}
         {showKB && (
@@ -197,9 +199,26 @@ export default function Dagon() {
         /* фон для первой таблицы */
         .dagon table:first-of-type td{background:#fffef2}
         /* E2 (3-й столбец) выделяем !important */
-        .dagon table:first-of-type td:nth-child(3){color:#008000 !important;font-weight:700}
+
+        .dagon table:first-of-type tr td:nth-child(3),
+        .dagon table:first-of-type tr th:nth-child(3){
+          color:#008000 !important;
+          font-weight:700 !important;
+          background:#f0fff4 !important;        /* лёгкий салатовый фон */
+        }
+
         /* квадраты ниже ужимаем */
         .dagon table:not(:first-of-type){max-width:380px;margin:24px auto;font-size:15px}
+
+        /* кнопка «Рассчитать» крупнее / мягче */
+        .btn.primary.big{
+          padding:10px 26px;
+          font-size:18px;
+          background:#2563eb;      /* indigo-600 */
+          border-color:#2563eb;
+        }
+        .btn.primary.big:hover{background:#1e40af;border-color:#1e40af}
+
         /* info */
         .infoBtn{display:block;margin:32px auto 16px;background:#f2f2f2;border:1px solid #333;padding:6px 18px;cursor:pointer;font-size:16px}
         .info{max-width:780px;margin:0 auto 48px;font-size:16px;line-height:1.55}
