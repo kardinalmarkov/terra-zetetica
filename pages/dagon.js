@@ -24,6 +24,10 @@ export default function Dagon() {
   const clear = () => inputRef.current && (inputRef.current.value = '');
 
   const calc = async () => {
+    if (+inputRef.current.value.slice(-4) >= 2000) {
+      alert('⚠️ Для дат 2000 г. и новее методика может потребовать корректировки.');
+    }
+
     const val = inputRef.current?.value.trim();
     if (!/^\d{8}$/.test(val)) return alert('Введите дату ДДММГГГГ');
     try {
@@ -57,7 +61,12 @@ export default function Dagon() {
         <div className="form">
           <button className="btn"         onClick={()=>setShowKB(v=>!v)}>Введите</button>
           дату рождения (ДДММГГГГ):
-          <input  ref={inputRef} maxLength={8} placeholder="ДДММГГГГ"/>
+          <input
+            ref={inputRef}
+            maxLength={8}
+            placeholder="ДДММГГГГ"
+            onKeyDown={e=>e.key==='Enter'&&calc()}
+          />
           <button className="btn primary" onClick={calc}>Рассчитать</button>
         </div>
 
