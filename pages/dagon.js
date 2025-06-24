@@ -16,7 +16,7 @@ export default function DagonPage () {
     try{
       setErr('');
       const body=new URLSearchParams(); body.append('birthdate',birth);
-      const r=await fetch('https://bankrot.express/calculate2.php',{
+      const r=await fetch('https://bankrot.express/calculate4.php',{
         method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
       if(!r.ok) throw new Error('Сервер недоступен');
       setHtml(await r.text());
